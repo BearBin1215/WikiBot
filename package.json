@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "suffix": "node src/suffix.js",
-    "build": "npx tsc --build"
+    "suffix": "node src/suffix.js"
   },
   "author": "BearBin",
   "license": "MIT",
