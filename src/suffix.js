@@ -1,6 +1,7 @@
 /**
  * 用于更新[[萌娘百科:疑似多余消歧义后缀]]
  */
+"use strict";
 import MWBot from "mwbot";
 import config from "../config/config.js";
 

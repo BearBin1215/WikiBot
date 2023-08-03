@@ -4,7 +4,7 @@
 
 const config = {
     "API_PATH": "https://mzh.moegirl.org.cn/api.php", // api.php地址
-    "API_PATH_CM": "https://commons.moegirl.org.cn/api.php",
+    "CM_API_PATH": "https://commons.moegirl.org.cn/api.php",
     "username": "", // wiki上的用户名
     "password": "", // wiki上的密码
 };
