@@ -1,2 +1,2 @@
 import NSinfo from "../src/utils/siteinfo.js";
-console.log(await NSinfo());
+console.log(await NSinfo.getFromLocal());

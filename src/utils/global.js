@@ -17,7 +17,7 @@ const global = {
      * 
      * @param {string} title 页面名
      * @param {string | number} namespace 英文或数字名字空间
-     * @returns {string} 格式化后的页面名
+     * @returns 格式化后的页面名
      */
     formatter: (title, namespace) => {
         
