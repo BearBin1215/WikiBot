@@ -1,4 +1,4 @@
-import CatReader from "../src/utils/CatReader.js";
+import catReader from "../src/utils/catReader.js";
 import MWBot from "mwbot";
 import config from "../config/config.js";
 
@@ -13,6 +13,6 @@ await bot.loginGetEditToken({
     password: config.password,
 });
 
-bot.catMembers = CatReader.getMembers;
-const a = await bot.catMembers("分类:");
+Object.assign(bot, catReader);
+const a = await bot.getMembers("分类:声优");
 console.log(a);

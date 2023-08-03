@@ -1,16 +1,26 @@
 /**
- * 本模块内容用于提供获取分类相关函数。
+ * 本模块内容用于提供获取分类相关函数
+ * 
+ * 使用本模块导入后，应当使用Object.assin(bot, catReader)并入现有mwbot实例
  */
-import config from "../../config/config";
+import global from "./global.js";
 
-const CatReader = {
+const catReader = {
+    formatter: (title) => title.replace(/^(?:Category:|Cat:|分[类類]:)?(.*)$/i, "Category:$1"),
+
+    /**
+     * 获取指定分类下所有页面
+     * 
+     * @param {string} title 分类名
+     * @returns {Array} 分类成员列表
+     */
     getMembers: async function (title) {
         let cmcontinue = "";
         const pageList = [];
         if(title.length === 0) {
             return [];
         }
-        const cmtitle = title.replace(/^(?:Category:|Cat:|分[类類]:)?(.*)$/i, "Category:$1"); // 格式化分类名
+        const cmtitle = global.formatter(title); // 格式化分类名
         while (cmcontinue !== false) {
             try {
                 const catMembers = await this.request({
@@ -34,6 +44,10 @@ const CatReader = {
         }
         return pageList;
     },
+
+    getSubs: async function (title) {
+
+    },
 };
 
-export default CatReader;
+export default catReader;
