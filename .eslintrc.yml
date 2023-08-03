@@ -4,6 +4,8 @@ env:
   es6: true
   es2021: true
   es2022: true
+ignorePatterns:
+  - disc/
 extends:
   - eslint:recommended
 parserOptions:
@@ -30,3 +32,6 @@ rules:
   no-unused-vars: warn
   spaced-comment:
     - 2
+  linebreak-style:
+    - 0
+    - windows
