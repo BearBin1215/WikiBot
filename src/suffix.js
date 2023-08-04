@@ -112,9 +112,9 @@ bot.loginGetEditToken({
         tags: "Bot",
         token: bot.editToken,
     }).then(() => {
-        console.log(`成功保存到${PAGENAME}`);
+        console.log(`成功保存到[[${PAGENAME}]]`);
     }).catch((err) => {
-        console.error(`保存到${PAGENAME}失败：${err}`);
+        console.error(`保存到[[${PAGENAME}]]失败：${err}`);
     });
 }).catch((err) => {
     console.log(`登录失败：${err}`);

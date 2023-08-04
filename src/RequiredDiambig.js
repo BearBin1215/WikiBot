@@ -83,27 +83,38 @@ bot.loginGetEditToken({
     }
     const TextList = [];
     for (const key in RequiredDisambig) {
+        const value = RequiredDisambig[key];
         if (
-            RequiredDisambig[key].length > 1 &&
-            !(RequiredDisambig[key].length === 2 && RequiredDisambig[key][0].replace(/\((单曲|专辑)\)/, "") === RequiredDisambig[key][1].replace(/\((单曲|专辑)\)/, ""))
+            value.length > 1 &&
+            !(
+                value.length === 2 &&
+                value[0].replace(/\((单曲|专辑)\)/, "") === value[1].replace(/\((单曲|专辑)\)/, "")
+            )
         ) {
-            TextList.push(`;[[${key}]]\n: [[` + RequiredDisambig[key].join("]]\n: [[") + "]]");
+            TextList.push(`;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
         }
     }
 
-    const PAGENAME = "User:BearBin/Sandbox";
+    const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
+    const text =
+        "{{info\n" +
+        "|leftimage=[[File:Nuvola_apps_important_blue.svg|50px|link=萌娘百科:消歧义方针]]\n" +
+        "|仅供参考、慎重处理，别真一个个无脑建过去了。\n" +
+        "}}\n" +
+        TextList.join("\n");
+    console.log("获取完成，即将保存。");
     bot.request({
         action: "edit",
         title: PAGENAME,
-        text: TextList.join("\n"),
-        // summary: "自动更新列表",
+        summary: "自动更新列表",
+        text,
         bot: true,
         tags: "Bot",
         token: bot.editToken,
     }).then(() => {
-        console.log(`成功保存到${PAGENAME}`);
+        console.log(`成功保存到[[${PAGENAME}]]`);
     }).catch((err) => {
-        console.error(`保存到${PAGENAME}失败：${err}`);
+        console.error(`保存到[[${PAGENAME}]]失败：${err}`);
     });
 }).catch((err) => {
     console.log(`登录失败：${err}`);
