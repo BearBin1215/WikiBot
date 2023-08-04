@@ -18,10 +18,10 @@ bot.loginGetEditToken({
     password: config.password,
 }).then(async () => {
     console.log("登录成功。正在获取所有页面……");
+    const PageList = [];
     const AbsentList = [];
     const Suffix2Origin = [];
     const Origin2Suffix = [];
-    const PageList = [];
 
     // 获取所有页面名称，筛选出其中FOO(BAR)存在、FOO不存在的页面
     let apcontinue = "";
@@ -108,7 +108,7 @@ bot.loginGetEditToken({
         action: "edit",
         title: PAGENAME,
         text,
-        summary: "更新列表",
+        summary: "自动更新列表",
         bot: true,
         tags: "Bot",
         token: bot.editToken,

@@ -19,4 +19,4 @@ jobs:
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD}}
-        run: node src/suffix.js
+        run: node src/Suffix.js

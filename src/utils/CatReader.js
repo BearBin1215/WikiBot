@@ -45,6 +45,12 @@ const catReader = {
         return pageList;
     },
 
+    /**
+     * 获取指定分类的子分类
+     * 
+     * @param {string} title 分类名
+     * @returns {Array} 子分类列表
+     */
     getSubs: async function (title) {
 
     },
