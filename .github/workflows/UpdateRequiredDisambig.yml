@@ -1,7 +1,7 @@
 name: 更新可能需要的消歧义页面列表
 on:
   schedule:
-    - cron: 50 19 * * 0 #北京时间每周一凌晨3:50执行
+    - cron: 40 19 * * 1 #北京时间每周二凌晨3:40执行
   workflow_dispatch:
 
 jobs:
