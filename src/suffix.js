@@ -33,7 +33,6 @@ bot.loginGetEditToken({
                 list: "allpages",
                 aplimit: "max",
                 apcontinue,
-                redirects: true,
             });
             apcontinue = allPages.continue ? allPages.continue.apcontinue : false;
             for (const page of allPages.query.allpages) {

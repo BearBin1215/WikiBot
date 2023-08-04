@@ -1,7 +1,7 @@
 /**
  * 本模块内容用于提供获取分类相关函数
  * 
- * 使用本模块导入后，应当使用Object.assin(bot, catReader)并入现有mwbot实例
+ * 使用本模块导入后，应当使用Object.assign(bot, catReader)并入现有mwbot实例
  */
 import global from "./global.js";
 
@@ -20,7 +20,7 @@ const catReader = {
         if(title.length === 0) {
             return [];
         }
-        const cmtitle = global.formatter(title); // 格式化分类名
+        const cmtitle = this.formatter(title); // 格式化分类名
         while (cmcontinue !== false) {
             try {
                 const catMembers = await this.request({
@@ -39,7 +39,7 @@ const catReader = {
                 }
                 cmcontinue = catMembers.continue ? catMembers.continue.cmcontinue : false;
             } catch (err) {
-                console.error(`获取${cmtitle}内页面出错：${err}。`);
+                console.error(`获取${cmtitle}内页面出错：${err}`);
             }
         }
         return pageList;
