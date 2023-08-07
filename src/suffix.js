@@ -39,11 +39,12 @@ bot.loginGetEditToken({
                 PageList.push(page.title);
                 checkedPage++;
             }
-            console.log(`已获取${checkedPage}个页面标题。`);
         } catch (err) {
             console.error(`获取全站主名字空间页面列表出错：${err}`);
         }
     }
+    console.log(`获取到${checkedPage}个页面标题，开始获取重定向页面列表。`);
+
     for (const title of PageList) {
         if (title.slice(-1) === ")" && title[0] !== "(" && (title.indexOf(":") === -1 || title.indexOf(":") > title.indexOf("("))) {
             const titleWithoutSuffix = title.replace(/\(.*\)/, "").trim();
@@ -77,13 +78,14 @@ bot.loginGetEditToken({
                     Origin2Suffix.push(`* [[${item.from}]]→[[${item.to}]]`);
                 }
             }
-            console.log(`已获取${checkedPage}个重定向页面。`);
         } catch (err) {
             console.log(`获取重定向页面时出错：${err}`);
         }
     }
+    console.log(`获取到${checkedPage}个重定向页面。`);
+
     console.log(
-        `重定向页面获取完毕，获取到${AbsentList.length}个多余消歧义后缀页面、` +
+        `共${AbsentList.length}个多余消歧义后缀页面、` +
         `${Suffix2Origin.length}个后缀重定向至无后缀、` +
         `${Origin2Suffix.length}个无后缀重定向至后缀。`,
     );

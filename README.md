@@ -2,9 +2,8 @@
 
 本库保存[BearBin](https://zh.moegirl.org.cn/User:BearBin)的wiki脚本，基于[mwbot](https://github.com/gesinn-it-pub/mwbot)库搭建。
 
-- [阿熊的wiki机器人](#阿熊的wiki机器人)
-  - [使用方式](#使用方式)
-  - [自动任务](#自动任务)
+- [使用方式](#使用方式)
+- [自动任务](#自动任务)
 
 ## 使用方式
 
