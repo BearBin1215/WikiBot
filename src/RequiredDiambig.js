@@ -21,6 +21,7 @@ bot.loginGetEditToken({
     const RequiredDisambig = {};
     try {
         // 获取所有消歧义页标题及其重定向
+        // 理论上如果重定向过多会出现遗漏，但目前应该不可能出现
         let gcmcontinue = "||";
         while (gcmcontinue !== false) {
             const catMembers = await bot.request({
@@ -34,8 +35,8 @@ bot.loginGetEditToken({
             });
             gcmcontinue = catMembers.continue?.gcmcontinue || false;
             for (const item of Object.values(catMembers.query.pages)) {
-                DisambigList.push(item.title.replace("(消歧义页)", ""));
-                for (const rd of item.redirects || []) {
+                DisambigList.push(item.title.replace("(消歧义页)", "")); // 去掉(消歧义页)后缀再加入列表，以免误判
+                for (const rd of item.redirects || []) { // 加入同时获取到的重定向页面
                     DisambigList.push(rd.title);
                 }
             }
@@ -67,7 +68,7 @@ bot.loginGetEditToken({
     }
     // 遍历所有页面标题
     for (const item of PageList) {
-        const SuffixPattern = /^([^:]+)\((.+)\)$/;
+        const SuffixPattern = /^([^:]+)\((.+)\)$/; // 后缀页面规则：以半角括号对结尾，括号前无半角冒号
         const titleWithoutSuffix = item.replace(SuffixPattern, "$1");
         if (
             // SuffixPattern.test(item) && // 标题带有后缀
@@ -87,6 +88,7 @@ bot.loginGetEditToken({
         if (
             value.length > 1 &&
             !(
+                // 有的是歌曲不带后缀、同名唱片带有后缀，排除此类情况
                 value.length === 2 &&
                 value[0].replace(/\((单曲|专辑)\)/, "") === value[1].replace(/\((单曲|专辑)\)/, "")
             )
