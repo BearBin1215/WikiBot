@@ -3,6 +3,10 @@ on:
   schedule:
     - cron: 40 19 * * 0 #北京时间每周一凌晨3:40执行
   workflow_dispatch:
+    inputs:
+      BRANCH:
+        options:
+          - main
 
 jobs:
   update:
