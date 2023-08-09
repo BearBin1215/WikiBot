@@ -4,8 +4,9 @@
   "description": "BearBin's Bot fo MediaWiki",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "suffix": "node src/suffix.js"
+    "Suffix": "node src/Suffix.js",
+    "RequiredDiambig": "node src/RequiredDiambig.js",
+    "FeishuSync": "node src/VN/FeishuSync.js"
   },
   "author": "BearBin",
   "license": "MIT",
