@@ -17,7 +17,7 @@ jobs:
         run: npm ci
       - name: Update action
         env:
-          MW_USERNAME: ${{secrets.MGP_USERNAME_SUB}}
+          MW_USERNAME: ${{secrets.MGP_USERNAME_SUB}} # 这里用小号提交编辑
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_SUB}}
           FEISHU_USER_ACCESS_TOKEN: ${{secrets.FEISHU_USER_ACCESS_TOKEN}}
         run: node src/VN/FeishuSync.js

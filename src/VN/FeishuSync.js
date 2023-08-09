@@ -28,8 +28,9 @@ try {
             Authorization: "Bearer " + config.feishu.user_access_token,
         },
     }).catch((error) => {
-        throw new Error(`获取飞书表格失败：${error}`);
+        throw new Error(`读取飞书统计表失败：${error}`);
     });
+    console.log("读取飞书统计表成功，准备保存至萌百。");
 
     // 处理获取到的内容，生成文本
     const pageList = [];
@@ -60,7 +61,7 @@ bot.loginGetEditToken({
             action: "edit",
             title,
             text,
-            summary: "test",
+            summary: "自动同步自飞书",
             bot: true,
             tags: "Bot",
             token: bot.editToken,
