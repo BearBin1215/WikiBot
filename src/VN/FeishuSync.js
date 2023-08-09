@@ -69,8 +69,8 @@ try {
                 bot: true,
                 tags: "Bot",
                 token: bot.editToken,
-            }).then(() => {
-                console.log(`成功保存到[[${title}]]`);
+            }).then((res) => {
+                console.log(`成功保存到[[${title}]]${res.edit.nochange === "" ? "，页面无变化。" : ""}。`);
             }).catch((error) => {
                 throw new Error(`保存到[[${title}]]失败：${error}`);
             });
