@@ -19,8 +19,8 @@ const config = {
 // 自动更新用
 import dotenv from "dotenv";
 dotenv.config();
-config.username = process.env.MW_USERNAME_SUB || config.username;
-config.password = process.env.MW_PASSWORD_SUB || config.password;
+config.username = process.env.MW_USERNAME || config.username;
+config.password = process.env.MW_PASSWORD || config.password;
 
 config.feishu.App_ID = process.env.FEISHU_APP_ID || config.feishu.App_ID;
 config.feishu.App_Secret = process.env.FEISHU_APP_SECRET || config.feishu.App_Secret;

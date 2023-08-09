@@ -12,7 +12,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
-      - run: echo "开始更新飞书统计表至"
+      - run: echo "开始更新飞书Galgame统计表至萌百"
       - name: Install dependencies
         run: npm ci
       - name: Update action
