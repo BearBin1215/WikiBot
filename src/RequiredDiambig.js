@@ -43,7 +43,8 @@ bot.loginGetEditToken({
         }
         console.log(`获取到${DisambigList.length}个消歧义页面及其重定向，开始获取所有条目标题。`);
     } catch (err) {
-        console.error(err);
+        console.error(`获取消歧义页面列表出错：${err}`);
+        return;
     }
 
     // 检查标题可能需要消歧义的所有条目（排除重定向）
