@@ -19,6 +19,10 @@ rules:
   quotes:
     - 2
     - double
+  quote-props:
+    - 2
+    - as-needed
+    - unnecessary: true
   semi:
     - 2
     - always
