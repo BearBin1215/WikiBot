@@ -46,33 +46,33 @@ try {
         pageList.push(`#{{lj|${ja}}}→[[${pagename}]]`);
     }
     text = "{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n" + pageList.join("\n");
+
+    // 机器人登录并提交编辑
+    bot.loginGetEditToken({
+        username: config.username,
+        password: config.password,
+    }).then(() => {
+        try {
+            const title = "User:柏喙意志/Gal条目表";
+            bot.request({
+                action: "edit",
+                title,
+                text,
+                summary: "自动同步自飞书",
+                bot: true,
+                tags: "Bot",
+                token: bot.editToken,
+            }).then(() => {
+                console.log(`成功保存到[[${title}]]`);
+            }).catch((error) => {
+                throw new Error(`保存到[[${title}]]失败：${error}`);
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }).catch((error) => {
+        console.error(`登录失败：${error}`);
+    });
 } catch (err) {
     console.error(err);
 }
-
-// 机器人登录并提交编辑
-bot.loginGetEditToken({
-    username: config.username,
-    password: config.password,
-}).then(() => {
-    try {
-        const title = "User:柏喙意志/Gal条目表";
-        bot.request({
-            action: "edit",
-            title,
-            text,
-            summary: "自动同步自飞书",
-            bot: true,
-            tags: "Bot",
-            token: bot.editToken,
-        }).then(() => {
-            console.log(`成功保存到[[${title}]]`);
-        }).catch((error) => {
-            throw new Error(`保存到[[${title}]]失败：${error}`);
-        });
-    } catch (error) {
-        console.error(error);
-    }
-}).catch((error) => {
-    console.error(`登录失败：${error}`);
-});
