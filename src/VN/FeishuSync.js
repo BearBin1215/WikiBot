@@ -38,11 +38,11 @@ try {
         if (!item[0]) {
             break;
         }
-        if (pageList.length % 100 === 0) {
+        if (pageList.length % 101 === 0) {
             pageList.push(`\n== ${pageList.length + 1}～${pageList.length + 100} ==`);
         }
-        const ja = item[0].replace("\n", "").trim();
-        const pagename = item[1]?.replace("\n", "").trim() || ja;
+        const ja = item[0].replaceAll("\n", "").trim();
+        const pagename = item[1]?.replaceAll("\n", "").trim() || ja;
         pageList.push(`#{{lj|${ja}}}→[[${pagename}]]`);
     }
     text = "{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n" + pageList.join("\n");
