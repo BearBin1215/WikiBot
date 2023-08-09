@@ -19,5 +19,6 @@ jobs:
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_SUB}} # 这里用小号提交编辑
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_SUB}}
-          FEISHU_USER_ACCESS_TOKEN: ${{secrets.FEISHU_USER_ACCESS_TOKEN}}
+          FEISHU_APP_ID: ${{secrets.FEISHU_APP_ID}}
+          FEISHU_APP_SECRET: ${{secrets.FEISHU_APP_SECRET}}
         run: node src/VN/FeishuSync.js

@@ -1,6 +1,7 @@
 import axios from "axios";
 import MWBot from "mwbot";
-import config from "./config.js";
+import config from "./config/config.js";
+import getTenantAccessToken from "./config/GetFeishuToken.js";
 
 // 飞书表格相关信息
 const TableInfo = {
@@ -10,22 +11,21 @@ const TableInfo = {
     range: "!A2:B", // 从第2行起，获取A、B列内容（原名、译名）
 };
 
-// MWBot实例
-const bot = new MWBot({
-    apiUrl: config.API_PATH,
-}, {
-    timeout: 30000,
-});
-
 let text;
 try {
+    // 获取TenantAccessToken
+    const AccessToken = await getTenantAccessToken().catch((error) => {
+        throw new Error(`获取TenantAccessToken失败：${error}`);
+    });
+    console.log("获取TenantAccessToken成功，开始获取表格内容。");
+
     // 获取表格内容
     const response = await axios({
         method: "GET",
         url: TableInfo.baseURL + TableInfo.spreadsheetToken + "/values/" + TableInfo.sheetId + TableInfo.range,
         headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + config.feishu.user_access_token,
+            Authorization: "Bearer " + AccessToken,
         },
     }).catch((error) => {
         throw new Error(`读取飞书统计表失败：${error}`);
@@ -47,6 +47,13 @@ try {
     }
     text = "{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n" + pageList.join("\n");
 
+
+    // MWBot实例
+    const bot = new MWBot({
+        apiUrl: config.API_PATH,
+    }, {
+        timeout: 30000,
+    });
     // 机器人登录并提交编辑
     bot.loginGetEditToken({
         username: config.username,
