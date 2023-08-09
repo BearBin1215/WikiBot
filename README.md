@@ -20,7 +20,11 @@
 
 相关任务均通过[GitHub Actions](https://github.com/BearBin1215/WikiBot/actions)执行。
 
+如无特殊说明，均为北京时间（UTC+8）。
+
 1. 更新[疑似多余消歧义后缀列表](https://zh.moegirl.org.cn/_?curid=571484)
-    - 每周一凌晨3:40（北京时间）执行，用时约2min
+    - 每周一凌晨3:40执行，用时约2min
 2. 更新[可能需要创建的消歧义页面](https://zh.moegirl.org.cn/_?curid=571693)
-    - 每周二凌晨3:40（北京时间）执行，用时约2min
+    - 每周二凌晨3:40执行，用时约2min
+3. 从飞书在线文档同步至站内[日本Galgame条目表](https://zh.moegirl.org.cn/_?curid=544226)
+    - 每周三、六凌晨3:40执行，用时约30s
