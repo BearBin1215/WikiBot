@@ -45,7 +45,7 @@ try {
         const pagename = item[1]?.replace("\n", "").trim() || ja;
         pageList.push(`#{{lj|${ja}}}→[[${pagename}]]`);
     }
-    text = "本页面由机器人自动更新。\n" + pageList.join("\n");
+    text = "{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n" + pageList.join("\n");
 } catch (err) {
     console.error(err);
 }
@@ -56,7 +56,7 @@ bot.loginGetEditToken({
     password: config.password,
 }).then(() => {
     try {
-        const title = "User:BearBin/Sandbox";
+        const title = "User:柏喙意志/Gal条目表";
         bot.request({
             action: "edit",
             title,
