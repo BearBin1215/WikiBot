@@ -34,7 +34,7 @@ bot.loginGetEditToken({
                 aplimit: "max",
                 apcontinue,
             });
-            apcontinue = allPages.continue ? allPages.continue.apcontinue : false;
+            apcontinue = allPages.continue?.apcontinue || false;
             for (const page of allPages.query.allpages) {
                 PageList.push(page.title);
                 checkedPage++;
@@ -66,7 +66,7 @@ bot.loginGetEditToken({
                 garlimit: "max",
                 garcontinue,
             });
-            garcontinue = allRedirects.continue ? allRedirects.continue.garcontinue : false;
+            garcontinue = allRedirects.continue?.garcontinue || false;
             for (const item of Object.values(allRedirects.query.redirects)) {
                 checkedPage++;
                 // 后缀重定向至无后缀

@@ -59,7 +59,7 @@ bot.loginGetEditToken({
                 apcontinue,
                 apfilterredir: "nonredirects",
             });
-            apcontinue = allPages.continue ? allPages.continue.apcontinue : false;
+            apcontinue = allPages.continue?.apcontinue || false;
             for (const page of allPages.query.allpages) {
                 PageList.push(page.title);
             }
@@ -76,11 +76,8 @@ bot.loginGetEditToken({
             // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
             !DisambigList.includes(titleWithoutSuffix) // 去掉后缀后的页面不是消歧义页
         ) {
-            if (RequiredDisambig[titleWithoutSuffix]) {
-                RequiredDisambig[titleWithoutSuffix].push(item);
-            } else {
-                RequiredDisambig[titleWithoutSuffix] = [item];
-            }
+            RequiredDisambig[titleWithoutSuffix] ||= [];
+            RequiredDisambig[titleWithoutSuffix].push(item);
         }
     }
     const TextList = [];
