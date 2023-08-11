@@ -1,87 +1,101 @@
-/**
- * 获取需要建立的消歧义页面
- */
-"use strict";
 import MWBot from "mwbot";
 import config from "../config/config.js";
 
-// 根据API_PATH创建实例，设置30s超时
 const bot = new MWBot({
     apiUrl: config.API_PATH,
 }, {
     timeout: 30000,
 });
 
-// 登录
-bot.loginGetEditToken({
-    username: config.username,
-    password: config.password,
-}).then(async () => {
-    const DisambigList = [];
-    const RequiredDisambig = {};
+/**
+ * 登录
+ */
+const login = async () => {
     try {
-        // 获取所有消歧义页标题及其重定向
-        // 理论上如果重定向过多会出现遗漏，但目前应该不可能出现
-        let gcmcontinue = "||";
-        while (gcmcontinue !== false) {
-            const catMembers = await bot.request({
-                action: "query",
-                generator: "categorymembers",
-                prop: "redirects",
-                gcmlimit: "max",
-                rdlimit: "max",
-                gcmtitle: "Category:消歧义页",
-                gcmcontinue,
-            });
-            gcmcontinue = catMembers.continue?.gcmcontinue || false;
-            for (const item of Object.values(catMembers.query.pages)) {
-                DisambigList.push(item.title.replace("(消歧义页)", "")); // 去掉(消歧义页)后缀再加入列表，以免误判
-                for (const rd of item.redirects || []) { // 加入同时获取到的重定向页面
-                    DisambigList.push(rd.title);
-                }
+        await bot.loginGetEditToken({
+            username: config.username,
+            password: config.password,
+        });
+    } catch (err) {
+        throw new Error(`登录失败：${err}`);
+    }
+};
+
+/**
+ * 获取所有消歧义页标题及其重定向
+ * @returns {Promise<Set<string>>} 消歧义页标题及其重定向列表
+ */
+const getDisambigList = async () => {
+    const DisambigList = new Set();
+    let gcmcontinue = "||";
+    while (gcmcontinue !== false) {
+        const catMembers = await bot.request({
+            action: "query",
+            generator: "categorymembers",
+            prop: "redirects",
+            gcmlimit: "max",
+            rdlimit: "max",
+            gcmtitle: "Category:消歧义页",
+            gcmcontinue,
+        });
+        gcmcontinue = catMembers.continue?.gcmcontinue || false;
+        for (const item of Object.values(catMembers.query.pages)) {
+            DisambigList.add(item.title.replace("(消歧义页)", "")); // 去掉(消歧义页)后缀再加入列表，以免误判
+            for (const rd of item.redirects || []) { // 加入同时获取到的重定向页面
+                DisambigList.add(rd.title);
             }
         }
-        console.log(`获取到${DisambigList.length}个消歧义页面及其重定向，开始获取所有条目标题。`);
-    } catch (err) {
-        console.error(`获取消歧义页面列表出错：${err}`);
-        return;
     }
+    console.log(`获取到\x1B[4m${DisambigList.size}\x1B[0m个消歧义页面及其重定向，开始获取所有条目标题。`);
+    return DisambigList;
+};
 
-    // 检查标题可能需要消歧义的所有条目（排除重定向）
+/**
+ * 获取所有条目标题（排除重定向）
+ * @returns {Promise<string[]>} 所有条目标题列表
+ */
+const getPageList = async () => {
     const PageList = [];
     let apcontinue = "";
     while (apcontinue !== false) {
-        try {
-            const allPages = await bot.request({
-                action: "query",
-                list: "allpages",
-                aplimit: "max",
-                apcontinue,
-                apfilterredir: "nonredirects",
-            });
-            apcontinue = allPages.continue?.apcontinue || false;
-            for (const page of allPages.query.allpages) {
-                PageList.push(page.title);
-            }
-        } catch (err) {
-            console.error(`获取全站主名字空间页面列表出错：${err}`);
+        const allPages = await bot.request({
+            action: "query",
+            list: "allpages",
+            aplimit: "max",
+            apcontinue,
+            apfilterredir: "nonredirects",
+        });
+        apcontinue = allPages.continue?.apcontinue || false;
+        for (const page of allPages.query.allpages) {
+            PageList.push(page.title);
         }
     }
+    return PageList;
+};
+
+/**
+ * 获取需要建立的消歧义页面
+ * @param {Set<string>} DisambigList 消歧义页标题及其重定向列表
+ * @param {string[]} PageList 所有条目标题列表
+ * @returns {string[]} 需要建立的消歧义页面列表
+ */
+const getRequiredDisambig = (DisambigList, PageList) => {
+    const RequiredDisambig = {};
     // 遍历所有页面标题
     for (const item of PageList) {
         const SuffixPattern = /^([^:]+)\((.+)\)$/; // 后缀页面规则：以半角括号对结尾，括号前无半角冒号
         const titleWithoutSuffix = item.replace(SuffixPattern, "$1");
         if (
-            // SuffixPattern.test(item) && // 标题带有后缀
-            // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
-            !DisambigList.includes(titleWithoutSuffix) // 去掉后缀后的页面不是消歧义页
+        // SuffixPattern.test(item) && // 标题带有后缀
+        // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
+            !DisambigList.has(titleWithoutSuffix) // 去掉后缀后的页面不是消歧义页
         ) {
             RequiredDisambig[titleWithoutSuffix] ||= [];
             RequiredDisambig[titleWithoutSuffix].push(item);
         }
     }
     // eslint-disable-next-line no-unused-vars
-    const TextList = Object.entries(RequiredDisambig).filter(([_key, value]) => {
+    return Object.entries(RequiredDisambig).filter(([_key, value]) => {
         return (
             value.length > 1 &&
             !(
@@ -90,16 +104,14 @@ bot.loginGetEditToken({
             )
         );
     }).map(([key, value]) => `;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
+};
 
-
-    const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
-    const text =
-        "{{info\n" +
-        "|leftimage=[[File:Nuvola_apps_important_blue.svg|50px|link=萌娘百科:消歧义方针]]\n" +
-        "|仅供参考、慎重处理，别真一个个无脑建过去了。\n" +
-        "}}\n" +
-        TextList.join("\n");
-    console.log("获取完成，即将保存。");
+/**
+ * 保存到指定页面
+ * @param {string} text 要保存的文本
+ * @param {string} PAGENAME 要保存到的页面标题
+ */
+const saveToPage = (text, PAGENAME) => {
     bot.request({
         action: "edit",
         title: PAGENAME,
@@ -113,6 +125,41 @@ bot.loginGetEditToken({
     }).catch((err) => {
         console.error(`保存到[[${PAGENAME}]]失败：${err}`);
     });
-}).catch((err) => {
-    console.log(`登录失败：${err}`);
+};
+
+/**
+ * 主函数
+ */
+const main = async (retryCount = 5) => {
+    // 登录
+    await login();
+
+    let DisambigList;
+    let PageList;
+    let TextList;
+    let retries = 0;
+    while (retries < retryCount) {
+        try {
+            [DisambigList, PageList] = await Promise.all([getDisambigList(), getPageList()]);
+            TextList = getRequiredDisambig(DisambigList, PageList);
+            break;
+        } catch (err) {
+            console.error(`获取数据出错，正在重试（${retries + 1}/${retryCount}）：${err}`);
+            retries++;
+        }
+    }
+
+    const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
+    const text =
+        "{{info\n" +
+        "|leftimage=[[File:Nuvola_apps_important_blue.svg|50px|link=萌娘百科:消歧义方针]]\n" +
+        "|仅供参考、慎重处理，别真一个个无脑建过去了。\n" +
+        "}}\n" +
+        TextList.join("\n");
+    console.log("获取完成，即将保存。");
+    saveToPage(text, PAGENAME);
+};
+
+main(5).catch((err) => {
+    console.log(err);
 });

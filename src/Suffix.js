@@ -28,7 +28,7 @@ async function login() {
 
 /**
  * 获取所有页面标题
- * @returns 页面列表
+ * @returns {Promise<string[]>} 页面列表
  */
 const getAllPages = async () => {
     const PageList = new Set();
@@ -54,8 +54,8 @@ const getAllPages = async () => {
 
 /**
  * 根据页面列表分析出多余的消歧义后缀
- * @param {Array} PageList 页面列表
- * @returns 疑似多余消歧义后缀列表
+ * @param {string[]} PageList 页面列表
+ * @returns {Promise<string[]>} 疑似多余消歧义后缀列表
  */
 const getAbsentList = async (PageList) => {
     const AbsentList = [];
@@ -107,9 +107,9 @@ const getRedirects = async () => {
 
 /**
  * 编辑保存
- * @param {Array} AbsentList 后缀存在、无后缀不存在的标题列表
- * @param {Array} Suffix2Origin 有后缀重定向到无后缀列表
- * @param {Array} Origin2Suffix 无后缀重定向到有后缀列表
+ * @param {string[]} AbsentList 后缀存在、无后缀不存在的标题列表
+ * @param {string[]} Suffix2Origin 有后缀重定向到无后缀列表
+ * @param {string[]} Origin2Suffix 无后缀重定向到有后缀列表
  */
 const updatePage = async (AbsentList, Suffix2Origin, Origin2Suffix) => {
     const PAGENAME = "萌娘百科:疑似多余消歧义后缀";
@@ -138,16 +138,15 @@ const updatePage = async (AbsentList, Suffix2Origin, Origin2Suffix) => {
             tags: "Bot",
             token: bot.editToken,
         });
-        console.log(`成功保存到[[${PAGENAME}]]。`);
+        console.log(`成功保存到\x1B[4m[[${PAGENAME}]]\x1B[0m。`);
     } catch (err) {
-        console.error(`保存到[[${PAGENAME}]]失败：${err}`);
+        console.error(`保存到\x1B[4m[[${PAGENAME}]]\x1B[0m失败：${err}`);
     }
 };
 
 /**
  * 主函数
  * @param {number} retryCount 重试次数
- * @returns 
  */
 const main = async (retryCount = 5) => {
     let retries = 0;
@@ -158,10 +157,10 @@ const main = async (retryCount = 5) => {
 
             const PageList = await getAllPages();
             const AbsentList = await getAbsentList(PageList);
-            console.log(`获取到${AbsentList.length}个疑似多余的消歧义后缀页面。`);
+            console.log(`获取到\x1B[4m${AbsentList.length}\x1B[0m个疑似多余的消歧义后缀页面。`);
 
             const [Suffix2Origin, Origin2Suffix] = await getRedirects();
-            console.log(`获取到${Suffix2Origin.length}个后缀重定向至无后缀，${Origin2Suffix.length}个无后缀重定向至后缀。`);
+            console.log(`获取到\x1B[4m${Suffix2Origin.length}\x1B[0m个后缀重定向至无后缀，\x1B[4m${Origin2Suffix.length}\x1B[0m个无后缀重定向至后缀。`);
 
             await updatePage(AbsentList, Suffix2Origin, Origin2Suffix);
             return;
