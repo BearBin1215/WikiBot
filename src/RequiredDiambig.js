@@ -111,7 +111,8 @@ const getRequiredDisambig = (DisambigList, PageList) => {
  * @param {string} text 要保存的文本
  * @param {string} PAGENAME 要保存到的页面标题
  */
-const saveToPage = (text, PAGENAME) => {
+const updatePage = (text) => {
+    const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
     bot.request({
         action: "edit",
         title: PAGENAME,
@@ -133,14 +134,11 @@ const saveToPage = (text, PAGENAME) => {
 const main = async (retryCount = 5) => {
     // 登录
     await login();
-
-    let DisambigList;
-    let PageList;
     let TextList;
     let retries = 0;
     while (retries < retryCount) {
         try {
-            [DisambigList, PageList] = await Promise.all([getDisambigList(), getPageList()]);
+            const [DisambigList, PageList] = await Promise.all([getDisambigList(), getPageList()]);
             TextList = getRequiredDisambig(DisambigList, PageList);
             break;
         } catch (err) {
@@ -148,16 +146,15 @@ const main = async (retryCount = 5) => {
             retries++;
         }
     }
+    console.log("获取完成，即将保存。");
 
-    const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
     const text =
         "{{info\n" +
         "|leftimage=[[File:Nuvola_apps_important_blue.svg|50px|link=萌娘百科:消歧义方针]]\n" +
         "|仅供参考、慎重处理，别真一个个无脑建过去了。\n" +
         "}}\n" +
         TextList.join("\n");
-    console.log("获取完成，即将保存。");
-    saveToPage(text, PAGENAME);
+    updatePage(text);
 };
 
 main(5).catch((err) => {
