@@ -12,20 +12,27 @@ const bot = new MWBot({
     timeout: 30000,
 });
 
-// 登录
-bot.loginGetEditToken({
-    username: config.username,
-    password: config.password,
-}).then(async () => {
-    console.log("登录成功。正在获取所有页面……");
-    const PageList = [];
-    const AbsentList = [];
-    const Suffix2Origin = [];
-    const Origin2Suffix = [];
+/**
+ * 登录
+ */
+async function login() {
+    try {
+        await bot.loginGetEditToken({
+            username: config.username,
+            password: config.password,
+        });
+    } catch (err) {
+        throw new Error(`登录失败：${err}`);
+    }
+}
 
-    // 获取所有页面名称，筛选出其中FOO(BAR)存在、FOO不存在的页面
+/**
+ * 获取所有页面标题
+ * @returns 页面列表
+ */
+const getAllPages = async () => {
+    const PageList = new Set();
     let apcontinue = "";
-    let checkedPage = 0;
     while (apcontinue !== false) {
         try {
             const allPages = await bot.request({
@@ -36,27 +43,41 @@ bot.loginGetEditToken({
             });
             apcontinue = allPages.continue?.apcontinue || false;
             for (const page of allPages.query.allpages) {
-                PageList.push(page.title);
-                checkedPage++;
+                PageList.add(page.title);
             }
         } catch (err) {
             console.error(`获取全站主名字空间页面列表出错：${err}`);
         }
     }
-    console.log(`获取到${checkedPage}个页面标题，开始获取重定向页面列表。`);
+    return PageList;
+};
 
+/**
+ * 根据页面列表分析出多余的消歧义后缀
+ * @param {Array} PageList 页面列表
+ * @returns 疑似多余消歧义后缀列表
+ */
+const getAbsentList = async (PageList) => {
+    const AbsentList = [];
     for (const title of PageList) {
         if (title.slice(-1) === ")" && title[0] !== "(" && (title.indexOf(":") === -1 || title.indexOf(":") > title.indexOf("("))) {
             const titleWithoutSuffix = title.replace(/\(.*\)/, "").trim();
-            if (!PageList.includes(titleWithoutSuffix)) {
+            if (!PageList.has(titleWithoutSuffix)) {
                 AbsentList.push(`* [[${title}]]→[[${titleWithoutSuffix}]]`);
             }
         }
     }
+    return AbsentList;
+};
 
-    // 获取所有重定向页面内容，根据其重定向目标筛选剩下两种情况
+/**
+ * 获取全站重定向页面列表，分析得到后缀重定向至无后缀和无后缀重定向至后缀
+ * @returns [ 后缀重定向至无后缀, 无后缀重定向至后缀 ]
+ */
+const getRedirects = async () => {
+    const Suffix2Origin = [];
+    const Origin2Suffix = [];
     let garcontinue = "|";
-    checkedPage = 0;
     while (garcontinue !== false) {
         try {
             const allRedirects = await bot.request({
@@ -68,7 +89,6 @@ bot.loginGetEditToken({
             });
             garcontinue = allRedirects.continue?.garcontinue || false;
             for (const item of Object.values(allRedirects.query.redirects)) {
-                checkedPage++;
                 // 后缀重定向至无后缀
                 if(item.from.replace(/^(.*)\(.*\)$/, "$1") === item.to) {
                     Suffix2Origin.push(`* [[${item.from}]]→[[${item.to}]]`);
@@ -82,14 +102,16 @@ bot.loginGetEditToken({
             console.log(`获取重定向页面时出错：${err}`);
         }
     }
-    console.log(`获取到${checkedPage}个重定向页面。`);
+    return [Suffix2Origin, Origin2Suffix];
+};
 
-    console.log(
-        `共${AbsentList.length}个多余消歧义后缀页面、` +
-        `${Suffix2Origin.length}个后缀重定向至无后缀、` +
-        `${Origin2Suffix.length}个无后缀重定向至后缀。`,
-    );
-
+/**
+ * 编辑保存
+ * @param {Array} AbsentList 后缀存在、无后缀不存在的标题列表
+ * @param {Array} Suffix2Origin 有后缀重定向到无后缀列表
+ * @param {Array} Origin2Suffix 无后缀重定向到有后缀列表
+ */
+const updatePage = async (AbsentList, Suffix2Origin, Origin2Suffix) => {
     const PAGENAME = "萌娘百科:疑似多余消歧义后缀";
     const text =
         "本页面列举疑似多余的消歧义后缀，分为三类：\n" +
@@ -106,19 +128,52 @@ bot.loginGetEditToken({
         Origin2Suffix.join("\n") +
         "\n\n[[Category:萌娘百科数据报告]][[Category:积压工作]]";
 
-    bot.request({
-        action: "edit",
-        title: PAGENAME,
-        text,
-        summary: "自动更新列表",
-        bot: true,
-        tags: "Bot",
-        token: bot.editToken,
-    }).then(() => {
-        console.log(`成功保存到[[${PAGENAME}]]`);
-    }).catch((err) => {
+    try {
+        await bot.request({
+            action: "edit",
+            title: PAGENAME,
+            text,
+            summary: "自动更新列表",
+            bot: true,
+            tags: "Bot",
+            token: bot.editToken,
+        });
+        console.log(`成功保存到[[${PAGENAME}]]。`);
+    } catch (err) {
         console.error(`保存到[[${PAGENAME}]]失败：${err}`);
-    });
-}).catch((err) => {
-    console.log(`登录失败：${err}`);
+    }
+};
+
+/**
+ * 主函数
+ * @param {number} retryCount 重试次数
+ * @returns 
+ */
+const main = async (retryCount = 5) => {
+    let retries = 0;
+    while (retries < retryCount) {
+        try {
+            await login();
+            console.log("登录成功。正在获取所有页面……");
+
+            const PageList = await getAllPages();
+            const AbsentList = await getAbsentList(PageList);
+            console.log(`获取到${AbsentList.length}个疑似多余的消歧义后缀页面。`);
+
+            const [Suffix2Origin, Origin2Suffix] = await getRedirects();
+            console.log(`获取到${Suffix2Origin.length}个后缀重定向至无后缀，${Origin2Suffix.length}个无后缀重定向至后缀。`);
+
+            await updatePage(AbsentList, Suffix2Origin, Origin2Suffix);
+            return;
+        } catch (err) {
+            console.error(`运行出错：${err}`);
+            retries++;
+        }
+    }
+    throw new Error(`运行失败：已连续尝试${retryCount}次。`);
+};
+
+// 最大尝试次数5
+main(5).catch((err) => {
+    console.log(err);
 });
