@@ -80,7 +80,8 @@ bot.loginGetEditToken({
             RequiredDisambig[titleWithoutSuffix].push(item);
         }
     }
-    const TextList = Object.entries(RequiredDisambig).filter(([key, value]) => {
+    // eslint-disable-next-line no-unused-vars
+    const TextList = Object.entries(RequiredDisambig).filter(([_key, value]) => {
         return (
             value.length > 1 &&
             !(

@@ -31,7 +31,11 @@ rules:
   comma-dangle:
     - 2
     - always-multiline
-  no-unused-vars: warn
+  no-unused-vars:
+    - 1
+    - varsIgnorePattern: ^_
+  no-redeclare:
+    - 1
   spaced-comment:
     - 2
   linebreak-style:
