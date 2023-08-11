@@ -21,8 +21,8 @@ async function login() {
             username: config.username,
             password: config.password,
         });
-    } catch (err) {
-        throw new Error(`登录失败：${err}`);
+    } catch (error) {
+        throw new Error(`登录失败：${error}`);
     }
 }
 
@@ -45,8 +45,8 @@ const getAllPages = async () => {
             for (const page of allPages.query.allpages) {
                 PageList.add(page.title);
             }
-        } catch (err) {
-            console.error(`获取全站主名字空间页面列表出错：${err}`);
+        } catch (error) {
+            throw new Error(`获取全站主名字空间页面列表出错：${error}`);
         }
     }
     return PageList;
@@ -98,8 +98,8 @@ const getRedirects = async () => {
                     Origin2Suffix.push(`* [[${item.from}]]→[[${item.to}]]`);
                 }
             }
-        } catch (err) {
-            console.log(`获取重定向页面时出错：${err}`);
+        } catch (error) {
+            throw new Error(`获取重定向页面时出错：${error}`);
         }
     }
     return [Suffix2Origin, Origin2Suffix];
@@ -139,8 +139,8 @@ const updatePage = async (AbsentList, Suffix2Origin, Origin2Suffix) => {
             token: bot.editToken,
         });
         console.log(`成功保存到\x1B[4m[[${PAGENAME}]]\x1B[0m。`);
-    } catch (err) {
-        console.error(`保存到\x1B[4m[[${PAGENAME}]]\x1B[0m失败：${err}`);
+    } catch (error) {
+        throw new Error(`保存到\x1B[4m[[${PAGENAME}]]\x1B[0m失败：${error}`);
     }
 };
 
@@ -164,8 +164,8 @@ const main = async (retryCount = 5) => {
 
             await updatePage(AbsentList, Suffix2Origin, Origin2Suffix);
             return;
-        } catch (err) {
-            console.error(`运行出错：${err}`);
+        } catch (error) {
+            console.error(`获取数据出错，正在重试（${retries + 1}/${retryCount}）：${error}`);
             retries++;
         }
     }
@@ -173,6 +173,6 @@ const main = async (retryCount = 5) => {
 };
 
 // 最大尝试次数5
-main(5).catch((err) => {
-    console.log(err);
+main(5).catch((error) => {
+    console.error(error);
 });
