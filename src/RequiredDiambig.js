@@ -80,20 +80,16 @@ bot.loginGetEditToken({
             RequiredDisambig[titleWithoutSuffix].push(item);
         }
     }
-    const TextList = [];
-    for (const key in RequiredDisambig) {
-        const value = RequiredDisambig[key];
-        if (
+    const TextList = Object.entries(RequiredDisambig).filter(([key, value]) => {
+        return (
             value.length > 1 &&
             !(
-                // 有的是歌曲不带后缀、同名唱片带有后缀，排除此类情况
                 value.length === 2 &&
                 value[0].replace(/\((单曲|专辑)\)/, "") === value[1].replace(/\((单曲|专辑)\)/, "")
             )
-        ) {
-            TextList.push(`;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
-        }
-    }
+        );
+    }).map(([key, value]) => `;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
+
 
     const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
     const text =
