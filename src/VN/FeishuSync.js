@@ -11,8 +11,11 @@ const TableInfo = {
     range: "!A2:B", // 从第2行起，获取A、B列内容（原名、译名）
 };
 
-let text;
-try {
+/**
+ * 获取飞书表格内容
+ * @returns 返回的飞书表格内容
+ */
+const getTableContent = async () => {
     // 获取TenantAccessToken
     const AccessToken = await getTenantAccessToken().catch((error) => {
         throw new Error(`获取TenantAccessToken失败：${error}`);
@@ -30,8 +33,17 @@ try {
     }).catch((error) => {
         throw new Error(`读取飞书统计表失败：${error}`);
     });
-    console.log("读取飞书统计表成功，准备保存至萌百。");
+    console.log("读取飞书统计表成功。");
 
+    return values;
+};
+
+/**
+ * 用表格内容生成wikitext
+ * @param {Object} values 读取的飞书表格内容
+ * @returns wikitext
+ */
+const generateText = async (values) => {
     // 处理获取到的内容，生成文本
     const pageList = [];
     for (let i = 0; i < values.length; i++) {
@@ -45,8 +57,14 @@ try {
         const pagename = values[i][1]?.replaceAll("\n", "").trim() || ja;
         pageList.push(`#{{lj|${ja}}}→[[${pagename}]]`);
     }
-    text = "{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n" + pageList.join("\n");
+    return "{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n" + pageList.join("\n");
+};
 
+/**
+ * 提交编辑
+ * @param {string} text wikitext
+ */
+const updatePage = async (text) => {
     // MWBot实例
     const bot = new MWBot({
         apiUrl: config.API_PATH,
@@ -54,31 +72,48 @@ try {
         timeout: 30000,
     });
     // 机器人登录并提交编辑
-    bot.loginGetEditToken({
-        username: config.username,
-        password: config.password,
-    }).then(() => {
+    try {
+        await bot.loginGetEditToken({
+            username: config.username,
+            password: config.password,
+        });
+        console.log("登录成功。准备保存至萌百。");
+        const title = "User:柏喙意志/Gal条目表";
+        await bot.request({
+            action: "edit",
+            title,
+            text,
+            summary: "自动同步自飞书",
+            bot: true,
+            tags: "Bot",
+            token: bot.editToken,
+        });
+        console.log(`成功保存到[[${title}]]。`);
+    } catch (err) {
+        throw new Error(`登录或保存失败：${err}`);
+    }
+};
+
+/**
+ * 主函数
+ * @param {number} retryCount 重试次数
+ */
+const mainWithRetry = async (retryCount = 5) => {
+    let retries = 0;
+    while (retries < retryCount) {
         try {
-            const title = "User:柏喙意志/Gal条目表";
-            bot.request({
-                action: "edit",
-                title,
-                text,
-                summary: "自动同步自飞书",
-                bot: true,
-                tags: "Bot",
-                token: bot.editToken,
-            }).then((res) => {
-                console.log(`成功保存到[[${title}]]${res.edit.nochange === "" ? "，页面无变化" : ""}。`);
-            }).catch((error) => {
-                throw new Error(`保存到[[${title}]]失败：${error}`);
-            });
-        } catch (error) {
-            console.error(error);
+            const values = await getTableContent();
+            const text = await generateText(values);
+            await updatePage(text);
+            return;
+        } catch (err) {
+            console.log(`运行出错：${err}`);
+            retries++;
         }
-    }).catch((error) => {
-        console.error(`登录失败：${error}`);
-    });
-} catch (err) {
+    }
+    throw new Error(`运行失败：连续尝试 ${retryCount} 次仍然失败`);
+};
+
+mainWithRetry(5).catch((err) => {
     console.error(err);
-}
+});
