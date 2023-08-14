@@ -10,13 +10,13 @@ const bot = new MWBot({
 
 /**
  * 获取所有消歧义页标题及其重定向
- * @returns {Promise<Set<string>>} 消歧义页标题及其重定向列表
+ * @returns {Promise<string[]>} 消歧义页标题及其重定向列表
  */
 const getDisambigList = async () => {
     try {
-        const DisambigList = new Set();
+        const DisambigList = [];
         let gcmcontinue = "||";
-        while (gcmcontinue !== false) {
+        while (gcmcontinue !== undefined) {
             const catMembers = await bot.request({
                 action: "query",
                 generator: "categorymembers",
@@ -26,15 +26,15 @@ const getDisambigList = async () => {
                 gcmtitle: "Category:消歧义页",
                 gcmcontinue,
             });
-            gcmcontinue = catMembers.continue?.gcmcontinue || false;
+            gcmcontinue = catMembers.continue?.gcmcontinue;
             for (const item of Object.values(catMembers.query.pages)) {
-                DisambigList.add(item.title);
+                DisambigList.push(item.title);
                 for (const rd of item.redirects || []) { // 加入同时获取到的重定向页面
-                    DisambigList.add(rd.title);
+                    DisambigList.push(rd.title);
                 }
             }
         }
-        return [...DisambigList];
+        return DisambigList;
     } catch (error) {
         throw new Error(`获取消歧义页列表出错：${error}`);
     }
@@ -44,7 +44,7 @@ const getDisambigList = async () => {
  * 递归获取分类内所有模板
  * 
  * @param {string} category 
- * @returns {string[]} 分类内模板列表
+ * @returns {Promise<string[]>} 分类内模板列表
  */
 const getTemplatesInCategory = async (category) => {
     const templates = [];
@@ -75,7 +75,7 @@ const getTemplatesInCategory = async (category) => {
  * 获取模板内所有链接
  * 
  * @param {string[]} templates 模板列表
- * @returns 
+ * @returns {Promise<Object>} links 各个模板的所有链接组成的对象
  */
 const getLinksInTemplates = async (templates, size = 50) => {
     const links = {};
