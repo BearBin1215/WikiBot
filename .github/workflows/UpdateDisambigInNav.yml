@@ -1,7 +1,7 @@
 name: 更新链接到消歧义页的大家族模板列表
 on:
   schedule:
-    - cron: 40 19 * * 2 #北京时间每周三凌晨3:40执行
+    - cron: 40 19 * * 3 #北京时间每周四凌晨3:40执行
   workflow_dispatch:
 
 jobs:
