@@ -19,6 +19,8 @@ const config = {
 // 自动更新用
 import dotenv from "dotenv";
 dotenv.config();
+config.API_PATH = process.env.API_PATH || config.API_PATH;
+
 config.username = process.env.MW_USERNAME || config.username;
 config.password = process.env.MW_PASSWORD || config.password;
 
