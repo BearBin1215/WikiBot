@@ -12,7 +12,6 @@ const config = {
     feishu: {
         App_ID: "",
         App_Secret: "",
-        user_access_token: "",
     },
 };
 
@@ -26,5 +25,4 @@ config.password = process.env.MW_PASSWORD || config.password;
 
 config.feishu.App_ID = process.env.FEISHU_APP_ID || config.feishu.App_ID;
 config.feishu.App_Secret = process.env.FEISHU_APP_SECRET || config.feishu.App_Secret;
-config.feishu.user_access_token = process.env.FEISHU_USER_ACCESS_TOKEN || config.feishu.user_access_token;
 export default config;
