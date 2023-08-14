@@ -131,9 +131,9 @@ const updatePage = async (TextList) => {
             tags: "Bot",
             token: bot.editToken,
         });
-        console.log(`成功保存到[[${PAGENAME}]]`);
+        console.log(`成功保存到\x1B[4m${PAGENAME}\x1B[0m`);
     } catch (error) {
-        throw new Error(`保存到\x1B[4m[[${PAGENAME}]]\x1B[0m失败：${error}`);
+        throw new Error(`保存到\x1B[4m${PAGENAME}\x1B[0m失败：${error}`);
     }
 };
 

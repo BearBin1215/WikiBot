@@ -108,7 +108,7 @@ const getLinksInTemplates = async (templates, size = 50) => {
  */
 const updatePage = async (text, title) => {
     try {
-        bot.editToken = (await bot.getEditToken()).csrftoken;
+        bot.editToken = (await bot.getEditToken()).csrftoken; // 获取完前面的数字时token已经过期了，需要重新获取
         await bot.request({
             action: "edit",
             title,

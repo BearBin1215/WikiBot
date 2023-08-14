@@ -88,7 +88,7 @@ const updatePage = async (text) => {
             tags: "Bot",
             token: bot.editToken,
         });
-        console.log(`成功保存到[[${title}]]。`);
+        console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
     } catch (err) {
         throw new Error(`登录或保存失败：${err}`);
     }
