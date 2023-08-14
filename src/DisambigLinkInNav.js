@@ -59,11 +59,11 @@ const getTemplatesInCategory = async (category) => {
             gcmcontinue,
         });
         gcmcontinue = response.continue?.gcmcontinue;
-        for (const page of Object.values(response.query.pages)) {
-            if (page.ns === 10) {
-                templates.push(page.title);
-            } else if (page.ns === 14) {
-                templates.push(...await getTemplatesInCategory(page.title));
+        for (const { ns, title } of Object.values(response.query.pages)) {
+            if (ns === 10) {
+                templates.push(title);
+            } else if (ns === 14) {
+                templates.push(...await getTemplatesInCategory(title));
             }
         }
         console.log(`\x1B[4m${category}\x1B[0m下查找到\x1B[4m${templates.length}\x1B[0m个模板`);
