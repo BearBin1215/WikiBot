@@ -1,0 +1,22 @@
+name: 更新链接到消歧义页的大家族模板列表
+on:
+  schedule:
+    - cron: 40 19 * * 2 #北京时间每周三凌晨3:40执行
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+      - run: echo "开始更新链接到消歧义页的大家族模板列表"
+      - name: Install dependencies
+        run: npm ci
+      - name: Update action
+        env:
+          MW_USERNAME: ${{secrets.MGP_USERNAME_SUB}}
+          MW_PASSWORD: ${{secrets.MGP_PASSWORD_SUB}}
+        run: node src/DisambigLinkInNav.js
