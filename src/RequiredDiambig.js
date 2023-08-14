@@ -111,8 +111,6 @@ const getRequiredDisambig = (DisambigList, PageList) => {
 
 /**
  * 保存到指定页面
- * @param {string} text 要保存的文本
- * @param {string} PAGENAME 要保存到的页面标题
  */
 const updatePage = async (TextList) => {
     const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
