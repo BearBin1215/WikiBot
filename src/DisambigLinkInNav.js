@@ -7,6 +7,7 @@ const bot = new MWBot({
 }, {
     timeout: 60000,
 });
+let categoryList = []; // 用于记录已获取到的分类，避免套娃
 
 /**
  * 获取所有消歧义页标题及其重定向
@@ -62,7 +63,8 @@ const getTemplatesInCategory = async (category) => {
         for (const { ns, title } of Object.values(response.query.pages)) {
             if (ns === 10) {
                 templates.push(title);
-            } else if (ns === 14) {
+            } else if (ns === 14 && !categoryList.includes(title)) {
+                categoryList.push(title); // 避免套娃
                 templates.push(...await getTemplatesInCategory(title));
             }
         }
@@ -129,6 +131,7 @@ const main = async (retryCount = 5) => {
 
     while (retries < retryCount) {
         try {
+            categoryList = []; // 清空
             await bot.loginGetEditToken({
                 username: config.username,
                 password: config.password,
