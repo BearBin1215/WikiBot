@@ -80,7 +80,7 @@ const getTemplatesInCategory = async (category) => {
  * @returns {Promise<Object>} links 各个模板的所有链接组成的对象
  */
 const getLinksInTemplates = async (templates, size = 50) => {
-    const links = {};
+    const linksInTemplates = {};
     for (let i = 0; i < templates.length; i += size) {
         let plcontinue = "||";
         while (plcontinue !== undefined) {
@@ -92,16 +92,17 @@ const getLinksInTemplates = async (templates, size = 50) => {
                 plcontinue,
             });
             plcontinue = response.continue?.plcontinue;
-            for (const page of Object.values(response.query.pages)) {
-                links[page.title] ||= [];
-                for (const link of page.links || []) {
-                    links[page.title].push(link.title);
+            // 检查模板的所有链接是否在消歧义页列表中
+            for (const {title, links} of Object.values(response.query.pages)) {
+                linksInTemplates[title] ||= [];
+                for (const link of links || []) {
+                    linksInTemplates[title].push(link.title);
                 }
             }
         }
         console.log(`正在读取模板内的链接（${Math.min(i + size, templates.length)}/${templates.length}）`);
     }
-    return links;
+    return linksInTemplates;
 };
 
 /**
