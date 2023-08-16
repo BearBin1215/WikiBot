@@ -77,6 +77,7 @@ const getTemplatesInCategory = async (category) => {
  * 获取模板内所有链接
  * 
  * @param {string[]} templates 模板列表
+ * @param {number} size 单次要获取连接的模板数，填50还是500取决于有没有apihighlimits
  * @returns {Promise<Object>} links 各个模板的所有链接组成的对象
  */
 const getLinksInTemplates = async (templates, size = 50) => {
