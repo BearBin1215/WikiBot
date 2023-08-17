@@ -159,7 +159,7 @@ const main = async (retryCount = 5) => {
             });
             // 生成wikitext
             const text = Object.entries(disambigInTemplates)
-                .map(([key, values]) => `;[[${key}]]\n:[[${values.join("]]\n:[[")}]]\n`)
+                .map(([key, values]) => `;[[${key}]]<span class="plainlinks" style="font-weight:normal">【[{{fullurl:${key}|action=edit}} 编辑]】</span>\n:[[${values.join("]]\n:[[")}]]\n`)
                 .join("");
 
             await updatePage(text, "User:BearBin/链接到消歧义页面的导航模板");
