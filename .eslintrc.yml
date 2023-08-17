@@ -58,3 +58,5 @@ rules:
     - 2
   no-unneeded-ternary:
     - 1
+  logical-assignment-operators:
+    - 2
