@@ -116,7 +116,7 @@ const getRequiredDisambig = (DisambigList, PageList) => {
  * 保存到指定页面
  */
 const updatePage = async (TextList) => {
-    const PAGENAME = "User:BearBin/Sandbox/可能需要创建的消歧义页面";
+    const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
     const text =
         "{{info\n" +
         "|leftimage=[[File:Nuvola_apps_important_blue.svg|50px|link=萌娘百科:消歧义方针]]\n" +
