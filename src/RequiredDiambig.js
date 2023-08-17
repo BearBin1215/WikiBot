@@ -93,7 +93,8 @@ const getRequiredDisambig = (DisambigList, PageList) => {
         if (
             // SuffixPattern.test(item) && // 标题带有后缀
             // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
-            !DisambigList.has(titleWithouFix) // 去掉前缀的页面不是消歧义页
+            !DisambigList.has(titleWithouFix) && // 去掉前缀的页面不是消歧义页
+            !item.indexOf("闪耀幻想曲:") === -1
         ) {
             RequiredDisambig[titleWithouFix] ||= [];
             RequiredDisambig[titleWithouFix].push(item);
