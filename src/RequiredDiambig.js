@@ -86,15 +86,17 @@ const getRequiredDisambig = (DisambigList, PageList) => {
     const RequiredDisambig = {};
     // 遍历所有页面标题
     for (const item of PageList) {
-        const SuffixPattern = /^([^:]+)\((.+)\)$/; // 后缀页面规则：以半角括号对结尾，括号前无半角冒号
-        const titleWithoutSuffix = item.replace(SuffixPattern, "$1");
+        // const SuffixPattern = /^([^:]+)\((.+)\)$/; // 后缀页面规则：以半角括号对结尾，括号前无半角冒号
+        // const titleWithoutSuffix = item.replace(SuffixPattern, "$1");
+        // const titleWithoutPrefix = item.replace(/^(.+):(.+)$/, "$2");
+        const titleWithouFix = item.replace(/^(.+:)?([^)]+)(\(.+\))?$/, "$2");
         if (
             // SuffixPattern.test(item) && // 标题带有后缀
             // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
-            !DisambigList.has(titleWithoutSuffix) // 去掉后缀后的页面不是消歧义页
+            !DisambigList.has(titleWithouFix) // 去掉前缀的页面不是消歧义页
         ) {
-            RequiredDisambig[titleWithoutSuffix] ||= [];
-            RequiredDisambig[titleWithoutSuffix].push(item);
+            RequiredDisambig[titleWithouFix] ||= [];
+            RequiredDisambig[titleWithouFix].push(item);
         }
     }
     // eslint-disable-next-line no-unused-vars
@@ -113,7 +115,7 @@ const getRequiredDisambig = (DisambigList, PageList) => {
  * 保存到指定页面
  */
 const updatePage = async (TextList) => {
-    const PAGENAME = "User:BearBin/可能需要创建的消歧义页面";
+    const PAGENAME = "User:BearBin/Sandbox/可能需要创建的消歧义页面";
     const text =
         "{{info\n" +
         "|leftimage=[[File:Nuvola_apps_important_blue.svg|50px|link=萌娘百科:消歧义方针]]\n" +
