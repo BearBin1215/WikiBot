@@ -158,9 +158,13 @@ const main = async (retryCount = 5) => {
                 }
             });
             // 生成wikitext
-            const text = Object.entries(disambigInTemplates)
+            const text = 
+            "本页面列出[[:Category:导航模板|导航模板]]中的消歧义链接。\n\n" +
+            "由机器人于每周四凌晨3:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
+            Object.entries(disambigInTemplates)
                 .map(([key, values]) => `;[[${key}]]<span class="plainlinks" style="font-weight:normal">【[{{fullurl:${key}|action=edit}} 编辑]】</span>\n:[[${values.join("]]\n:[[")}]]\n`)
-                .join("");
+                .join("") +
+            "\n[[Category:萌娘百科数据报告]]";
 
             await updatePage(text, "萌娘百科:链接到消歧义页面的导航模板");
             return;
