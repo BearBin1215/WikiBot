@@ -162,7 +162,7 @@ const main = async (retryCount = 5) => {
                 .map(([key, values]) => `;[[${key}]]<span class="plainlinks" style="font-weight:normal">【[{{fullurl:${key}|action=edit}} 编辑]】</span>\n:[[${values.join("]]\n:[[")}]]\n`)
                 .join("");
 
-            await updatePage(text, "User:BearBin/链接到消歧义页面的导航模板");
+            await updatePage(text, "萌娘百科:链接到消歧义页面的导航模板");
             return;
         } catch (error) {
             console.error(`获取数据出错：${error}\n正在重试（${retries + 1}/${retryCount}）`);
