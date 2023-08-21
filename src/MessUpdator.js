@@ -193,8 +193,8 @@ const imgLT99px = (text, _categories, title) => {
  */
 const redBoldText = (text, _categories, title) => {
     if (
-        /\{\{color\|red\|'''.{15,}'''\}\}/i.test(text) ||
-        /'''\{\{color\|red\|.{15,}\}\}'''/i.test(text)
+        /\{\{color\|red\|'''.{40,}'''\}\}/i.test(text) ||
+        /'''\{\{color\|red\|.{40,}\}\}'''/i.test(text)
     ) {
         addPageToList("疑似喊话", title);
     }
