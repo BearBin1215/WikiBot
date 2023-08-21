@@ -5,8 +5,9 @@ import config from "../config/config.js";
 // 最后要用于生成wikitext的数据
 let MessOutput = {};
 
-// 定义模板及其别名
+// 模板及其别名
 const Templates = {
+    // 消歧义导航模板
     disambigTop: [
         "about",
         "not",
@@ -16,22 +17,60 @@ const Templates = {
         "otheruseslist",
     ],
 
+    // 欢迎编辑及TOP
     top: [
-        "欢迎编辑",
-        "歡迎編輯",
+        "[欢歡]迎[编編][辑輯]",
         "不完整",
+        "急需改[进進]",
         "[^{]+top",
-        "[^{]+曲题头",
+        "[^{]+曲[题題][头頭]",
     ],
 
     disambig: [
         "disambig",
-        "消歧义页",
-        "消歧義頁",
+        "消歧[义義][页頁]",
+    ],
+
+    // 提示模板
+    note: [
+        "敏感[内內]容",
+        "[现現][实實]人物",
+        "R-15",
+    ],
+
+    // 底部模板，用来检测大家族模板位置错误时排除特定模板
+    bottom: [
+        // 注释模板
+        "reflist",
+        "notelist",
+        "NoteFoot",
+        "notes",
+
+        // 外部链接模板
+        "到萌娘文库",
+        "到[维維]基百科",
+        "ToWikipedia",
+        "到FANDOM",
+        "到VNDB",
+        "To BWIKI",
+        "To 52poke Wiki",
+        "到灰[机機]wiki",
+        "ColonSort",
+
+        // 魔术字
+        "PAGENAME",
+        "DEFAULTSORT",
+
+        // 其他
+        "catn",
+        "bilibiliVideo",
+        "BV",
+        "背景[图圖]片",
+        "替[换換][侧側][边邊][栏欄]底[图圖]",
     ],
 };
 
-
+// MWBot实例
 const bot = new MWBot({
     apiUrl: config.API_PATH,
 }, {
@@ -50,17 +89,44 @@ const addPageToList = (list, page) => {
 
 
 /**
+ * 查找正则表达式的匹配在字符串中的位置集
+ * @param {string} str 要查找的字符串
+ * @param {RegExp} reg 正则表达式
+ * @returns {number[]} 匹配位置组成的集合
+ */
+const regexPosition = (str, reg) => {
+    let match;
+    const indexes = [];
+    while((match = reg.exec(str)) !== null) {
+        indexes.push(match.index);
+    }
+    return indexes;
+};
+
+
+/**
  * 查找模板在文本中的位置
  * @param {string} text 页面源代码
  * @param  {...string} templates 模板及其别名
- * @returns {number} 模板位置
+ * @returns {number[]} 模板位置集合
+ * @example templateDetector("{{欢迎编辑|补充内容}}{{消歧义}}{{电子游戏TOP}}", ...Templates.top) => [0, 20];
  */
-const templateDetector = (text, ...templates) => text.search(new RegExp(`\\{\\{(?:Template:|[模样樣]板:|T:)?(${templates.join("|")})[}\\|\\n]`, "gi"));
+const templateDetector = (text, ...templates) => regexPosition(text, new RegExp(`\\{\\{(?:Template:|[模样樣]板:|T:)?(${templates.join("|")})[}\\|\\n]`, "gi"));
 
 
-const categoryDetector = (text, ...categories) => {
-
+/**
+ * 
+ * @param {string} text 页面源代码
+ * @param {string[]} _categories 页面所属分类，留空
+ * @param {*} title 标题
+ */
+const repetitiveTop = (text, _categories, title) => {
+    const indexes = templateDetector(text, ...Templates.top);
+    if(indexes.length > 1) {
+        addPageToList("重复TOP", title);
+    }
 };
+
 
 /**
  * 在消歧义页中查找管道符
@@ -86,7 +152,7 @@ const pipeInDisambig = (text, categories, title) => {
 /**
  * 在页面中查找重复出现的大量换行，并将其加入MessOutput
  * @param {string} text 页面源代码
- * @param {string[]} categories 页面所属分列，用于排除歌曲条目
+ * @param {string[]} categories 页面所属分类，用于排除歌曲条目
  * @param {string} title 页面标题
  */
 const wrapDetector = (text, categories, title) => {
@@ -102,7 +168,7 @@ const wrapDetector = (text, categories, title) => {
 /**
  * 检测连续出现的big
  * @param {string} text 页面源代码
- * @param {string[]} _categories 页面所属分列，留空
+ * @param {string[]} _categories 页面所属分类，留空
  * @param {string} title 页面标题
  */
 const bigDetector = (text, _categories, title) => {
@@ -224,6 +290,7 @@ const traverseAllPages = async (functions) => {
             pipeInDisambig(text, categories, title); // 检查消歧义页模板
             wrapDetector(text, categories, title); // 检查过量换行
             bigDetector(text, categories, title); // 检查连续<big>
+            repetitiveTop(text, categories, title); // 检查重复TOP
         }
 
         console.log(`已遍历${count}个页面`);
@@ -393,6 +460,13 @@ const main = async (retryCount = 5) => {
                 连续换行: {
                     list: [],
                 },
+                "big地狱（5个以上）": {
+                    list: [],
+                },
+                重复TOP: {
+                    list: [],
+                },
+                
             };
             await traverseAllPages();
             await updatePage();
