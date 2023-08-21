@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import MWBot from "mwbot";
 import config from "../config/config.js";
+import glb from "./utils/global.js";
 
 // 最后要用于生成wikitext的数据
 let MessOutput = {};
@@ -22,8 +23,8 @@ const Templates = {
         "[欢歡]迎[编編][辑輯]",
         "不完整",
         "急需改[进進]",
-        "[^{]+top",
-        "[^{]+曲[题題][头頭]",
+        "[^{|]+top",
+        "[^{|]+曲[题題][头頭]",
     ],
 
     disambig: [
@@ -97,7 +98,7 @@ const addPageToList = (list, page) => {
 const regexPosition = (str, reg) => {
     let match;
     const indexes = [];
-    while((match = reg.exec(str)) !== null) {
+    while ((match = reg.exec(str)) !== null) {
         indexes.push(match.index);
     }
     return indexes;
@@ -115,25 +116,17 @@ const templateDetector = (text, ...templates) => regexPosition(text, new RegExp(
 
 
 /**
- * 
+ * 检查重复TOP
  * @param {string} text 页面源代码
  * @param {string[]} _categories 页面所属分类，留空
  * @param {*} title 标题
  */
 const repetitiveTop = (text, _categories, title) => {
     const indexes = templateDetector(text, ...Templates.top);
-    if(indexes.length > 1) {
+    if (indexes.length > 1) {
         addPageToList("重复TOP", title);
     }
 };
-
-
-/**
- * 在消歧义页中查找管道符
- * @param {string} text 页面源代码
- * @returns {boolean} 有无不合理管道符
- */
-const pipeDetector = (text) => /\[\[(.+)\(.+\)\|\1\]\].*—/.test(text) || /\[\[.+:(.+)\|\1\]\].*—/.test(text);
 
 
 /**
@@ -143,7 +136,13 @@ const pipeDetector = (text) => /\[\[(.+)\(.+\)\|\1\]\].*—/.test(text) || /\[\[
  * @param {string} title 标题
  */
 const pipeInDisambig = (text, categories, title) => {
-    if (categories.includes("Category:消歧义页") && pipeDetector(text)) {
+    if (
+        categories.includes("Category:消歧义页") &&
+        (
+            /\[\[(.+)\(.+\)\|\1\]\].*—/.test(text) ||
+            /\[\[.+:(.+)\|\1\]\].*—/.test(text)
+        )
+    ) {
         addPageToList("消歧义页使用管道符", title);
     }
 };
@@ -172,7 +171,7 @@ const wrapDetector = (text, categories, title) => {
  * @param {string} title 页面标题
  */
 const bigDetector = (text, _categories, title) => {
-    if(/(<big>){5}/i.test(text)) {
+    if (/(<big>){5}/i.test(text)) {
         addPageToList("big地狱（5个以上）", title);
     }
 };
@@ -199,6 +198,8 @@ const traverseAllPages = async (functions) => {
             if (revisions?.length > 0) {
                 pages[title].text = revisions[0]["*"];
                 count++;
+            } else if (revisions) {
+                pages[title].text = (revisions[0] || { "*": "" })["*"];
             }
             if (categories) {
                 pages[title].categories.push(...categories.map((item) => item.title));
@@ -215,7 +216,6 @@ const traverseAllPages = async (functions) => {
         gapnamespace: 0,
         prop: "revisions|categories",
         rvprop: "content",
-        clprop: "title",
     };
 
     // 父循环
@@ -224,13 +224,14 @@ const traverseAllPages = async (functions) => {
 
         let res;
         let retryCount = 0; // 设置重试，以免出错一次就要从头再来
-        while (retryCount < 5) {
+        while (retryCount < 10) {
             try {
                 res = await bot.request(params); // 发送请求
                 break;
             } catch (error) {
                 retryCount++;
-                console.error(`请求出错：${error}，正在重试(${retryCount}/5)`);
+                console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/5)`);
+                await glb.sleep(3000);
             }
         }
 
@@ -250,13 +251,14 @@ const traverseAllPages = async (functions) => {
 
             let subRes;
             retryCount = 0;
-            while (retryCount < 5) {
+            while (retryCount < 10) {
                 try {
                     subRes = await bot.request(params);
                     break;
                 } catch (error) {
                     retryCount++;
-                    console.error(`遍历页面时出错：${error}，正在重试(${retryCount}/5)`);
+                    console.error(`遍历页面时出错：${error}，请求参数：${JSON.stringify(params)}，正在重试(${retryCount}/5)`);
+                    await glb.sleep(3000);
                 }
             }
             processPage(Object.values(subRes.query.pages));
@@ -296,111 +298,6 @@ const traverseAllPages = async (functions) => {
         console.log(`已遍历${count}个页面`);
     } while (params.gapcontinue !== undefined);
 };
-
-
-// const traverseAllPages = async () => {
-//     let count = 0;
-//     let gapcontinue = "";
-
-//     // 遍历模板名字空间内的页面
-
-//     // 父循环
-//     while (gapcontinue !== undefined) {
-//         const pages = {}; // 以父循环为单位存放和分析
-//         const params = {
-//             action: "query",
-//             generator: "allpages",
-//             gaplimit: "max",
-//             cllimit: "max",
-//             gapcontinue,
-//             gapnamespace: 10,
-//             prop: "revisions|categories",
-//             rvprop: "content",
-//             clprop: "title",
-//         };
-//         try {
-//             const res = await bot.request(params);
-//             console.log(res.continue);
-
-//             for (const page of Object.values(res.query.pages)) {
-//                 pages[page.title] ||= {}; // 初始化pages中每个页面的对象
-//                 // 将此轮循环得到的页面源代码和分类存入pages
-//                 if (page.revisions) {
-//                     pages[page.title].text = page.revisions[0]["*"];
-//                     count++;
-//                 }
-//                 if (page.categories) {
-//                     pages[page.title].categories ||= [];
-//                     pages[page.title].categories.push(...page.categories.map((item) => item.title));
-//                 }
-//             }
-
-//             gapcontinue = res.continue?.gapcontinue;
-//             const clcontinue = res.continue?.clcontinue;
-//             const rvcontinue = res.continue?.rvcontinue;
-
-//             // continue中出现gapcontinue，代表这一批的rivisions和categories都已获取完毕，继续下一个父循环
-//             if (gapcontinue !== undefined) {
-//                 continue;
-//             }
-
-//             // continue中有rvcontinue或clcontinue，代表这一批未获取完毕，执行子循环
-//             if (rvcontinue) {
-//                 params.rvcontinue = rvcontinue;
-//             }
-//             if (clcontinue) {
-//                 params.clcontinue = clcontinue;
-//             }
-//             while (params.clcontinue || params.rvcontinue) {
-//                 const subRes = await bot.request(params);
-//                 console.log(subRes.continue);
-//                 for (const page of Object.values(subRes.query.pages)) {
-//                     pages[page.title] ||= {};
-//                     pages[page.title].categories ||= [];
-//                     if (page.revisions) {
-//                         pages[page.title].text = page.revisions[0]["*"];
-//                         count++;
-//                     }
-//                     if (page.categories) {
-//                         pages[page.title].categories ||= [];
-//                         pages[page.title].categories.push(...page.categories.map((item) => item.title));
-//                     }
-//                 }
-
-//                 // 返回的continue中有gapcontinue，代表子循环结束，退出进行下一个父循环
-//                 if (subRes.continue?.gapcontinue) {
-//                     gapcontinue = subRes.continue?.gapcontinue;
-//                     break;
-//                 }
-
-//                 // continue中有rvcontinue或clcontinue，继续进行子循环
-//                 if (subRes.continue?.rvcontinue) {
-//                     params.rvcontinue = subRes.continue.rvcontinue;
-//                 }
-//                 if (subRes.continue?.clcontinue) {
-//                     params.clcontinue = subRes.continue.clcontinue;
-//                 }
-
-//                 // continue中gapcontinue、rvcontinue、clcontinue都没有，代表整个循环都已结束，给gapcontinue赋值undefined后退出循环
-//                 if (subRes.continue?.gapcontinue === undefined && subRes.continue?.clcontinue === undefined && subRes.continue?.rvcontinue === undefined) {
-//                     gapcontinue = undefined;
-//                     break;
-//                 }
-//             }
-
-//             // 一轮父循环结束，对这轮父循环获得的页面进行分析
-//             for (const [title, { text, categories }] of Object.entries(pages)) {
-//                 if (text.indexOf("123456") > -1) {
-//                     addPageToList("123456", title);
-//                 }
-//             }
-//             console.log(count); // 进度
-
-//         } catch (error) {
-//             console.error(`遍历所有页面出错：${error}`);
-//         }
-//     }
-// };
 
 
 /**
@@ -466,7 +363,7 @@ const main = async (retryCount = 5) => {
                 重复TOP: {
                     list: [],
                 },
-                
+
             };
             await traverseAllPages();
             await updatePage();
