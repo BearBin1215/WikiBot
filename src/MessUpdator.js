@@ -169,6 +169,22 @@ const bigDetector = (text, _categories, title) => {
 };
 
 
+/**
+ * 检查用图超过99px的页顶模板
+ * @param {string} text 页面源代码
+ * @param {string[]} _categories 页面所属分类，留空
+ * @param {*} title 页面标题
+ */
+const imgLT99px = (text, _categories, title) => {
+    if (
+        /leftimage *=.*\d{3}px/.test(text) ||
+        /\{\{(?:[Tt]emplate:|[模样樣]板:|T:)?(欢迎编辑|歡迎編輯|不完整|[Cc]ustomtop).*\d{3}px/.test(text)
+    ) {
+        addPageToList("页顶用图超过99px", title);
+    }
+};
+
+
 // MWBot实例
 const bot = new MWBot({
     apiUrl: config.API_PATH,
@@ -196,7 +212,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
             pages[title] ||= {}; // 初始化pages中每个页面的对象
             pages[title].categories ||= []; // 初始化其中的categories
             // 将此轮循环得到的页面源代码和分类存入pages
-            pages[title].text = revisions?.[0]?.["*"]?.replace(/<!--[\s\S]*?-->/g, "") || ""; // 去除注释
+            pages[title].text = revisions?.[0]?.["*"]?.replace(/<!--[\s\S]*?-->/g, "") || ""; // 去除注释，以及如果获取到空的revisions就先赋值为空字符串
             if (revisions?.length > 0) {
                 count++;
             }
@@ -204,7 +220,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
                 pages[title].categories.push(...categories.map((item) => item.title));
             }
         }
-    };    
+    };
 
     // 初始化请求参数
     const params = {
@@ -288,7 +304,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
         params.gapcontinue = gapcontinue;
 
         for (const [title, { text, categories }] of Object.entries(pages)) {
-            for(const func of functions) {
+            for (const func of functions) {
                 func(text, categories, title);
             }
         }
@@ -360,12 +376,16 @@ const main = async (retryCount = 5) => {
                 重复TOP: {
                     list: [],
                 },
+                页顶用图超过99px: {
+                    list: [],
+                },
             };
             await traverseAllPages([
                 pipeInDisambig, // 检查消歧义页模板
                 wrapDetector, // 检查过量换行
                 bigDetector, // 检查连续<big>
                 repetitiveTop, // 检查重复TOP
+                imgLT99px, // 检查图片超过99px的页顶模板
             ], 0, 10);
             await updatePage(); // 提交至萌百
             return;
