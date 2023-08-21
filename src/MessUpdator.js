@@ -23,8 +23,7 @@ const Templates = {
         "[欢歡]迎[编編][辑輯]",
         "不完整",
         "急需改[进進]",
-        "[^{|]+top",
-        "[^{|]+曲[题題][头頭]",
+        "[^{|\\[\\]]+top",
     ],
 
     disambig: [
@@ -70,13 +69,6 @@ const Templates = {
         "替[换換][侧側][边邊][栏欄]底[图圖]",
     ],
 };
-
-// MWBot实例
-const bot = new MWBot({
-    apiUrl: config.API_PATH,
-}, {
-    timeout: 60000,
-});
 
 
 /**
@@ -177,12 +169,21 @@ const bigDetector = (text, _categories, title) => {
 };
 
 
+// MWBot实例
+const bot = new MWBot({
+    apiUrl: config.API_PATH,
+}, {
+    timeout: 60000,
+});
+
+
 /**
  * 遍历所有页面
- * 
- * @todo 稍作封装以便能够分别运行主和模板，通过functions参数提供的函数检查
+ * @param {function[]} functions 执行检查的函数集，这些函数都接受text、categories、title三个参数
+ * @param {number} [namespace=0] 要遍历的名字空间
+ * @param {number} [maxRetry=10] 最大重试次数
  */
-const traverseAllPages = async (functions, maxRetry = 10) => {
+const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
     let count = 0;
     let pages = {};
 
@@ -196,7 +197,7 @@ const traverseAllPages = async (functions, maxRetry = 10) => {
             pages[title].categories ||= []; // 初始化其中的categories
             // 将此轮循环得到的页面源代码和分类存入pages
             if (revisions?.length > 0) {
-                pages[title].text = revisions[0]["*"];
+                pages[title].text = revisions[0]["*"].replace(/<!--[\s\S]*?-->/g, ""); // 去除注释
                 count++;
             } else if (revisions) {
                 pages[title].text = (revisions[0] || { "*": "" })["*"];
@@ -213,7 +214,7 @@ const traverseAllPages = async (functions, maxRetry = 10) => {
         generator: "allpages",
         gaplimit: 300, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
-        gapnamespace: 0,
+        gapnamespace: namespace,
         prop: "revisions|categories",
         rvprop: "content",
     };
@@ -289,12 +290,10 @@ const traverseAllPages = async (functions, maxRetry = 10) => {
         params.gapcontinue = gapcontinue;
 
         for (const [title, { text, categories }] of Object.entries(pages)) {
-            pipeInDisambig(text, categories, title); // 检查消歧义页模板
-            wrapDetector(text, categories, title); // 检查过量换行
-            bigDetector(text, categories, title); // 检查连续<big>
-            repetitiveTop(text, categories, title); // 检查重复TOP
+            for(const func of functions) {
+                func(text, categories, title);
+            }
         }
-
         console.log(`已遍历${count}个页面`);
     } while (params.gapcontinue !== undefined);
 };
@@ -339,7 +338,7 @@ const updatePage = async () => {
 
 /**
  * 主函数
- * @param {number} retryCount 最大重试次数
+ * @param {number} [retryCount=5] 最大重试次数
  */
 const main = async (retryCount = 5) => {
     let retries = 0;
@@ -363,11 +362,14 @@ const main = async (retryCount = 5) => {
                 重复TOP: {
                     list: [],
                 },
-
             };
-            await traverseAllPages();
-            await updatePage();
-
+            await traverseAllPages([
+                pipeInDisambig, // 检查消歧义页模板
+                wrapDetector, // 检查过量换行
+                bigDetector, // 检查连续<big>
+                repetitiveTop, // 检查重复TOP
+            ], 0, 10);
+            await updatePage(); // 提交至萌百
             return;
         } catch (error) {
             console.error(`获取数据出错：${error}\n正在重试（${retries + 1}/${retryCount}）`);
