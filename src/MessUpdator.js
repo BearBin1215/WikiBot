@@ -182,7 +182,7 @@ const bigDetector = (text, _categories, title) => {
  * 
  * @todo 稍作封装以便能够分别运行主和模板，通过functions参数提供的函数检查
  */
-const traverseAllPages = async (functions) => {
+const traverseAllPages = async (functions, maxRetry = 10) => {
     let count = 0;
     let pages = {};
 
@@ -211,7 +211,7 @@ const traverseAllPages = async (functions) => {
     const params = {
         action: "query",
         generator: "allpages",
-        gaplimit: "max",
+        gaplimit: 300, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
         gapnamespace: 0,
         prop: "revisions|categories",
@@ -224,13 +224,13 @@ const traverseAllPages = async (functions) => {
 
         let res;
         let retryCount = 0; // 设置重试，以免出错一次就要从头再来
-        while (retryCount < 10) {
+        while (retryCount < maxRetry) {
             try {
                 res = await bot.request(params); // 发送请求
                 break;
             } catch (error) {
                 retryCount++;
-                console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/5)`);
+                console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
                 await glb.sleep(3000);
             }
         }
@@ -251,13 +251,13 @@ const traverseAllPages = async (functions) => {
 
             let subRes;
             retryCount = 0;
-            while (retryCount < 10) {
+            while (retryCount < maxRetry) {
                 try {
                     subRes = await bot.request(params);
                     break;
                 } catch (error) {
                     retryCount++;
-                    console.error(`遍历页面时出错：${error}，请求参数：${JSON.stringify(params)}，正在重试(${retryCount}/5)`);
+                    console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
                     await glb.sleep(3000);
                 }
             }
