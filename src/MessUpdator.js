@@ -132,7 +132,7 @@ const pipeInDisambig = (text, categories, title) => {
         categories.includes("Category:消歧义页") &&
         (
             /\[\[(.+)\(.+\)\|\1\]\].*—/.test(text) ||
-            /\[\[.+:(.+)\|\1\]\].*—/.test(text)
+            /\[\[[^:\n].*:(.+)\|\1\]\].*—/.test(text)
         )
     ) {
         addPageToList("消歧义页使用管道符", title);
@@ -196,17 +196,15 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
             pages[title] ||= {}; // 初始化pages中每个页面的对象
             pages[title].categories ||= []; // 初始化其中的categories
             // 将此轮循环得到的页面源代码和分类存入pages
+            pages[title].text = revisions?.[0]?.["*"]?.replace(/<!--[\s\S]*?-->/g, "") || ""; // 去除注释
             if (revisions?.length > 0) {
-                pages[title].text = revisions[0]["*"].replace(/<!--[\s\S]*?-->/g, ""); // 去除注释
                 count++;
-            } else if (revisions) {
-                pages[title].text = (revisions[0] || { "*": "" })["*"];
             }
             if (categories) {
                 pages[title].categories.push(...categories.map((item) => item.title));
             }
         }
-    };
+    };    
 
     // 初始化请求参数
     const params = {
