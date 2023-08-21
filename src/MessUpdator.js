@@ -185,6 +185,22 @@ const imgLT99px = (text, _categories, title) => {
 };
 
 
+/**
+ * 检查疑似喊话内容
+ * @param {string} text 页面源代码
+ * @param {string[]} _categories 页面所属分类，留空
+ * @param {*} title 页面标题
+ */
+const redBoldText = (text, _categories, title) => {
+    if (
+        /\{\{color\|red\|'''.{15,}'''\}\}/i.test(text) ||
+        /'''\{\{color\|red\|.{15,}\}\}'''/i.test(text)
+    ) {
+        addPageToList("疑似喊话", title);
+    }
+};
+
+
 // MWBot实例
 const bot = new MWBot({
     apiUrl: config.API_PATH,
@@ -226,7 +242,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
     const params = {
         action: "query",
         generator: "allpages",
-        gaplimit: 300, // 本来设置为max，但总是aborted，还是控制一下吧
+        gaplimit: 250, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
         gapnamespace: namespace,
         prop: "revisions|categories",
@@ -373,6 +389,9 @@ const main = async (retryCount = 5) => {
                 "big地狱（5个以上）": {
                     list: [],
                 },
+                疑似喊话: {
+                    list: [],
+                },
                 重复TOP: {
                     list: [],
                 },
@@ -386,6 +405,7 @@ const main = async (retryCount = 5) => {
                 bigDetector, // 检查连续<big>
                 repetitiveTop, // 检查重复TOP
                 imgLT99px, // 检查图片超过99px的页顶模板
+                redBoldText, // 检查疑似喊话内容
             ], 0, 10);
             await updatePage(); // 提交至萌百
             return;
