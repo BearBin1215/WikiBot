@@ -242,7 +242,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
     const params = {
         action: "query",
         generator: "allpages",
-        gaplimit: 250, // 本来设置为max，但总是aborted，还是控制一下吧
+        gaplimit: 200, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
         gapnamespace: namespace,
         prop: "revisions|categories",
@@ -406,7 +406,7 @@ const main = async (retryCount = 5) => {
                 repetitiveTop, // 检查重复TOP
                 imgLT99px, // 检查图片超过99px的页顶模板
                 redBoldText, // 检查疑似喊话内容
-            ], 0, 10);
+            ], 0, 20);
             await updatePage(); // 提交至萌百
             return;
         } catch (error) {
