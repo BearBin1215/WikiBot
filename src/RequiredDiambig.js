@@ -90,7 +90,7 @@ const getRequiredDisambig = (DisambigList, PageList) => {
         // const titleWithoutSuffix = item.replace(SuffixPattern, "$1");
         // const titleWithoutPrefix = item.replace(/^(.+):(.+)$/, "$2");
         const titleWithouFix = item
-            .replace(/\d:\d{2}([^\d])/, "$1") // 排除时间
+            .replace(/\d:\d{2}([^\d]*)/, "$1") // 排除时间
             .replace(/^([^(]+:)?([^:)]+)(\(.+\))?$/, "$2");
         if (
             // SuffixPattern.test(item) && // 标题带有后缀
