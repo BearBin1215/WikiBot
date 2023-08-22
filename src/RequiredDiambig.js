@@ -89,7 +89,9 @@ const getRequiredDisambig = (DisambigList, PageList) => {
         // const SuffixPattern = /^([^:]+)\((.+)\)$/; // 后缀页面规则：以半角括号对结尾，括号前无半角冒号
         // const titleWithoutSuffix = item.replace(SuffixPattern, "$1");
         // const titleWithoutPrefix = item.replace(/^(.+):(.+)$/, "$2");
-        const titleWithouFix = item.replace(/^([^(]+:)?([^:)]+)(\(.+\))?$/, "$2");
+        const titleWithouFix = item
+            .replace(/\d:\d{2}([^\d])/, "$1") // 排除时间
+            .replace(/^([^(]+:)?([^:)]+)(\(.+\))?$/, "$2");
         if (
             // SuffixPattern.test(item) && // 标题带有后缀
             // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
@@ -106,8 +108,10 @@ const getRequiredDisambig = (DisambigList, PageList) => {
             value.length > 1 &&
             !(
                 value.length === 2 &&
-                value[0].replace(/\((单曲|专辑)\)/, "") === value[1].replace(/\((单曲|专辑)\)/, "")
-            )
+                value[0].replace(/\((单曲|专辑)\)/, "") === value[1].replace(/\((单曲|专辑)\)/, "") // 仅两个条目且互为单曲专辑
+            ) &&
+            !value.every((item) => item.indexOf("假面骑士") > -1) && // 假面骑士专题内的互相消歧义
+            !value.every((item) => item.indexOf("决战平安京") > -1 || item.indexOf("百闻牌") > -1 || item.indexOf("阴阳师手游") > -1 || item.indexOf("妖怪屋") > -1) // 网易阴阳师系列内的互相消歧义
         );
     }).map(([key, value]) => `;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
 };

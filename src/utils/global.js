@@ -2,7 +2,7 @@
  * 提供一些常用函数
  */
 
-const global = {
+const glb = {
     /**
      * 等待一段时间，需要通过await使用
      * 
@@ -11,4 +11,4 @@ const global = {
     sleep: (time = 3000) => new Promise((resolve) => setTimeout(resolve, time)),
 };
 
-export default global;
+export default glb;
