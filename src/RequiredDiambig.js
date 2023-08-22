@@ -110,8 +110,14 @@ const getRequiredDisambig = (DisambigList, PageList) => {
                 value.length === 2 &&
                 value[0].replace(/\((单曲|专辑)\)/, "") === value[1].replace(/\((单曲|专辑)\)/, "") // 仅两个条目且互为单曲专辑
             ) &&
-            !value.every((item) => item.indexOf("假面骑士") > -1) && // 假面骑士专题内的互相消歧义
-            !value.every((item) => item.indexOf("决战平安京") > -1 || item.indexOf("百闻牌") > -1 || item.indexOf("阴阳师手游") > -1 || item.indexOf("妖怪屋") > -1) // 网易阴阳师系列内的互相消歧义
+
+            // 一些专题内互相消歧义
+            !value.every((item) => item.indexOf("美少女花骑士:") > -1) &&
+            !value.every((item) => item.indexOf("假面骑士") > -1) &&
+            !value.every((item) => item.indexOf("舰队Collection:") > -1) &&
+            !value.every((item) => item.indexOf("魂器学院:") > -1) &&
+            !value.every((item) => item.indexOf("黑塔利亚:") > -1) &&
+            !value.every((item) => item.indexOf("决战平安京") > -1 || item.indexOf("百闻牌") > -1 || item.indexOf("阴阳师手游") > -1 || item.indexOf("妖怪屋") > -1) // 阴阳师系列
         );
     }).map(([key, value]) => `;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
 };
