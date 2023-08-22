@@ -153,6 +153,7 @@ const main = async (retryCount = 5) => {
     while (retries < retryCount) {
         try {
             await login();
+            console.log("登陆成功，正在获取可能需要创建的消歧义页面。");
             const [DisambigList, PageList] = await Promise.all([getDisambigList(), getPageList()]);
             console.log(`获取到\x1B[4m${DisambigList.size}\x1B[0m个消歧义页面及其重定向，\x1B[4m${PageList.length}\x1B[0m个条目标题。`);
             const TextList = getRequiredDisambig(DisambigList, PageList);
