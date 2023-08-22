@@ -2,9 +2,96 @@
 import MWBot from "mwbot";
 import config from "../config/config.js";
 import glb from "./utils/global.js";
+import fs from "fs";
 
-// 最后要用于生成wikitext的数据
-let MessOutput = {};
+class MessOutput {
+    /**
+     * 创建MessOutput对象
+     * @param {object} data 初始化列表
+     */
+    constructor(data) {
+        this.data = data; // 用将导入的data初始化
+    }
+
+    /**
+     * 遍历data广度优先搜索标题，并在对应的列表插入新页面名
+     * @param {string} headline 标题
+     * @param {string} page 要插入的页面名
+     * @returns 
+     */
+    addPageToList(headline, page) {
+        const queue = [{ obj: this.data, path: [] }];
+        while (queue.length > 0) {
+            const { obj, path } = queue.shift();
+            for (const [key, val] of Object.entries(obj)) {
+                if (key === headline) {
+                    if (Array.isArray(val)) {
+                        val.push(page);
+                        return;
+                    }
+                    console.error(`${headline}不是数组。`);
+                    return;
+                }
+                if (typeof val === "object" && val !== null) {
+                    queue.push({ obj: val, path: [...path, key] });
+                }
+            }
+        }
+        this.data[headline] = [page];
+    }
+
+    // 输出wikitext
+    get wikitext() {
+        let listLevel = 1;
+        const textList = [
+            "最后更新时间：~~~~~，约15分钟误差。",
+            "",
+            "大多数内容建议手动排查，以免误判。",
+            "{{目录右置}}",
+        ];
+        /**
+         * 递归函数
+         * @param {object|string[]} obj this.data
+         */
+        const addListToTextList = (obj) => {
+            listLevel++;
+            for (const [headline, pages] of Object.entries(obj)) {
+                // 标题
+                textList.push("", `${"=".repeat(listLevel)} ${headline} ${"=".repeat(listLevel)}`);
+                // 列表
+                if (Array.isArray(pages)) {
+                    textList.push(
+                        "{{hide|1=点击展开列表|2=", // 折叠模板
+                        ...pages.map((page) => `*[[${page}]]`), // 无序列表
+                        "}}",
+                    );
+                } else if (typeof pages === "object" && pages !== null) {
+                    addListToTextList(pages);
+                } else {
+                    throw new Error(`${headline}对应值类型有误: ${typeof pages}`);
+                }
+            }
+            listLevel--;
+        };
+        addListToTextList(this.data);
+        return textList.join("\n");
+    }
+}
+
+
+// 初始化MessOuput
+const messOutput = new MessOutput({
+    消歧义页使用管道符: {
+        后缀: [],
+        前缀: [],
+    },
+    连续换行: [],
+    "big地狱（5个以上）": [],
+    疑似喊话: [],
+    重复TOP: [],
+    页顶用图超过99px: [],
+});
+
 
 // 模板及其别名
 const Templates = {
@@ -72,16 +159,6 @@ const Templates = {
 
 
 /**
- * 向MessOutput的指定项目的列表添加页面
- * @param {string} list 项目名
- * @param {string} page 页面名
- */
-const addPageToList = (list, page) => {
-    (MessOutput[list] ||= { list: [] }).list.push(page);
-};
-
-
-/**
  * 查找正则表达式的匹配在字符串中的位置集
  * @param {string} str 要查找的字符串
  * @param {RegExp} reg 正则表达式
@@ -116,7 +193,7 @@ const templateDetector = (text, ...templates) => regexPosition(text, new RegExp(
 const repetitiveTop = (text, _categories, title) => {
     const indexes = templateDetector(text, ...Templates.top);
     if (indexes.length > 1) {
-        addPageToList("重复TOP", title);
+        messOutput.addPageToList("重复TOP", title);
     }
 };
 
@@ -128,14 +205,12 @@ const repetitiveTop = (text, _categories, title) => {
  * @param {string} title 标题
  */
 const pipeInDisambig = (text, categories, title) => {
-    if (
-        categories.includes("Category:消歧义页") &&
-        (
-            /\[\[(.+)\(.+\)\|\1\]\].*—/.test(text) ||
-            /\[\[[^:\n].*:(.+)\|\1\]\].*—/.test(text)
-        )
-    ) {
-        addPageToList("消歧义页使用管道符", title);
+    if (categories.includes("Category:消歧义页")) {
+        if (/\[\[(.+)\(.+\)\|\1\]\].*—/.test(text)) {
+            messOutput.addPageToList("后缀", title);
+        } else if (/\[\[[^:\n].*:(.+)\|\1\]\].*—/.test(text)) {
+            messOutput.addPageToList("前缀", title);
+        }
     }
 };
 
@@ -151,7 +226,7 @@ const wrapDetector = (text, categories, title) => {
         if (category.indexOf("音乐作品") > -1) { return; } // 排除音乐条目
     }
     if (/(<br *\/ *>\s*){4,}/i.test(text) || /(\n|<br *\/? *>){8}/i.test(text)) {
-        addPageToList("连续换行", title);
+        messOutput.addPageToList("连续换行", title);
     }
 };
 
@@ -164,7 +239,7 @@ const wrapDetector = (text, categories, title) => {
  */
 const bigDetector = (text, _categories, title) => {
     if (/(<big>){5}/i.test(text)) {
-        addPageToList("big地狱（5个以上）", title);
+        messOutput.addPageToList("big地狱（5个以上）", title);
     }
 };
 
@@ -180,7 +255,7 @@ const imgLT99px = (text, _categories, title) => {
         /leftimage *=.*\d{3}px/.test(text) ||
         /\{\{(?:[Tt]emplate:|[模样樣]板:|T:)?(欢迎编辑|歡迎編輯|不完整|[Cc]ustomtop).*\d{3}px/.test(text)
     ) {
-        addPageToList("页顶用图超过99px", title);
+        messOutput.addPageToList("页顶用图超过99px", title);
     }
 };
 
@@ -196,7 +271,7 @@ const redBoldText = (text, _categories, title) => {
         /\{\{color\|red\|'''.{40,}'''\}\}/i.test(text) ||
         /'''\{\{color\|red\|.{40,}\}\}'''/i.test(text)
     ) {
-        addPageToList("疑似喊话", title);
+        messOutput.addPageToList("疑似喊话", title);
     }
 };
 
@@ -325,28 +400,18 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
             }
         }
         console.log(`已遍历${count}个页面`);
+        // if(count > 20000) {
+        //     return;
+        // }
     } while (params.gapcontinue !== undefined);
 };
 
 
 /**
- * 根据MessOutput，生成wikitext并提交至萌百
+ * 将wikitext提交至萌百
  */
 const updatePage = async () => {
     const title = "User:BearBin/Sandbox/自动化";
-
-    // 生成文本
-    const text = [
-        "最后更新时间：~~~~~，约15分钟误差。",
-        "",
-        "大多数内容建议手动排查，以免误判。",
-        "{{目录右置}}",
-        ...Object.entries(MessOutput).flatMap(([headline, { list }]) => [
-            "",
-            `== ${headline} ==`,
-            ...list.map((page) => `*[[${page}]]`),
-        ]),
-    ].join("\n");
 
     try {
         const editToken = await bot.getEditToken();
@@ -354,7 +419,7 @@ const updatePage = async () => {
             action: "edit",
             title,
             summary: "test",
-            text,
+            text: messOutput.wikitext,
             bot: true,
             tags: "Bot",
             token: editToken.csrftoken,
@@ -379,26 +444,6 @@ const main = async (retryCount = 5) => {
                 password: config.password,
             });
             console.log("登录成功，开始获取所有页面信息……");
-            MessOutput = {
-                消歧义页使用管道符: {
-                    list: [],
-                },
-                连续换行: {
-                    list: [],
-                },
-                "big地狱（5个以上）": {
-                    list: [],
-                },
-                疑似喊话: {
-                    list: [],
-                },
-                重复TOP: {
-                    list: [],
-                },
-                页顶用图超过99px: {
-                    list: [],
-                },
-            };
             await traverseAllPages([
                 pipeInDisambig, // 检查消歧义页模板
                 wrapDetector, // 检查过量换行
@@ -419,6 +464,15 @@ const main = async (retryCount = 5) => {
 
 
 // 执行
-main(1).catch((error) => {
+await main(1).catch((error) => {
     console.error(error);
+});
+
+
+// 调试用
+fs.writeFile("MessOutput.json", JSON.stringify(messOutput.data, "", "    "), (err) => {
+    console.log(err || "jsonOK");
+});
+fs.writeFile("MessOutput.wikitext", messOutput.wikitext, (err) => {
+    console.log(err || "wikitextOK");
 });
