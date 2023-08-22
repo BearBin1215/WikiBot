@@ -89,7 +89,9 @@ const getRequiredDisambig = (DisambigList, PageList) => {
         // const SuffixPattern = /^([^:]+)\((.+)\)$/; // 后缀页面规则：以半角括号对结尾，括号前无半角冒号
         // const titleWithoutSuffix = item.replace(SuffixPattern, "$1");
         // const titleWithoutPrefix = item.replace(/^(.+):(.+)$/, "$2");
-        const titleWithouFix = item.replace(/^([^(]+:)?([^:)]+)(\(.+\))?$/, "$2");
+        const titleWithouFix = item
+            .replace(/\d:\d{2}([^\d])/, "$1") // 排除时间
+            .replace(/^([^(]+:)?([^:)]+)(\(.+\))?$/, "$2");
         if (
             // SuffixPattern.test(item) && // 标题带有后缀
             // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
