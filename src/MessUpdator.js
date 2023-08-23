@@ -541,7 +541,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
                     break;
                 } catch (error) {
                     retryCount++;
-                    console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
+                    console.error(`\n请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
                     await glb.sleep(3000);
                 }
             }
