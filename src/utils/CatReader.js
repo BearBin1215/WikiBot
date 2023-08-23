@@ -1,7 +1,13 @@
 /**
  * 本模块内容用于提供获取分类相关函数
  * 
- * 使用本模块导入后，应当使用Object.assign(bot, catReader)并入现有mwbot实例
+ * 使用本模块导入后，并入现有mwbot实例：
+ * 
+ * ```javascript
+ * import MWBot from "mwbot";
+ * const bot = new MWBot();
+ * Object.assign(bot, catReader);
+ * ```
  */
 
 const catReader = {

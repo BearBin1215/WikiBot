@@ -5,6 +5,7 @@
 import MWBot from "mwbot";
 import config from "../config/config.js";
 import glb from "./utils/global.js";
+import catReader from "./utils/catReader.js";
 import fs from "fs";
 
 class MessOutput {
