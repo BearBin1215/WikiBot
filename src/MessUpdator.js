@@ -1,4 +1,7 @@
 /* eslint-disable no-unused-vars */
+/**
+ * @todo 改良判定规则以减少误判
+ */
 import MWBot from "mwbot";
 import config from "../config/config.js";
 import glb from "./utils/global.js";
@@ -85,16 +88,23 @@ const messOutput = new MessOutput({
         后缀: [],
         前缀: [],
     },
-    连续换行: [],
-    "big地狱（5个以上）": [],
-    疑似喊话: [],
-    重复TOP: [],
-    页顶用图超过99px: [],
+    不礼貌排版习惯: {
+        连续换行: [],
+        "big地狱（5个以上）": [],
+        疑似大家族前单独用二级标题: [],
+        疑似喊话: [],
+    },
+    不符合模板规范: {
+        重复TOP: [],
+        页顶用图超过99px: [],
+        "注释、外部链接后的大家族模板": [],
+    },
 });
 
 
 // 模板及其别名
 const Templates = {
+    prefix: "\\{\\{(?:template:|[模样樣]板:|T:)?",
     // 消歧义导航模板
     disambigTop: [
         "about",
@@ -125,13 +135,18 @@ const Templates = {
         "R-15",
     ],
 
-    // 底部模板，用来检测大家族模板位置错误时排除特定模板
+    navbar: [
+
+    ],
+
+    // 底部模板，用来检测大家族模板位置错误或单独二级标题时排除特定模板
     bottom: [
         // 注释模板
         "reflist",
         "notelist",
         "NoteFoot",
         "notes",
+        "cite",
 
         // 外部链接模板
         "到萌娘文库",
@@ -148,12 +163,24 @@ const Templates = {
         "PAGENAME",
         "DEFAULTSORT",
 
+        // 常用
+        "lj\\|",
+        "color\\|",
+        "ruby\\|",
+        "剧透",
+        "黑幕",
+        "main\\|",
+        "ja\\}",
+        "en\\}",
+        "zh\\}",
+
         // 其他
         "catn",
         "bilibiliVideo",
         "BV",
         "背景[图圖]片",
         "替[换換][侧側][边邊][栏欄]底[图圖]",
+        "外部图片注释",
     ],
 };
 
@@ -181,7 +208,86 @@ const regexPosition = (str, reg) => {
  * @returns {number[]} 模板位置集合
  * @example templateDetector("{{欢迎编辑|补充内容}}{{消歧义}}{{电子游戏TOP}}", ...Templates.top) => [0, 20];
  */
-const templateDetector = (text, ...templates) => regexPosition(text, new RegExp(`\\{\\{(?:Template:|[模样樣]板:|T:)?(${templates.join("|")})[}\\|\\n]`, "gi"));
+const templateDetector = (text, ...templates) => regexPosition(text, new RegExp(`${Templates.prefix}(${templates.join("|")})[}\\|\\n]`, "gi"));
+
+
+/**
+ * ------------------------------
+ *      具体检查函数
+ * ------------------------------
+ */
+
+/**
+ * 检查消歧义页内中的管道符
+ */
+const pipeInDisambig = (text, categories, title) => {
+    if (categories.includes("Category:消歧义页")) {
+        if (/\[\[(.+)\(.+\)\|\1\]\].*—/.test(text)) {
+            messOutput.addPageToList("后缀", title);
+        } else if (/\[\[[^:\n].*:(.+)\|\1\]\].*—/.test(text)) {
+            messOutput.addPageToList("前缀", title);
+        }
+    }
+};
+
+
+/**
+ * 在页面中查找重复出现的大量换行
+ */
+const wrapDetector = (text, categories, title) => {
+    for (const category of categories) {
+        if (category.indexOf("音乐作品") > -1) { return; } // 排除音乐条目
+    }
+    if (/(<br *\/ *>\s*){4,}/i.test(text) || /(\n|<br *\/? *>){8}/i.test(text)) {
+        messOutput.addPageToList("连续换行", title);
+    }
+};
+
+
+/**
+ * 检测连续出现的big
+ */
+const bigDetector = (text, _categories, title) => {
+    if (/(<big>){5}/i.test(text)) {
+        messOutput.addPageToList("big地狱（5个以上）", title);
+    }
+};
+
+
+/**
+ * 检查大家族前疑似单独使用二级标题的页面
+ * 
+ * @todo 将判定方法改为发现疑似页面后判定模板是否为导航模板
+ */
+const headlineBeforeNav =  (text, _categories, title) => {
+    if(new RegExp(`== *(相关|更多|其他|其它)(条目|條目|内容)? *==\n*${Templates.prefix}((?!${Templates.bottom.join("|")}).)*\\}`, "gi").test(text)) {
+        messOutput.addPageToList("疑似大家族前单独用二级标题", title);
+    }
+};
+
+
+/**
+ * 位于注释或外部链接之后的大家族模板
+ */
+const refBeforeNav =  (text, _categories, title) => {
+    if(new RegExp(`== *(脚注|[注註]解|注释|註釋|外部[链鏈]接|外部連結|外链|[参參]考).*==[\\s\\S]*\n${Templates.prefix}((?!${Templates.bottom.join("|")}).)*\\}`, "gi").test(text)) {
+        messOutput.addPageToList("注释、外部链接后的大家族模板", title);
+    }
+};
+
+
+
+/**
+ * 检查疑似喊话内容
+ */
+const redBoldText = (text, _categories, title) => {
+    if (
+        /\{\{color\|red\|'''[^}|]{50,}'''\}\}/i.test(text) ||
+        /'''\{\{color\|red\|[^}|]{50,}\}\}'''/i.test(text)
+    ) {
+        messOutput.addPageToList("疑似喊话", title);
+    }
+};
 
 
 /**
@@ -199,52 +305,6 @@ const repetitiveTop = (text, _categories, title) => {
 
 
 /**
- * 检查消歧义页内中的管道符，并将其加入MessOutput
- * @param {string} text 文本
- * @param {string} categories 分类
- * @param {string} title 标题
- */
-const pipeInDisambig = (text, categories, title) => {
-    if (categories.includes("Category:消歧义页")) {
-        if (/\[\[(.+)\(.+\)\|\1\]\].*—/.test(text)) {
-            messOutput.addPageToList("后缀", title);
-        } else if (/\[\[[^:\n].*:(.+)\|\1\]\].*—/.test(text)) {
-            messOutput.addPageToList("前缀", title);
-        }
-    }
-};
-
-
-/**
- * 在页面中查找重复出现的大量换行，并将其加入MessOutput
- * @param {string} text 页面源代码
- * @param {string[]} categories 页面所属分类，用于排除歌曲条目
- * @param {string} title 页面标题
- */
-const wrapDetector = (text, categories, title) => {
-    for (const category of categories) {
-        if (category.indexOf("音乐作品") > -1) { return; } // 排除音乐条目
-    }
-    if (/(<br *\/ *>\s*){4,}/i.test(text) || /(\n|<br *\/? *>){8}/i.test(text)) {
-        messOutput.addPageToList("连续换行", title);
-    }
-};
-
-
-/**
- * 检测连续出现的big
- * @param {string} text 页面源代码
- * @param {string[]} _categories 页面所属分类，留空
- * @param {string} title 页面标题
- */
-const bigDetector = (text, _categories, title) => {
-    if (/(<big>){5}/i.test(text)) {
-        messOutput.addPageToList("big地狱（5个以上）", title);
-    }
-};
-
-
-/**
  * 检查用图超过99px的页顶模板
  * @param {string} text 页面源代码
  * @param {string[]} _categories 页面所属分类，留空
@@ -256,22 +316,6 @@ const imgLT99px = (text, _categories, title) => {
         /\{\{(?:[Tt]emplate:|[模样樣]板:|T:)?(欢迎编辑|歡迎編輯|不完整|[Cc]ustomtop).*\d{3}px/.test(text)
     ) {
         messOutput.addPageToList("页顶用图超过99px", title);
-    }
-};
-
-
-/**
- * 检查疑似喊话内容
- * @param {string} text 页面源代码
- * @param {string[]} _categories 页面所属分类，留空
- * @param {*} title 页面标题
- */
-const redBoldText = (text, _categories, title) => {
-    if (
-        /\{\{color\|red\|'''.{40,}'''\}\}/i.test(text) ||
-        /'''\{\{color\|red\|.{40,}\}\}'''/i.test(text)
-    ) {
-        messOutput.addPageToList("疑似喊话", title);
     }
 };
 
@@ -394,15 +438,16 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
         // 都没有，则更新gapcontinue，继续父循环
         params.gapcontinue = gapcontinue;
 
+        // 根据从参数导入的函数检查源代码
         for (const [title, { text, categories }] of Object.entries(pages)) {
             for (const func of functions) {
                 func(text, categories, title);
             }
         }
         console.log(`已遍历${count}个页面`);
-        // if(count > 20000) {
-        //     return;
-        // }
+        if (count > 20000) {
+            return;
+        }
     } while (params.gapcontinue !== undefined);
 };
 
@@ -451,6 +496,8 @@ const main = async (retryCount = 5) => {
                 repetitiveTop, // 检查重复TOP
                 imgLT99px, // 检查图片超过99px的页顶模板
                 redBoldText, // 检查疑似喊话内容
+                headlineBeforeNav, // 检查大家族前的二级标题
+                refBeforeNav, // 检查错误大家族模板位置
             ], 0, 20);
             await updatePage(); // 提交至萌百
             return;
@@ -470,9 +517,6 @@ await main(1).catch((error) => {
 
 
 // 调试用
-fs.writeFile("MessOutput.json", JSON.stringify(messOutput.data, "", "    "), (err) => {
+fs.writeFile("MessOutput.json", JSON.stringify(messOutput.data, "", "  "), (err) => {
     console.log(err || "jsonOK");
-});
-fs.writeFile("MessOutput.wikitext", messOutput.wikitext, (err) => {
-    console.log(err || "wikitextOK");
 });

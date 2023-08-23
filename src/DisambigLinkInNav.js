@@ -160,8 +160,8 @@ const main = async (retryCount = 5) => {
             // 生成wikitext
             const text = 
             "本页面列出[[:Category:导航模板|导航模板]]中的消歧义链接。\n\n" +
-            "此类链接可能创建模板时暂无对应消歧义页或遗漏；亦可能本意就是链接到消歧义页面，请注意甄别。\n\n" +
-            "由机器人于每周四凌晨3:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
+            "部分链接可能本意就是链接到消歧义页面，请注意甄别。\n\n" +
+            "由机器人于<u>每周四凌晨3:40左右</u>自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
             Object.entries(disambigInTemplates)
                 .map(([key, values]) => `;[[${key}]]<span class="plainlinks" style="font-weight:normal">【[{{fullurl:${key}|action=edit}} 编辑]】</span>\n:[[${values.join("]]\n:[[")}]]\n`)
                 .join("") +
