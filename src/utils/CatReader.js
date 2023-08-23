@@ -5,8 +5,6 @@
  */
 
 const catReader = {
-    formatter: (title) => title.replace(/^(?:Category:|Cat:|分[类類]:)?(.*)$/i, "Category:$1"),
-
     /**
      * 递归获取分类成员
      * @param {string} category 分类名
@@ -14,8 +12,8 @@ const catReader = {
      * @returns 
      */
     getMembersInCat: async function (category, nsnumber = 0) {
-        this.categoryList = [];
-        const pageList = await this.traverseCat(category, nsnumber);
+        this.traversedCategoryList = [];
+        const pageList = await this.traverseCategory(category, nsnumber);
         return pageList;
     },
 
@@ -26,7 +24,7 @@ const catReader = {
      * @param {string|number} cmnamespace 要获取的名字空间，默认全部
      * @returns 
      */
-    traverseCat: async function (category, nsnumber) {
+    traverseCategory: async function (category, nsnumber) {
         const pageList = [];
         let gcmcontinue = "";
         while (gcmcontinue !== undefined) {
@@ -42,9 +40,9 @@ const catReader = {
             for (const { ns, title } of Object.values(response.query.pages)) {
                 if (ns === nsnumber) {
                     pageList.push(title);
-                } else if (ns === 14 && !this.categoryList.includes(title)) {
-                    this.categoryList.push(title); // 避免套娃
-                    pageList.push(...await this.traverseCat(title, nsnumber));
+                } else if (ns === 14 && !this.traversedCategoryList.includes(title)) {
+                    this.traversedCategoryList.push(title); // 避免套娃
+                    pageList.push(...await this.traverseCategory(title, nsnumber));
                 }
             }
             console.log(`\x1B[4m${category}\x1B[0m下查找到\x1B[4m${pageList.length}\x1B[0m个页面`);
