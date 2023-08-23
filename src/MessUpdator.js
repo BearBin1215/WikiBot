@@ -495,7 +495,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
     const params = {
         action: "query",
         generator: "allpages",
-        gaplimit: 100, // 本来设置为max，但总是aborted，还是控制一下吧
+        gaplimit: 50, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
         gapnamespace: namespace,
         prop: "revisions|categories",
@@ -631,7 +631,7 @@ const main = async (retryCount = 5) => {
                 headlineBeforeNav, // 检查大家族前的二级标题
                 refBeforeNav, // 检查错误大家族模板位置
                 templateOrder, // 检查页顶模板顺序
-            ], 0, 20);
+            ], 0, 30);
             console.log("主名字空间检查完毕。");
 
             // 检查模板
@@ -653,6 +653,6 @@ const main = async (retryCount = 5) => {
 
 
 // 执行
-await main(3).catch((error) => {
+await main(5).catch((error) => {
     console.error(error);
 });
