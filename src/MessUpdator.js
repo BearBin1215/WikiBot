@@ -653,6 +653,6 @@ const main = async (retryCount = 5) => {
 
 
 // 执行
-await main(1).catch((error) => {
+await main(3).catch((error) => {
     console.error(error);
 });
