@@ -114,10 +114,10 @@ const messOutput = new MessOutput({
         },
         顶部模板排序: [],
         注释和外部链接后的大家族模板: [],
-        模板多余换行: {
-            两个或以上: [],
-            一个: [],
-        },
+    },
+    模板多余换行: {
+        两个或以上: [],
+        一个: [],
     },
 });
 
@@ -427,7 +427,7 @@ const templateOrder = (text, _categories, title) => {
  * 检查用图超过99px的页顶模板
  */
 const imgLT99pxInTemplate = (text, categories, title) => {
-    if(categories.includes("Category:页顶提示模板") && (
+    if (categories.includes("Category:页顶提示模板") && (
         /leftimage *=.*\d{3}px/.test(text) ||
         /(width|size) *= *\d{3}px/.test(text) ||
         /\[\[(File|Image):[^\]]+\| *\d{3}px/i.test(text)
@@ -444,7 +444,7 @@ const redundantWrapInTemplate = (text, categories, title) => {
     if (categories.some(category => ["Category:模板文档", "Category:条目格式模板", "Category:权限申请模板"].includes(category))) {
         return;
     }
-    if(/(\n{2}<noinclude>|<\/noinclude>\n{2}|<includeonly>\n{2}|\n{2}<\/includeonly>)/.test(text)) {
+    if (/(\n{2}<noinclude>|<\/noinclude>\n{2}|<includeonly>\n{2}|\n{2}<\/includeonly>)/.test(text)) {
         messOutput.addPageToList("两个或以上", title);
     } else if (/(\n<noinclude>|<\/noinclude>\n|<includeonly>\n|\n<\/includeonly>)/.test(text)) {
         messOutput.addPageToList("一个", title);
@@ -495,7 +495,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
     const params = {
         action: "query",
         generator: "allpages",
-        gaplimit: 50, // 本来设置为max，但总是aborted，还是控制一下吧
+        gaplimit: 200, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
         gapnamespace: namespace,
         prop: "revisions|categories",
