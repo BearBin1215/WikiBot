@@ -1,12 +1,10 @@
-/* eslint-disable no-unused-vars */
 /**
- * @todo 改良判定规则以减少误判
+ * @todo 改良判定规则以减少误判，比如获取大家族模板列表以判定相关内容
  */
 import MWBot from "mwbot";
 import config from "../config/config.js";
 import glb from "./utils/global.js";
-import catReader from "./utils/catReader.js";
-import fs from "fs";
+// import catReader from "./utils/catReader.js";
 
 class MessOutput {
     /**
@@ -497,7 +495,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
     const params = {
         action: "query",
         generator: "allpages",
-        gaplimit: 100, // 本来设置为max，但总是aborted，还是控制一下吧
+        gaplimit: 200, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
         gapnamespace: namespace,
         prop: "revisions|categories",
@@ -580,9 +578,6 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
                 func(text, categories, title);
             }
         }
-        // if (count > 9999) {
-        //     return;
-        // }
     } while (params.gapcontinue !== undefined);
 };
 
@@ -660,10 +655,4 @@ const main = async (retryCount = 5) => {
 // 执行
 await main(1).catch((error) => {
     console.error(error);
-});
-
-
-// 调试用
-fs.writeFile("test/MessOutput.json", JSON.stringify(messOutput.data, "", "  "), (err) => {
-    console.log(err || "jsonOK");
 });
