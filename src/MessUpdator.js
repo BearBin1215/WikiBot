@@ -598,7 +598,7 @@ const updatePage = async () => {
         await bot.request({
             action: "edit",
             title,
-            summary: "test",
+            summary: "自动更新列表",
             text: messOutput.wikitext,
             bot: true,
             tags: "Bot",
