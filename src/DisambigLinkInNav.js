@@ -1,13 +1,14 @@
 "use strict";
 import MWBot from "mwbot";
 import config from "../config/config.js";
+import catReader from "./utils/catReader.js";
 
 const bot = new MWBot({
     apiUrl: config.API_PATH,
 }, {
     timeout: 60000,
 });
-let categoryList = []; // 用于记录已获取到的分类，避免套娃
+Object.assign(bot, catReader);
 
 /**
  * 获取所有消歧义页标题及其重定向
@@ -41,37 +42,6 @@ const getDisambigList = async () => {
     }
 };
 
-/**
- * 递归获取分类内所有模板
- * 
- * @param {string} category 
- * @returns {Promise<string[]>} 分类内模板列表
- */
-const getTemplatesInCategory = async (category) => {
-    const templates = [];
-    let gcmcontinue = "";
-    while (gcmcontinue !== undefined) {
-        const response = await bot.request({
-            action: "query",
-            generator: "categorymembers",
-            gcmtitle: category,
-            gcmtype: "page|subcat",
-            gcmlimit: "max",
-            gcmcontinue,
-        });
-        gcmcontinue = response.continue?.gcmcontinue;
-        for (const { ns, title } of Object.values(response.query.pages)) {
-            if (ns === 10) {
-                templates.push(title);
-            } else if (ns === 14 && !categoryList.includes(title)) {
-                categoryList.push(title); // 避免套娃
-                templates.push(...await getTemplatesInCategory(title));
-            }
-        }
-        console.log(`\x1B[4m${category}\x1B[0m下查找到\x1B[4m${templates.length}\x1B[0m个模板`);
-    }
-    return [...new Set(templates)];
-};
 
 /**
  * 获取模板内所有链接
@@ -133,7 +103,6 @@ const main = async (retryCount = 5) => {
 
     while (retries < retryCount) {
         try {
-            categoryList = []; // 清空
             await bot.loginGetEditToken({
                 username: config.username,
                 password: config.password,
@@ -143,7 +112,7 @@ const main = async (retryCount = 5) => {
             const DisambigList = await getDisambigList();
             console.log(`获取到\x1B[4m${DisambigList.length}\x1B[0m个消歧义页及其重定向，正在获取所有导航模板……`);
 
-            const templates = await getTemplatesInCategory("Category:导航模板");
+            const templates = await bot.getMembersInCat("Category:导航模板", 10);
             console.log(`获取到\x1B[4m${templates.length}\x1B[0m个模板。正在获取模板中包含的链接……`);
 
             const linksInTemplates = await getLinksInTemplates(templates, 500);
