@@ -226,24 +226,35 @@ const Templates = {
         "hide\\|",
         "[剧劇]透",
         "黑幕",
+        "胡话",
+        "jk\\|",
         "main\\|",
         "ja\\}",
         "en\\}",
         "zh\\}",
         "lang\\|",
+        "cquote",
+        "Ps\\|",
 
         // 其他
         "catn",
         "ColonSort",
         "bilibiliVideo",
         "BV",
+        "YoukuVideo",
+        "music163",
         "背景[图圖]片",
         "替[换換][侧側][边邊][栏欄]底[图圖]",
         "外部[图圖]片注[释釋]",
+        "Outer[ _]image",
+        "pic\\|",
         "disambig",
         "消歧义页",
         "NoSubpage",
         "noReferer",
+        "用梗适度",
+        "一本正经地胡说八道",
+        "color[ _]block",
     ],
 };
 
@@ -461,13 +472,13 @@ const redundantWrapInTemplate = (text, categories, title) => {
  * •左右缺少空格
  */
 const needSpaceBesidesPoint = (text, _categories, title) => {
-    const left = text.match(/(\[\[[^\]\n]+\]\]|\{\{[^}\n]+\}\})•/);
-    const right = text.match(/•(\[\[[^\]\n]+\]\]|\{\{[^}\n]+\}\})/);
+    const left = text.match(/([^\]\n]+\]\]|[^}\n]+\}\})•/);
+    const right = text.match(/•(\[\[[^\]\n]+|\{\{[^}\n]+)/);
     if (left) {
-        messOutput.addPageToList("左侧缺少", [title, "<code><nowiki>" + left.join("</nowiki></code>、<code><nowiki>") + "</nowiki></code>"]);
+        messOutput.addPageToList("左侧缺少", [title, `<code><nowiki>${left[0]}</nowiki></code>`]);
     }
     if (right) {
-        messOutput.addPageToList("右侧缺少", [title, "<code><nowiki>" + right.join("</nowiki></code>、<code><nowiki>") + "</nowiki></code>"]);
+        messOutput.addPageToList("右侧缺少", [title, `<code><nowiki>${right[0]}</nowiki></code>`]);
     }
 };
 
@@ -622,7 +633,6 @@ const updatePage = async () => {
     const title = "User:BearBin/杂物";
 
     try {
-        const editToken = await bot.getEditToken();
         await bot.request({
             action: "edit",
             title,
@@ -630,7 +640,7 @@ const updatePage = async () => {
             text: messOutput.wikitext,
             bot: true,
             tags: "Bot",
-            token: editToken.csrftoken,
+            token: (await bot.getEditToken()).csrftoken,
         });
         console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
     } catch (error) {

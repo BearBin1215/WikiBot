@@ -6,7 +6,8 @@
   "scripts": {
     "Suffix": "node src/Suffix.js",
     "RequiredDiambig": "node src/RequiredDiambig.js",
-    "FeishuSync": "node src/VN/FeishuSync.js"
+    "FeishuSync": "node src/VN/FeishuSync.js",
+    "Mess": "node src/MessUpdator.js"
   },
   "author": "BearBin",
   "license": "MIT",
