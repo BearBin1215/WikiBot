@@ -219,6 +219,7 @@ const Templates = {
         "lj\\|",
         "color\\|",
         "ruby\\|",
+        "hide\\|",
         "[剧劇]透",
         "黑幕",
         "main\\|",
@@ -465,10 +466,12 @@ const bot = new MWBot({
  * @param {function[]} functions 执行检查的函数集，这些函数都接受text、categories、title三个参数
  * @param {number} [namespace=0] 要遍历的名字空间
  * @param {number} [maxRetry=10] 最大重试次数
+ * @param {number} [limit = 500] 单词请求最大页面数
  */
-const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
+const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit = 500) => {
     let count = 0;
     let pages = {};
+    let reported = false; // 标记是否已报错，用于控制台输出显示
 
     /**
      * 分析pages
@@ -487,19 +490,28 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
                 pages[title].categories.push(...categories.map((item) => item.title));
             }
         }
-        process.stdout.write("\r\x1b[K");
-        process.stdout.write(`已遍历${count}个页面`);
     };
 
     // 初始化请求参数
     const params = {
         action: "query",
         generator: "allpages",
-        gaplimit: 200, // 本来设置为max，但总是aborted，还是控制一下吧
+        gaplimit: limit, // 本来设置为max，但总是aborted，还是控制一下吧
         cllimit: "max",
         gapnamespace: namespace,
         prop: "revisions|categories",
         rvprop: "content",
+    };
+
+    // 报错及参数调整以供下次请求
+    const resolveError = async(error, retryCount) => {
+        if (!reported) {
+            console.log("");
+            reported = true;
+        }
+        console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
+        params.gaplimit = Math.ceil(params.gaplimit / 2); // 减少页面数
+        await glb.sleep(3000);
     };
 
     // 父循环
@@ -513,11 +525,11 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
                 res = await bot.request(params); // 发送请求
                 break;
             } catch (error) {
-                retryCount++;
-                console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
-                await glb.sleep(3000);
+                await resolveError(error, ++retryCount);
             }
         }
+        reported = false;
+        params.gaplimit = Math.min(params.gaplimit * 2, limit); // 请求成功后逐渐恢复原有数量
 
         processPage(Object.values(res.query.pages));
 
@@ -540,11 +552,11 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
                     subRes = await bot.request(params);
                     break;
                 } catch (error) {
-                    retryCount++;
-                    console.error(`\n请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
-                    await glb.sleep(3000);
+                    await resolveError(error, ++retryCount);
                 }
             }
+            reported = false;
+            params.gaplimit = Math.min(params.gaplimit * 2, limit); // 请求成功后逐渐恢复原有数量
             processPage(Object.values(subRes.query.pages));
 
             // 有gapcontinue则更新并退出子循环
@@ -578,6 +590,8 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10) => {
                 func(text, categories, title);
             }
         }
+        process.stdout.write("\r\x1b[K");
+        process.stdout.write(`已遍历\x1B[4m${count}\x1B[0m个页面`);
     } while (params.gapcontinue !== undefined);
 };
 
