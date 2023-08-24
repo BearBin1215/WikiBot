@@ -646,14 +646,14 @@ const main = async (retryCount = 5) => {
                 refBeforeNav, // 检查错误大家族模板位置
                 templateOrder, // 检查页顶模板顺序
             ], 0, 30);
-            console.log("主名字空间检查完毕。");
+            console.log("\n主名字空间检查完毕。");
 
             // 检查模板
             await traverseAllPages([
                 imgLT99pxInTemplate,
                 redundantWrapInTemplate,
             ], 10, 10);
-            console.log("模板名字空间检查完毕。");
+            console.log("\n模板名字空间检查完毕。");
 
             await updatePage(); // 提交至萌百
             return;
