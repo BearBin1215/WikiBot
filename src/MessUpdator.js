@@ -18,7 +18,7 @@ class MessOutput {
     /**
      * 遍历data广度优先搜索标题，并在对应的列表插入新页面名
      * @param {string} headline 标题
-     * @param {string} page 要插入的页面名
+     * @param {string|string[]} page 要插入的页面名，或页面名和附加信息组成的数组
      * @returns 
      */
     addPageToList(headline, page) {
@@ -73,7 +73,7 @@ class MessOutput {
                                 if (typeof page === "string") {
                                     return `*[[${page}]]`; // 无附加内容
                                 }
-                                return `*[[${page[0]}]]：<code><nowiki>${page[1]}</nowiki></code>`; // 有附加内容
+                                return `*[[${page[0]}]]：${page[1]}`; // 有附加内容
                             }),
                             "}}",
                         );
@@ -118,6 +118,10 @@ const messOutput = new MessOutput({
     模板多余换行: {
         两个或以上: [],
         一个: [],
+    },
+    "“•”左右少空格": {
+        左侧缺少: [],
+        右侧缺少: [],
     },
 });
 
@@ -239,6 +243,7 @@ const Templates = {
         "disambig",
         "消歧义页",
         "NoSubpage",
+        "noReferer",
     ],
 };
 
@@ -309,9 +314,9 @@ const pipeInDisambig = (text, categories, title) => {
         const prefix = text.match(/\[\[(.+)\(.+\)\|\1\]\].*—/);
         const suffix = text.match(/\[\[[^:\n].*:(.+)\|\1\]\].*—/);
         if (prefix) {
-            messOutput.addPageToList("后缀", [title, prefix[0].replaceAll("—", "")]);
+            messOutput.addPageToList("后缀", [title, `<code><nowiki>${prefix[0].replaceAll("—", "")}</nowiki></code>`]);
         } else if (suffix) {
-            messOutput.addPageToList("前缀", [title, suffix[0].replaceAll("—", "")]);
+            messOutput.addPageToList("前缀", [title, `<code><nowiki>${suffix[0].replaceAll("—", "")}</nowiki></code>`]);
         }
     }
 };
@@ -406,14 +411,14 @@ const templateOrder = (text, _categories, title) => {
         消歧义导航模板: templateIndex(text, ...Templates.disambigTop), // 消歧义导航模板
         专题导航导航: templateIndex(text, "导航"), // 专题导航
         导航条: templateIndex(text, ...Templates.navbar), // 导航条
-        "{{消歧义}}": templateIndex(text, ...Templates.disambig), // 消歧义
+        "{{tl|消歧义}}": templateIndex(text, ...Templates.disambig), // 消歧义
         欢迎编辑或专题TOP: templateIndex(text, ...Templates.top), // 欢迎编辑、各类TOP
         提示模板: templateIndex(text, ...Templates.note), // 提示模板
         喊话模板: templateIndex(text, ...Templates.quote), // 喊话模板
     };
     const wrongTemplate = checkOrder(Object.values(templateIndexes));
     if (wrongTemplate > 0) {
-        messOutput.addPageToList("顶部模板排序", [title, `${Object.keys(templateIndexes)[wrongTemplate]}`]);
+        messOutput.addPageToList("顶部模板排序", [title, `<code>${Object.keys(templateIndexes)[wrongTemplate]}</code>`]);
     }
 };
 
@@ -449,6 +454,20 @@ const redundantWrapInTemplate = (text, categories, title) => {
         messOutput.addPageToList("两个或以上", title);
     } else if (/(\n<noinclude>|<\/noinclude>\n|<includeonly>\n|\n<\/includeonly>)/.test(text)) {
         messOutput.addPageToList("一个", title);
+    }
+};
+
+/**
+ * •左右缺少空格
+ */
+const needSpaceBesidesPoint = (text, _categories, title) => {
+    const left = text.match(/(\[\[[^\]\n]+\]\]|\{\{[^}\n]+\}\})•/);
+    const right = text.match(/•(\[\[[^\]\n]+\]\]|\{\{[^}\n]+\}\})/);
+    if (left) {
+        messOutput.addPageToList("左侧缺少", [title, "<code><nowiki>" + left.join("</nowiki></code>、<code><nowiki>") + "</nowiki></code>"]);
+    }
+    if (right) {
+        messOutput.addPageToList("右侧缺少", [title, "<code><nowiki>" + right.join("</nowiki></code>、<code><nowiki>") + "</nowiki></code>"]);
     }
 };
 
@@ -504,7 +523,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
     };
 
     // 报错及参数调整以供下次请求
-    const resolveError = async(error, retryCount) => {
+    const resolveError = async (error, retryCount) => {
         if (!reported) {
             console.log("");
             reported = true;
@@ -652,6 +671,7 @@ const main = async (retryCount = 5) => {
             await traverseAllPages([
                 imgLT99pxInTemplate,
                 redundantWrapInTemplate,
+                needSpaceBesidesPoint,
             ], 10, 10);
             console.log("\n模板名字空间检查完毕。");
 

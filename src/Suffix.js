@@ -118,7 +118,7 @@ const updatePage = async (AbsentList, Suffix2Origin, Origin2Suffix) => {
         "# “FOO(BAR)”存在，“FOO”不存在；\n" +
         "# “FOO(BAR)”重定向到“FOO”；\n" +
         "# “FOO”重定向到“FOO(BAR)”。\n" +
-        "本页面由机器人于每周一凌晨3:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
+        "本页面由机器人于每周一凌晨4:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
         "__TOC__" +
         "\n\n== 后缀存在、无后缀不存在 ==\n\n" +
         AbsentList.join("\n") +
