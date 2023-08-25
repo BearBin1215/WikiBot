@@ -4,7 +4,7 @@
 import MWBot from "mwbot";
 import config from "../config/config.js";
 import glb from "./utils/global.js";
-// import catReader from "./utils/catReader.js";
+import catReader from "./utils/catReader.js";
 
 class MessOutput {
     /**
@@ -259,6 +259,10 @@ const Templates = {
 };
 
 
+// 页顶提示模板
+let topTipTemplate;
+
+
 /**
  * ------------------------------
  * 辅助函数，用于后续具体检查函数
@@ -394,8 +398,16 @@ const redBoldText = (text, _categories, title) => {
  * 检查重复TOP
  */
 const repetitiveTop = (text, _categories, title) => {
-    const indexes = templateIndex(text, ...Templates.top);
-    if (indexes.length > 1) {
+    const topPattern = new RegExp(`${Templates.prefix}(${Templates.top.join("|")})[}\\|\\n]`, "gi");
+    const useTemplates = text.match(topPattern) || [];
+    let usedTops = 0;
+    for (const item of useTemplates) {
+        // 部分名字以top结尾的模板可能并不是页顶，需要排除
+        if (topTipTemplate.includes(item.replace(topPattern, "$1"))) {
+            usedTops++;
+        }
+    }
+    if (usedTops > 1) {
         messOutput.addPageToList("重复TOP", title);
     }
 };
@@ -489,6 +501,8 @@ const bot = new MWBot({
 }, {
     timeout: 60000,
 });
+
+Object.assign(bot, catReader);
 
 
 /**
@@ -629,23 +643,28 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
 /**
  * 将wikitext提交至萌百
  */
-const updatePage = async () => {
+const updatePage = async (maxRetry = 5) => {
     const title = "User:BearBin/杂物";
-
-    try {
-        await bot.request({
-            action: "edit",
-            title,
-            summary: "自动更新列表",
-            text: messOutput.wikitext,
-            bot: true,
-            tags: "Bot",
-            token: (await bot.getEditToken()).csrftoken,
-        });
-        console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
-    } catch (error) {
-        throw new Error(`保存到\x1B[4m${title}\x1B[0m失败：${error}`);
+    let retryCount = 0;
+    while (retryCount < maxRetry) {
+        try {
+            await bot.request({
+                action: "edit",
+                title,
+                summary: "自动更新列表",
+                text: messOutput.wikitext,
+                bot: true,
+                tags: "Bot",
+                token: (await bot.getEditToken()).csrftoken,
+            });
+            console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
+            return;
+        } catch (error) {
+            console.error(`保存出错：${error}，即将重试(${++retryCount}/${maxRetry})`);
+            await glb.sleep(3000);
+        }
     }
+    throw new Error(`保存到\x1B[4m${title}\x1B[0m失败。`);
 };
 
 
@@ -662,6 +681,10 @@ const main = async (retryCount = 5) => {
                 password: config.password,
             });
             console.log("登录成功，开始获取所有页面信息……");
+
+            topTipTemplate = (await bot.getMembersInCat("Category:页顶提示模板", 10)).map((item) => item.replace("Template:", ""))
+                .filter((item) => !["架空历史"].includes(item)); // 获取Category:页顶提示模板内的模板，排除架空历史TOP等
+            console.log(`获取到${topTipTemplate.length}个页顶提示模板。`);
 
             // 检查主名字空间
             await traverseAllPages([
