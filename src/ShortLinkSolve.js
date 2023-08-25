@@ -33,7 +33,7 @@ await bot.loginGetEditToken({
 for (const item of list) {
     const res = await bot.read(item);
     let source = Object.values(res.query.pages)[0].revisions[0]["*"];
-    const links = source.match(/https:\/\/b23.tv\/\w+/g);
+    const links = source.match(/https:\/\/b23\.tv\/\w+/g);
     for (const link of links) {
         const resolved = (await resolveRedirect(link))?.replace(/\?.+/g, "");
         if (resolved) {
