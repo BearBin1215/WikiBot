@@ -106,6 +106,7 @@ const messOutput = new MessOutput({
         疑似大家族前单独用二级标题: [],
         疑似喊话: [],
     },
+    能用内链非要外链: [],
     不符合模板规范: {
         重复TOP: [],
         页顶用图超过99px: {
@@ -354,6 +355,16 @@ const wrapDetector = (text, categories, title) => {
 const bigDetector = (text, _categories, title) => {
     if (/(<big>){5}/i.test(text)) {
         messOutput.addPageToList("big地狱（5个以上）", title);
+    }
+};
+
+
+/**
+ * 能用内链非要用外链
+ */
+const innerToOuter = (text, _categories, title) => {
+    if ((new RegExp(`${Templates.prefix}(背景[图圖]片|替[换換][侧側][边邊][栏欄]底[图圖])[^}]+img\\.moegirl\\.org\\.cn`, "si")).test(text)) {
+        messOutput.addPageToList("能用内链非要外链", title);
     }
 };
 
@@ -648,6 +659,7 @@ const updatePage = async (maxRetry = 5) => {
     let retryCount = 0;
     while (retryCount < maxRetry) {
         try {
+            const editToken = await bot.getEditToken();
             await bot.request({
                 action: "edit",
                 title,
@@ -655,7 +667,7 @@ const updatePage = async (maxRetry = 5) => {
                 text: messOutput.wikitext,
                 bot: true,
                 tags: "Bot",
-                token: (await bot.getEditToken()).csrftoken,
+                token: editToken.csrftoken,
             });
             console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
             return;
@@ -697,6 +709,7 @@ const main = async (retryCount = 5) => {
                 headlineBeforeNav, // 检查大家族前的二级标题
                 refBeforeNav, // 检查错误大家族模板位置
                 templateOrder, // 检查页顶模板顺序
+                innerToOuter, // 检查背景图片等模板中的图站外链
             ], 0, 30);
             console.log("\n主名字空间检查完毕。");
 
