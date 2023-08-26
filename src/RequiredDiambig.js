@@ -112,12 +112,13 @@ const getRequiredDisambig = (DisambigList, PageList) => {
             ) &&
 
             // 一些专题内互相消歧义
-            !value.every((item) => item.indexOf("美少女花骑士:") > -1) &&
-            !value.every((item) => item.indexOf("假面骑士") > -1) &&
-            !value.every((item) => item.indexOf("舰队Collection:") > -1) &&
-            !value.every((item) => item.indexOf("魂器学院:") > -1) &&
-            !value.every((item) => item.indexOf("黑塔利亚:") > -1) &&
-            !value.every((item) => item.indexOf("决战平安京") > -1 || item.indexOf("百闻牌") > -1 || item.indexOf("阴阳师手游") > -1 || item.indexOf("妖怪屋") > -1) // 阴阳师系列
+            !value.every((item) => item.includes("美少女花骑士:")) &&
+            !value.every((item) => item.includes("假面骑士")) &&
+            !value.every((item) => item.includes("舰队Collection:")) &&
+            !value.every((item) => item.includes("偶像大师")) &&
+            !value.every((item) => item.includes("魂器学院:")) &&
+            !value.every((item) => item.includes("黑塔利亚:")) &&
+            !value.every((item) => item.includes("决战平安京") || item.includes("百闻牌") || item.includes("阴阳师手游") || item.includes("妖怪屋")) // 阴阳师系列
         );
     }).map(([key, value]) => `;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
 };
