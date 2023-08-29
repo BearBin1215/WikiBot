@@ -187,6 +187,14 @@ const Templates = {
         "一本正经地胡说八道",
     ],
 
+    // 娱乐页顶模板
+    amuse: [
+        "阿卡林",
+        "被巡回",
+        "黑幕可能无法划开",
+        "暂时保留",
+    ],
+
     // 喊话模板
     quote: [
         "cquote",
@@ -448,6 +456,7 @@ const templateOrder = (text, _categories, title) => {
         "{{tl|消歧义}}": templateIndex(text, ...Templates.disambig), // 消歧义
         欢迎编辑或专题TOP: templateIndex(text, ...Templates.top), // 欢迎编辑、各类TOP
         提示模板: templateIndex(text, ...Templates.note), // 提示模板
+        娱乐模板: templateIndex(text, ...Templates.amuse), // 娱乐模板
         喊话模板: templateIndex(text, ...Templates.quote), // 喊话模板
     };
     const wrongTemplate = checkOrder(Object.values(templateIndexes));
