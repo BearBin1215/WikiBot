@@ -43,6 +43,8 @@ rules:
     - 2
   no-const-assign:
     - 2
+  no-unneeded-ternary:
+    - 2
   prefer-const:
     - 2
   prefer-arrow-callback:
