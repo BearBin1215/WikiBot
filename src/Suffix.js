@@ -60,7 +60,11 @@ const getAllPages = async () => {
 const getAbsentList = async (PageList) => {
     const AbsentList = [];
     for (const title of PageList) {
-        if (title.slice(-1) === ")" && title[0] !== "(" && (title.indexOf(":") === -1 || title.indexOf(":") > title.indexOf("("))) {
+        if (
+            title.slice(-1) === ")" &&
+            title[0] !== "(" &&
+            (!title.includes(":") || title.indexOf(":") > title.indexOf("("))
+        ) {
             const titleWithoutSuffix = title.replace(/\(.*\)/, "").trim();
             if (!PageList.has(titleWithoutSuffix)) {
                 AbsentList.push(`* [[${title}]]→[[${titleWithoutSuffix}]]`);
