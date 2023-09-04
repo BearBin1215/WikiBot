@@ -124,6 +124,10 @@ const messOutput = new MessOutput({
         左侧缺少: [],
         右侧缺少: [],
     },
+    "管道符前后一致（无明显影响，通常不用专门处理）": {
+        "<nowiki>[[ABC|ABC]]</nowiki>": [],
+        "<nowiki>|ABC{{!}}ABC</nowiki>": [],
+    },
 });
 
 
@@ -515,6 +519,19 @@ const needSpaceBesidesPoint = (text, _categories, title) => {
     }
 };
 
+/**
+ * 管道符前一致
+ */
+const redundantPipe = (text, _categories, title) => {
+    const normal = text.match(/\[\[([^\]]+)\|\1\]\]/);
+    const escape = text.match(/\|([^\]]+)\{\{!\}\}\1(\||\})/);
+    if(normal) {
+        messOutput.addPageToList("<nowiki>[[ABC|ABC]]</nowiki>", [title, `<code><nowiki>${normal[0]}</nowiki></code>`]);
+    }
+    if(escape) {
+        messOutput.addPageToList("<nowiki>|ABC{{!}}ABC</nowiki>", [title, `<code><nowiki>${escape[0]}</nowiki></code>`]);
+    }
+};
 
 // MWBot实例
 const bot = new MWBot({
@@ -720,6 +737,7 @@ const main = async (retryCount = 5) => {
                 refBeforeNav, // 检查错误大家族模板位置
                 templateOrder, // 检查页顶模板顺序
                 innerToOuter, // 检查背景图片等模板中的图站外链
+                redundantPipe, // 管道符前后内容一致
             ], 0, 30);
             console.log("\n主名字空间检查完毕。");
 
@@ -728,6 +746,7 @@ const main = async (retryCount = 5) => {
                 imgLT99pxInTemplate,
                 redundantWrapInTemplate,
                 needSpaceBesidesPoint,
+                redundantPipe,
             ], 10, 10);
             console.log("\n模板名字空间检查完毕。");
 
