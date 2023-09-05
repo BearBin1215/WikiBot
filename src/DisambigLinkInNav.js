@@ -147,6 +147,4 @@ const main = async (retryCount = 5) => {
     throw new Error(`运行失败：已连续尝试${retryCount}次。`);
 };
 
-main(5).catch((error) => {
-    console.error(error);
-});
+main(5);
