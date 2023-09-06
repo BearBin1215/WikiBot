@@ -4,6 +4,7 @@ import config from "../config/config.js";
 let data = {
     lastUpdate: "2023-05-01T00:00:00Z",
     usage: {},
+    static: {},
 };
 
 const zhBot = new MWBot({
@@ -69,7 +70,7 @@ const getRecentChanges = async (site = "zh", lastUpdate) => {
                 }
             }
         }
-    } catch(error) {
+    } catch (error) {
         throw new Error(`获取${site}最近更改失败：${error}`);
     }
     return data;
@@ -108,7 +109,12 @@ const main = async (retryCount = 5) => {
             data.lastUpdate = new Date().toISOString();
             await getRecentChanges("zh", lastUpdate);
             await getRecentChanges("cm", lastUpdate);
-            await updatePage(dataPage, JSON.stringify(data, null, "  "));
+            data.static = {
+                userCount: new Set([...Object.keys(data.usage.zh), ...Object.keys(data.usage.cm)]).size,
+                editCount: [...Object.values(data.usage.zh), ...Object.values(data.usage.cm)].reduce((pre, cur) => pre + cur, 0),
+            };
+            console.log(data);
+            await updatePage(dataPage, JSON.stringify(data, null, "    "));
             return;
         } catch (error) {
             console.error(`获取数据出错：${error}\n正在重试（${retries + 1}/${retryCount}）`);
