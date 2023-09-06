@@ -62,7 +62,7 @@ const getRecentChanges = async (site = "zh", lastUpdate) => {
             for (const item of response.query.recentchanges) {
                 const timestamp = new Date(item.timestamp);
                 if (timestamp < lastUpdate) {
-                    return data;
+                    return;
                 }
                 if (item.comment.includes("MassEdit")) {
                     data.usage[site][item.user] ||= 0;
@@ -73,7 +73,6 @@ const getRecentChanges = async (site = "zh", lastUpdate) => {
     } catch (error) {
         throw new Error(`获取${site}最近更改失败：${error}`);
     }
-    return data;
 };
 
 // 更新
