@@ -19,6 +19,7 @@ rules:
   quotes:
     - 2
     - double
+    - avoidEscape: true
   quote-props:
     - 2
     - as-needed
