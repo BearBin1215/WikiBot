@@ -17,6 +17,6 @@ jobs:
         run: npm ci
       - name: 更新页面
         env:
-          MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
-          MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
+          MW_USERNAME: ${{secrets.MGP_USERNAME}}
+          MW_PASSWORD: ${{secrets.MGP_PASSWORD}}
         run: node src/MassEditUsage.js
