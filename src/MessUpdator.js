@@ -260,6 +260,7 @@ const Templates = {
         "背景[图圖]片",
         "替[换換][侧側][边邊][栏欄]底[图圖]",
         "外部[图圖]片注[释釋]",
+        "PicHover",
         "Outer[ _]image",
         "pic\\|",
         "disambig",
