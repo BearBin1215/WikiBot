@@ -524,8 +524,8 @@ const needSpaceBesidesPoint = (text, _categories, title) => {
  * 管道符前一致
  */
 const redundantPipe = (text, _categories, title) => {
-    const normal = text.match(/\[\[([^\]]+)\|\1\]\]/);
-    const escape = text.match(/\|([^\]]+)\{\{!\}\}\1(\||\})/);
+    const normal = text.match(/\[\[ *([^\]]+) *\| *\1 *\]\]/);
+    const escape = text.match(/\| *([^\]{}}]+) *\{\{!\}\} *\1 *(\||\})/);
     if(normal) {
         messOutput.addPageToList("<nowiki>[[ABC|ABC]]</nowiki>", [title, `<code><nowiki>${normal[0]}</nowiki></code>`]);
     }
