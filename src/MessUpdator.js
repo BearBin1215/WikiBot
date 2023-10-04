@@ -228,6 +228,8 @@ const Templates = {
         "到泰拉瑞[亚亞]Wiki",
         "到MC百科",
         "到魔禁维基",
+        "到THBWiki",
+        "到BlitzHanger",
 
         // 魔术字
         "PAGENAME",
