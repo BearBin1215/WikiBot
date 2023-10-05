@@ -767,6 +767,4 @@ const main = async (retryCount = 5) => {
 
 
 // 执行
-await main(5).catch((error) => {
-    console.error(error);
-});
+main(5);

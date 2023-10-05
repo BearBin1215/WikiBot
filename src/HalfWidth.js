@@ -42,7 +42,7 @@ const getAllPages = async () => {
 };
 
 const submitResult = async (pageList) => {
-    const PAGENAME = "User:BearBin/Sandbox";
+    const PAGENAME = "User:BearBin/可能需要改为全角标点标题的页面";
     const badList = [];
     for(const page of pageList) {
         if(/[\u4e00-\u9fa5\u3040-\u30ff][!?,.]/.test(page)) {
@@ -88,6 +88,4 @@ const main = async (retryCount = 5) => {
     throw new Error(`运行失败：已连续尝试${retryCount}次。`);
 };
 
-main(5).catch((error) => {
-    console.error(error);
-});
+main(5);

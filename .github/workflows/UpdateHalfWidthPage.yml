@@ -1,0 +1,22 @@
+name: 更新半角标题列表
+on:
+  schedule:
+    - cron: 40 20 * * 6 #北京时间每周日凌晨4:40执行
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+      - run: echo "开始更新半角标题列表"
+      - name: 安装依赖
+        run: npm ci
+      - name: 更新页面
+        env:
+          MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
+          MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
+        run: node src/HalfWidth.js
