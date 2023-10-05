@@ -50,7 +50,7 @@ const submitResult = async (pageList) => {
         }
     }
 
-    const text = `-{\n* [[${badList.join("]]\n* [[")}]]\n}-`;
+    const text = `{{info|列表中部分属于“原文如此”，请注意判别。}}-{\n* [[${badList.join("]]\n* [[")}]]\n}-`;
 
     try {
         await bot.request({
