@@ -96,7 +96,7 @@ const getRequiredDisambig = (DisambigList, PageList) => {
             // SuffixPattern.test(item) && // 标题带有后缀
             // !["单曲", "专辑"].includes(item.replace(SuffixPattern, "$2")) && // 排除特定后缀
             !DisambigList.has(titleWithouFix) && // 去掉前缀的页面不是消歧义页
-            item.indexOf("闪耀幻想曲:") === -1
+            item.includes("闪耀幻想曲:")
         ) {
             RequiredDisambig[titleWithouFix] ||= [];
             RequiredDisambig[titleWithouFix].push(item);
@@ -108,17 +108,22 @@ const getRequiredDisambig = (DisambigList, PageList) => {
             value.length > 1 &&
             !(
                 value.length === 2 &&
-                value[0].replace(/\((单曲|专辑)\)/, "") === value[1].replace(/\((单曲|专辑)\)/, "") // 仅两个条目且互为单曲专辑
+                value[0].replace(/\((单曲|专辑|音乐专辑)\)/, "") === value[1].replace(/\((单曲|专辑|音乐专辑)\)/, "") // 仅两个条目且互为单曲专辑
             ) &&
 
             // 一些专题内互相消歧义
+            !value.every((item) => item.match(/^东方/)) &&
             !value.every((item) => item.includes("美少女花骑士:")) &&
             !value.every((item) => item.includes("假面骑士")) &&
             !value.every((item) => item.includes("舰队Collection:")) &&
             !value.every((item) => item.includes("偶像大师")) &&
+            !value.every((item) => item.includes("START:DASH!!")) &&
             !value.every((item) => item.includes("魂器学院:")) &&
             !value.every((item) => item.includes("黑塔利亚:")) &&
-            !value.every((item) => item.includes("决战平安京") || item.includes("百闻牌") || item.includes("阴阳师手游") || item.includes("妖怪屋")) // 阴阳师系列
+            !value.every((item) => item.includes("决战平安京") || item.includes("百闻牌") || item.includes("阴阳师手游") || item.includes("妖怪屋")) && // 阴阳师系列
+
+            // 其他
+            !value.every((item) => item.includes("中国"))
         );
     }).map(([key, value]) => `;[[${key}]]\n: [[` + value.join("]]\n: [[") + "]]");
 };
