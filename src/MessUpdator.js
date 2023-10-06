@@ -274,6 +274,7 @@ const Templates = {
         "用梗适度",
         "一本正经地胡说八道",
         "color[ _]block",
+        "RoundTop",
     ],
 };
 
