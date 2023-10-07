@@ -45,7 +45,7 @@ const submitResult = async (pageList) => {
     const PAGENAME = "User:BearBin/可能需要改为全角标点标题的页面";
     const badList = [];
     for(const page of pageList) {
-        if(/[\u4e00-\u9fa5\u3040-\u30ff][!?,.]/.test(page)) {
+        if(/[\u4e00-\u9fa5\u3040-\u30ff][!?,.]/.test(page) && !page.includes("BanG Dream!")) {
             badList.push(page);
         }
     }
