@@ -128,6 +128,7 @@ const messOutput = new MessOutput({
         "<nowiki>[[ABC|ABC]]</nowiki>": [],
         "<nowiki>|ABC{{!}}ABC</nowiki>": [],
     },
+    旧声优分类格式: [],
 });
 
 
@@ -531,11 +532,21 @@ const needSpaceBesidesPoint = (text, _categories, title) => {
 const redundantPipe = (text, _categories, title) => {
     const normal = text.match(/\[\[ *([^\]]+) *\| *\1 *\]\]/);
     const escape = text.match(/\| *([^\]{}}]+) *\{\{!\}\} *\1 *(\||\})/);
-    if(normal) {
+    if (normal) {
         messOutput.addPageToList("<nowiki>[[ABC|ABC]]</nowiki>", [title, `<code><nowiki>${normal[0]}</nowiki></code>`]);
     }
-    if(escape) {
+    if (escape) {
         messOutput.addPageToList("<nowiki>|ABC{{!}}ABC</nowiki>", [title, `<code><nowiki>${escape[0]}</nowiki></code>`]);
+    }
+};
+
+/**
+ * 可能需要补充“配音角色”
+ */
+const oldCVCategory = (text, _categories, title) => {
+    const match = text.match(/\|多位声优 *= *\{\{cate\|[^{}|]+\|[^{}[\]\n]+[^色{}[\]\n](\}\}|\|)/gi);
+    if (match) {
+        messOutput.addPageToList("旧声优分类格式", [title, `<code><nowiki>${match[0]}</nowiki></code>`]);
     }
 };
 
@@ -554,7 +565,7 @@ Object.assign(bot, catReader);
  * @param {function[]} functions 执行检查的函数集，这些函数都接受text、categories、title三个参数
  * @param {number} [namespace=0] 要遍历的名字空间
  * @param {number} [maxRetry=10] 最大重试次数
- * @param {number} [limit = 500] 单词请求最大页面数
+ * @param {number} [limit=500] 单词请求最大页面数
  */
 const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit = 500) => {
     let count = 0;
@@ -744,6 +755,7 @@ const main = async (retryCount = 5) => {
                 templateOrder, // 检查页顶模板顺序
                 innerToOuter, // 检查背景图片等模板中的图站外链
                 redundantPipe, // 管道符前后内容一致
+                oldCVCategory,
             ], 0, 30);
             console.log("\n主名字空间检查完毕。");
 
