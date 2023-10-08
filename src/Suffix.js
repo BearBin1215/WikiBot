@@ -5,6 +5,14 @@
 import MWBot from "mwbot";
 import config from "../config/config.js";
 
+const whiteList = [
+    "动画角色人气大赏",
+    "L!L!L!",
+    "L！L！L！",
+    "世界电子竞技大赛",
+    "碧蓝航线/图鉴/",
+];
+
 // 根据API_PATH创建实例，设置30s超时
 const bot = new MWBot({
     apiUrl: config.API_PATH,
@@ -66,7 +74,10 @@ const getAbsentList = async (PageList) => {
             (!title.includes(":") || title.indexOf(":") > title.indexOf("("))
         ) {
             const titleWithoutSuffix = title.replace(/\(.*\)/, "").trim();
-            if (!PageList.has(titleWithoutSuffix)) {
+            if (
+                !PageList.has(titleWithoutSuffix) &&
+                !whiteList.some((item) => item.includes(titleWithoutSuffix))
+            ) {
                 AbsentList.push(`* [[${title}]]→[[${titleWithoutSuffix}]]`);
             }
         }
