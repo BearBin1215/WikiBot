@@ -9,7 +9,6 @@ const whiteList = [
     "动画角色人气大赏",
     "L!L!L!",
     "L！L！L！",
-    "世界电子竞技大赛",
     "碧蓝航线/图鉴/",
 ];
 
@@ -188,6 +187,4 @@ const main = async (retryCount = 5) => {
 };
 
 // 最大尝试次数5
-main(5).catch((error) => {
-    console.error(error);
-});
+main(5);
