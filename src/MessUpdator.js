@@ -449,7 +449,7 @@ const repetitiveTop = (text, _categories, title) => {
  */
 const imgLT99px = (text, _categories, title) => {
     if (
-        /leftimage *=.*\d{3}px/.test(text) ||
+        /leftimage *=[.\n]*\d{3}px/.test(text) ||
         /\{\{(?:template:|[模样樣]板:|T:)?(欢迎编辑|歡迎編輯|不完整|customtop).*\d{3}px/i.test(text)
     ) {
         messOutput.addPageToList("条目", title);
