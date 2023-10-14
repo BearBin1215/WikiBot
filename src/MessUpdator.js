@@ -73,7 +73,7 @@ class MessOutput {
                                 if (typeof page === "string") {
                                     return `*[[${page}]]`; // 无附加内容
                                 }
-                                return `*[[${page[0]}]]：${page[1]}`; // 有附加内容
+                                return `*-{[[${page[0]}]]}-：${page[1]}`; // 有附加内容
                             }),
                             "}}",
                         );
@@ -100,6 +100,7 @@ const messOutput = new MessOutput({
         后缀: [],
         前缀: [],
     },
+    疑似繁体页面名: [],
     不礼貌排版习惯: {
         连续换行: [],
         "big地狱（5个以上）": [],
@@ -696,6 +697,47 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
 
 
 /**
+ * 获取疑似繁体页面名（from 星海）
+ * @param {number|string} gapnamespace 名字空间
+ * @returns {Promise<void>}
+ */
+const getVariantTitles = async (gapnamespace = 0) => {
+    let gapcontinue = "";
+    let retryCount = 0;
+    do {
+        if (retryCount >= 10) {
+            throw new Error("获取疑似繁体页面名尝试次数过多。");
+        }
+        try {
+            const res = await bot.request({
+                action: "query",
+                format: "json",
+                prop: "info",
+                generator: "allpages",
+                inprop: "varianttitles",
+                gapfilterredir: "nonredirects",
+                gaplimit: "max",
+                gapnamespace,
+                gapcontinue,
+            });
+            gapcontinue = res.continue?.gapcontinue;
+            for (const { title, varianttitles: { "zh-cn": titleCN } } of Object.values(res.query.pages)) {
+                if (
+                    !/[ぁ-んァ-ヶ]/.test(title) &&
+                    title.replace(/^(?:Category|Template):/, "") !== titleCN.replace(/^(?:分类|模板):/, "")
+                ) {
+                    messOutput.addPageToList("疑似繁体页面名", [`:${title}`, `→${titleCN}`]);
+                }
+            }
+        } catch (e) {
+            console.log(`获取疑似繁体页面名失败：${e}，正在重试（${retryCount}/10）`);
+            retryCount++;
+        }
+    } while (gapcontinue);
+};
+
+
+/**
  * 将wikitext提交至萌百
  */
 const updatePage = async (maxRetry = 5) => {
@@ -767,6 +809,14 @@ const main = async (retryCount = 5) => {
                 redundantPipe,
             ], 10, 10);
             console.log("\n模板名字空间检查完毕。");
+
+            await getVariantTitles(0);
+            console.log("主名字空间疑似繁体命名检查完毕。");
+            await getVariantTitles(10);
+            console.log("模板名字空间疑似繁体命名检查完毕。");
+            await getVariantTitles(14);
+            console.log("分类空间疑似繁体命名检查完毕。");
+
 
             await updatePage(); // 提交至萌百
             return;
