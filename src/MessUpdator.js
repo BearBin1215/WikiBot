@@ -563,10 +563,11 @@ Object.assign(bot, catReader);
 
 /**
  * 遍历所有页面
- * @param {function[]} functions 执行检查的函数集，这些函数都接受text、categories、title三个参数
+ * @param {function(text<string>, categories<string[]>, title<string>)[]} functions 执行检查的函数集，这些函数都接受text、categories、title三个参数
  * @param {number} [namespace=0] 要遍历的名字空间
  * @param {number} [maxRetry=10] 最大重试次数
  * @param {number} [limit=500] 单词请求最大页面数
+ * @returns {Promise<void>}
  */
 const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit = 500) => {
     let count = 0;
