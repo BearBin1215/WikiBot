@@ -86,7 +86,7 @@ const getAbsentList = async (PageList) => {
 
 /**
  * 获取全站重定向页面列表，分析得到后缀重定向至无后缀和无后缀重定向至后缀
- * @returns [ 后缀重定向至无后缀, 无后缀重定向至后缀 ]
+ * @returns {[string[], string[]]} [ 后缀重定向至无后缀, 无后缀重定向至后缀 ]
  */
 const getRedirects = async () => {
     const Suffix2Origin = [];
@@ -105,11 +105,11 @@ const getRedirects = async () => {
             for (const item of Object.values(allRedirects.query.redirects)) {
                 // 后缀重定向至无后缀
                 if(item.from.replace(/^(.*)\(.*\)$/, "$1") === item.to) {
-                    Suffix2Origin.push(`* [[${item.from}]]→[[${item.to}]]`);
+                    Suffix2Origin.push(`* [{{canonicalurl:${item.from}|redirect=no}} ${item.from}]→[[${item.to}]]`);
                 }
                 // 无后缀重定向至后缀
                 if(item.from === item.to.replace(/^(.*)\(.*\)$/, "$1")) {
-                    Origin2Suffix.push(`* [[${item.from}]]→[[${item.to}]]`);
+                    Origin2Suffix.push(`* [{{canonicalurl:${item.from}|redirect=no}} ${item.from}]→[[${item.to}]]`);
                 }
             }
         } catch (error) {
@@ -133,14 +133,14 @@ const updatePage = async (AbsentList, Suffix2Origin, Origin2Suffix) => {
         "# “FOO(BAR)”重定向到“FOO”；\n" +
         "# “FOO”重定向到“FOO(BAR)”。\n" +
         "本页面由机器人于每周一凌晨4:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
-        "__TOC__" +
+        '__TOC__<div class="plainlinks>' +
         "\n\n== 后缀存在、无后缀不存在 ==\n\n" +
         AbsentList.join("\n") +
         "\n\n== 有后缀重定向到无后缀 ==\n\n" +
         Suffix2Origin.join("\n") +
         "\n\n== 无后缀重定向到有后缀 ==\n\n" +
         Origin2Suffix.join("\n") +
-        "\n\n[[Category:萌娘百科数据报告]][[Category:积压工作]]";
+        "\n</div>\n[[Category:萌娘百科数据报告]][[Category:积压工作]]";
 
     try {
         await bot.request({
