@@ -75,7 +75,7 @@ const getAbsentList = async (PageList) => {
             const titleWithoutSuffix = title.replace(/\(.*\)/, "").trim();
             if (
                 !PageList.has(titleWithoutSuffix) &&
-                !whiteList.some((item) => title.includes(item))
+                !whiteList.some((item) => title.indexOf(item) === 0)
             ) {
                 AbsentList.push(`* [[${title}]]→[[${titleWithoutSuffix}]]`);
             }
