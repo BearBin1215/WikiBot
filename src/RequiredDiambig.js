@@ -116,18 +116,28 @@ const getRequiredDisambig = (DisambigList, PageList) => {
             !value.every((item) => item.match(/^Bilibili Moe \d{4} 动画角色人气大赏/)) &&
 
             !value.every((item) => item.includes("美少女花骑士:")) &&
+            !value.every((item) => item.includes("碧蓝航线:")) &&
+            !value.every((item) => item.includes("碧蓝航线/")) &&
             !value.every((item) => item.includes("工作细胞:")) &&
             !value.every((item) => item.includes("假面骑士")) &&
             !value.every((item) => item.includes("舰队Collection:")) &&
+            !value.every((item) => item.includes("舰队Collection/")) &&
             !value.every((item) => item.includes("偶像大师")) &&
             !value.every((item) => item.includes("START:DASH!!")) &&
             !value.every((item) => item.includes("魂器学院:")) &&
             !value.every((item) => item.includes("黑塔利亚:")) &&
+            !value.every((item) => item.includes("我的魔塔:")) &&
             !value.every((item) => item.includes("喜羊羊与灰太狼")) &&
             !value.every((item) => item.includes("植物大战僵尸")) &&
             !value.every((item) => item.includes("狗肉(辐射")) &&
+            !value.every((item) => item.includes("极品飞车:最高通缉")) &&
+            !value.every((item) => item.includes("白猫Project:")) &&
             !value.every((item) => item.includes("Aqours CHRONICLE (")) &&
             !value.every((item) => item.includes("决战平安京") || item.includes("百闻牌") || item.includes("阴阳师手游") || item.includes("妖怪屋")) && // 阴阳师系列
+
+            // 一些角色消歧义
+            !value.every((item) => item.includes("木之本樱")) &&
+            !value.every((item) => item.includes("爱蜜莉雅")) &&
 
             // 其他
             !value.every((item) => item.includes("中国"))
