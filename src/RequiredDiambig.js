@@ -113,6 +113,8 @@ const getRequiredDisambig = (DisambigList, PageList) => {
 
             // 一些专题内互相消歧义
             !value.every((item) => item.match(/^东方/)) &&
+            !value.every((item) => item.match(/^Bilibili Moe \d{4} 动画角色人气大赏/)) &&
+
             !value.every((item) => item.includes("美少女花骑士:")) &&
             !value.every((item) => item.includes("工作细胞:")) &&
             !value.every((item) => item.includes("假面骑士")) &&
@@ -124,6 +126,7 @@ const getRequiredDisambig = (DisambigList, PageList) => {
             !value.every((item) => item.includes("喜羊羊与灰太狼")) &&
             !value.every((item) => item.includes("植物大战僵尸")) &&
             !value.every((item) => item.includes("狗肉(辐射")) &&
+            !value.every((item) => item.includes("Aqours CHRONICLE (")) &&
             !value.every((item) => item.includes("决战平安京") || item.includes("百闻牌") || item.includes("阴阳师手游") || item.includes("妖怪屋")) && // 阴阳师系列
 
             // 其他
