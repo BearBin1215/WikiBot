@@ -64,7 +64,7 @@ const getRecentChanges = async (site = "zh", lastUpdate) => {
                 if (timestamp < lastUpdate) {
                     return;
                 }
-                if (item.comment.includes("MassEdit")) {
+                if (item.comment?.includes("MassEdit")) {
                     data.usage[site][item.user] ||= 0;
                     data.usage[site][item.user] += 1;
                 }
