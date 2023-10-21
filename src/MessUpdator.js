@@ -6,11 +6,6 @@ import config from "../config/config.js";
 import glb from "./utils/global.js";
 import catReader from "./utils/catReader.js";
 
-const maxComment = {
-    number: 0,
-    title: "",
-};
-
 class MessOutput {
     /**
      * 创建MessOutput对象
@@ -595,14 +590,6 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
             if (categories) {
                 pages[title].categories.push(...categories.map((item) => item.title));
             }
-
-            if(namespace === 0) {
-                const comment = revisions?.[0]?.["*"].match(/<!--[\s\S]*?-->/g);
-                if(comment && comment.length > maxComment.number) {
-                    maxComment.number = comment.length;
-                    maxComment.title = title;
-                }
-            }
         }
     };
 
@@ -764,7 +751,7 @@ const updatePage = async (maxRetry = 5) => {
                 action: "edit",
                 title,
                 summary: "自动更新列表",
-                text: `${messOutput.wikitext}\n\n* [[${maxComment.title}]]：${maxComment.number}`,
+                text: messOutput.wikitext,
                 bot: true,
                 tags: "Bot",
                 token: editToken.csrftoken,
