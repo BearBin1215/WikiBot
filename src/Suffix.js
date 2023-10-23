@@ -6,7 +6,9 @@ import MWBot from "mwbot";
 import config from "../config/config.js";
 
 const whiteList = [
-    "动画角色人气大赏",
+    "Bilibili Moe 2016 动画角色人气大赏",
+    "Bilibili Moe 2017 动画角色人气大赏",
+    "Bilibili Moe 2018 动画角色人气大赏",
     "L!L!L!",
     "L！L！L！",
     "碧蓝航线/图鉴/",
