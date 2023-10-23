@@ -61,7 +61,7 @@ const submitResult = async (pageList, whiteList) => {
     const badList = [];
     for(const page of pageList) {
         if(
-            /[\u4e00-\u9fa5\u3040-\u30ff][!?,.]/.test(page) &&
+            /[\u4e00-\u9fa5\u3040-\u30ff][!?,]/.test(page) &&
             !page.includes("BanG Dream!") &&
             !whiteList.includes(page)
         ) {

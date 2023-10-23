@@ -396,7 +396,7 @@ const innerToOuter = (text, _categories, title) => {
  * @todo 将判定方法改为发现疑似页面后判定模板是否为导航模板
  */
 const headlineBeforeNav = (text, _categories, title) => {
-    if (new RegExp(`== *(相关|更多|其他|其它)(条目|條目|内容)? *==\n*${Templates.prefix}((?!${Templates.bottom.join("|")}).)*\\}`, "gi").test(text)) {
+    if (new RegExp(`== *(相关|更多|其他|其它)(条目|條目|内容|链接)? *==\n*${Templates.prefix}((?!${Templates.bottom.join("|")}).)*\\}`, "gi").test(text)) {
         messOutput.addPageToList("疑似大家族前单独用二级标题", title);
     }
 };
