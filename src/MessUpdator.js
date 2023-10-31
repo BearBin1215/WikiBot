@@ -565,8 +565,10 @@ const wrongNavName = (text, categories, title) => {
     ) {
         return;
     }
-    if (nameParam[0].replace(/\| *name *= *([^|\n]*)/g, "$1").replace("_", " ").trim().toLowerCase() !== title.replace("Template:", "").toLowerCase()) {
-        messOutput.addPageToList("大家族name参数有误", [title, `<code><nowiki>${nameParam}</nowiki></code>`]);
+    for (const match of nameParam) {
+        if (match.replace(/\| *name *= *([^|\n]*)/g, "$1").replace("_", " ").trim().toLowerCase() !== title.replace("Template:", "").toLowerCase()) {
+            messOutput.addPageToList("大家族name参数有误", [title, `<code><nowiki>${match}</nowiki></code>`]);
+        }
     }
 };
 
