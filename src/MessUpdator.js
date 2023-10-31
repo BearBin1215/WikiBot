@@ -555,16 +555,18 @@ const oldCVCategory = (text, _categories, title) => {
 /**
  * navbox中的错误name参数
  */
-const wrongNavName = (text, _categories, title) => {
-    if (!text.match(/\{\{ *(?:#invoke:|Template:|T:|模板:|样板:)? *(大家族|Nav)/gi)) {
+const wrongNavName = (text, categories, title) => {
+    const nameParam = text.match(/\| *name *= *[^|\n]*/gi) || [];
+    if (
+        categories.includes("Category:模板文档") ||
+        !text.match(/\{\{ *(?:#invoke:|Template:|T:|模板:|样板:)? *(大家族|Nav)/gi) ||
+        !/:(沙盒|Sandbox)/.test(title) ||
+        !nameParam
+    ) {
         return;
     }
-    const nameParam = text.match(/\| *name *= *[^|\n]*/gi) || [];
-    for (const match of nameParam) {
-        if (match.replace(/\| *name *= *([^|\n]*)/g, "$1").trim().toLowerCase() !== title.replace("Template:", "").toLowerCase()) {
-            messOutput.addPageToList("大家族name参数有误", [title, `<code><nowiki>${match}</nowiki></code>`]);
-            return;
-        }
+    if (nameParam[0].replace(/\| *name *= *([^|\n]*)/g, "$1").replace("_", " ").trim().toLowerCase() !== title.replace("Template:", "").toLowerCase()) {
+        messOutput.addPageToList("大家族name参数有误", [title, `<code><nowiki>${nameParam}</nowiki></code>`]);
     }
 };
 
