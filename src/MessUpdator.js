@@ -566,7 +566,7 @@ const wrongNavName = (text, categories, title) => {
         return;
     }
     for (const match of nameParam) {
-        if (match.replace(/\| *name *= *([^|\n]*)/g, "$1").replace("_", " ").trim().toLowerCase() !== title.replace("Template:", "").toLowerCase()) {
+        if (match.replace(/\| *name *= *([^|\n]*)/g, "$1").replaceAll("_", " ").trim().toLowerCase() !== title.replace("Template:", "").toLowerCase()) {
             messOutput.addPageToList("大家族name参数有误", [title, `<code><nowiki>${match}</nowiki></code>`]);
             return;
         }
