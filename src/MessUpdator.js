@@ -560,7 +560,7 @@ const wrongNavName = (text, categories, title) => {
     if (
         categories.includes("Category:模板文档") ||
         !text.match(/\{\{ *(?:#invoke:|Template:|T:|模板:|样板:)? *(大家族|Nav)/gi) ||
-        !/:(沙盒|Sandbox)/.test(title) ||
+        !/:(沙盒|Sandbox|Navbox)/.test(title) ||
         !nameParam
     ) {
         return;
