@@ -117,6 +117,7 @@ const messOutput = new MessOutput({
         顶部模板排序: [],
         注释和外部链接后的大家族模板: [],
     },
+    大家族name参数有误: [],
     模板多余换行: {
         两个或以上: [],
         一个: [],
@@ -545,9 +546,25 @@ const redundantPipe = (text, _categories, title) => {
  * 可能需要补充“配音角色”
  */
 const oldCVCategory = (text, _categories, title) => {
-    const match = text.match(/\|多位声优 *= *\{\{cate\|[^{}|]+\|[^{}[\]\n]+[^色{}[\]\n](\}\}|\|)/gi);
+    const match = text.match(/\|多位(配音|声优) *= *\{\{cate\|[^{}|]+\|[^{}[\]\n]+[^色{}[\]\n](\}\}|\|)/gi);
     if (match) {
         messOutput.addPageToList("旧声优分类格式", [title, `<code><nowiki>${match[0]}</nowiki></code>`]);
+    }
+};
+
+/**
+ * navbox中的错误name参数
+ */
+const wrongNavName = (text, _categories, title) => {
+    if (!text.match(/\{\{ *(?:#invoke:|Template:|T:|模板:|样板:)? *(大家族|Nav)/gi)) {
+        return;
+    }
+    const nameParam = text.match(/\| *name *= *[^|\n]*/gi) || [];
+    for (const match of nameParam) {
+        if (match.replace(/\| *name *= *([^|\n]*)/g, "$1").trim().toLowerCase() !== title.toLowerCase()) {
+            messOutput.addPageToList("大家族name参数有误", [title, `<code><nowiki>${match}</nowiki></code>`]);
+            return;
+        }
     }
 };
 
@@ -804,10 +821,11 @@ const main = async (retryCount = 5) => {
 
             // 检查模板
             await traverseAllPages([
-                imgLT99pxInTemplate,
-                redundantWrapInTemplate,
-                needSpaceBesidesPoint,
-                redundantPipe,
+                imgLT99pxInTemplate, // 检查查过99px的页顶模板
+                redundantWrapInTemplate, // 检查多余换行
+                needSpaceBesidesPoint, // 检查•左右缺少的空格
+                redundantPipe, // 管道符前后内容一致
+                wrongNavName, // 大家族模板中错误的name参数
             ], 10, 10);
             console.log("\n模板名字空间检查完毕。");
 
