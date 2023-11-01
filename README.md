@@ -28,3 +28,9 @@
     - 每周二凌晨4:40执行，用时约2min
 3. 从飞书在线文档同步至站内[日本Galgame条目表](https://zh.moegirl.org.cn/_?curid=544226)
     - 每周三、六凌晨4:40执行，用时约30s
+4. 更新[链接到消歧义页面的导航模板](https://zh.moegirl.org.cn/_?curid=573554)
+    - 每周四凌晨4:40执行，用时约5min
+5. 更新[杂物间](https://zh.moegirl.org.cn/_?curid=555305)
+    - 每周五凌晨4:40执行，用时约25min
+6. 统计[MassEdit小工具使用情况](https://zh.moegirl.org.cn/_?curid=574660)
+    - 每周日凌晨4:40执行，用时约30s
