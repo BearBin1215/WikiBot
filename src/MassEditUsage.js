@@ -21,7 +21,7 @@ const cmBot = new MWBot({
 
 // 登录
 const login = async (bot) => {
-    await bot.loginGetEditToken({
+    await bot.login({
         username: config.username,
         password: config.password,
     });
@@ -100,14 +100,12 @@ const main = async (retryCount = 5) => {
     const dataPage = "User:BearBin/MassEditUsage.json";
     while (retries < retryCount) {
         try {
-            await login(zhBot);
-            await login(cmBot);
+            await Promise.all([login(zhBot),login(cmBot)]);
             console.log("登录成功");
             await getPreData(dataPage);
             const lastUpdate = new Date(data.lastUpdate);
             data.lastUpdate = new Date().toISOString();
-            await getRecentChanges("zh", lastUpdate);
-            await getRecentChanges("cm", lastUpdate);
+            await Promise.all([getRecentChanges("zh", lastUpdate),getRecentChanges("cm", lastUpdate)]);
             data.static = {
                 userCount: new Set([...Object.keys(data.usage.zh), ...Object.keys(data.usage.cm)]).size,
                 editCount: [...Object.values(data.usage.zh), ...Object.values(data.usage.cm)].reduce((pre, cur) => pre + cur, 0),
