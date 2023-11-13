@@ -1,7 +1,7 @@
 name: 记录MassEdit小工具使用情况
 on:
   schedule:
-    - cron: 40 20 * * 0 #北京时间每周一凌晨4:40执行
+    - cron: 59 15 * * * # 每天23:59执行
   workflow_dispatch:
 
 jobs:
