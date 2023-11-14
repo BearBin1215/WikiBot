@@ -111,7 +111,7 @@ const main = async (retryCount = 5) => {
                 editCount: [...Object.values(data.usage.zh), ...Object.values(data.usage.cm)].reduce((pre, cur) => pre + cur, 0),
             };
             console.log(data);
-            await updatePage(dataPage, JSON.stringify(data));
+            await updatePage(dataPage, `{{SpecialWikitext/JSON|1=<nowiki>${JSON.stringify(data)}</nowiki>}}`);
             return;
         } catch (error) {
             console.error(`获取数据出错：${error}\n正在重试（${retries + 1}/${retryCount}）`);
