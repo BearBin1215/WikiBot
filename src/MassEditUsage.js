@@ -30,7 +30,7 @@ const login = async (bot) => {
 // 获取页面记录的上次信息
 const getPreData = async (title) => {
     const pageData = await zhBot.read(title);
-    data = JSON.parse(Object.values(pageData.query.pages)?.[0]?.revisions?.[0]?.["*"]) || data;
+    data = JSON.parse(Object.values(pageData.query.pages)?.[0]?.revisions?.[0]?.["*"].replace("{{SpecialWikitext/JSON|1=<nowiki>", "").replace("</nowiki>}}", "")) || data;
 };
 
 // 获取最近更改并更新数据
@@ -100,12 +100,12 @@ const main = async (retryCount = 5) => {
     const dataPage = "User:BearBin/MassEditUsage.json";
     while (retries < retryCount) {
         try {
-            await Promise.all([login(zhBot),login(cmBot)]);
+            await Promise.all([login(zhBot), login(cmBot)]);
             console.log("登录成功");
             await getPreData(dataPage);
             const lastUpdate = new Date(data.lastUpdate);
             data.lastUpdate = new Date().toISOString();
-            await Promise.all([getRecentChanges("zh", lastUpdate),getRecentChanges("cm", lastUpdate)]);
+            await Promise.all([getRecentChanges("zh", lastUpdate), getRecentChanges("cm", lastUpdate)]);
             data.static = {
                 userCount: new Set([...Object.keys(data.usage.zh), ...Object.keys(data.usage.cm)]).size,
                 editCount: [...Object.values(data.usage.zh), ...Object.values(data.usage.cm)].reduce((pre, cur) => pre + cur, 0),
