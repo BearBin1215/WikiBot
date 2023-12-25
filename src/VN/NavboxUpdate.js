@@ -61,7 +61,7 @@ const getUserGroups = async (userList) => {
  */
 const userListToString = (list) => {
     return list
-        .map(({username, nickname, subscript}) => `{{User|${username}${nickname ? `|${nickname}` : ""}}}${subscript || ""}`)
+        .map(({ username, nickname, subscript }) => `{{User|${username}${nickname ? `|${nickname}` : ""}}}${subscript || ""}`)
         .join(" • <!--\n    -->");
 };
 
@@ -107,8 +107,12 @@ const main = async () => {
         .replace(/(<!-- *维护人员 *-->).*(<!-- *维护人员 *-->)/gs, `$1${userListToString(groups.maintainer)}$2`)
         .replace(/(<!-- *优编荣维 *-->).*(<!-- *优编荣维 *-->)/gs, `$1${userListToString(groups.autopatrolled)}$2`)
         .replace(/(<!-- *自确 *-->).*(<!-- *自确 *-->)/gs, `$1${userListToString(groups.autoconfirmed)}$2`);
-    await submit(output);
-    console.log("保存成功");
+    if (output === source) {
+        console.log("用户组信息无变化");
+    } else {
+        await submit(output);
+        console.log("保存成功");
+    }
 };
 
 main();
