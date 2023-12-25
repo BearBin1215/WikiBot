@@ -44,7 +44,6 @@ const parseTemplateSource = (source) => {
  * 获取用户组信息
  */
 const getUserGroups = async (userList) => {
-    // https://zh.moegirl.org.cn/api.php?action=query&list=users&ususers=BearBin|BearBot&usprop=groups%7Ceditcount%7Cgender
     const { query: { users } } = await bot.request({
         action: "query",
         list: "users",
