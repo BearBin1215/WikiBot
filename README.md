@@ -32,5 +32,7 @@
     - 每周四凌晨4:40执行，用时约5min
 5. 更新[杂物间](https://zh.moegirl.org.cn/_?curid=555305)
     - 每周五凌晨4:40执行，用时约25min
-6. 统计[MassEdit小工具使用情况](https://zh.moegirl.org.cn/_?curid=574660)
-    - 每周日凌晨4:40执行，用时约30s
+6. 更新[视研会大家族](https://zh.moegirl.org.cn/_?curid=506405)用户组信息
+    - 每天凌晨0:00左右执行，用时约20s
+7. 统计[MassEdit小工具使用情况](https://zh.moegirl.org.cn/_?curid=574660)
+    - 每天凌晨0:00左右执行，用时约30s
