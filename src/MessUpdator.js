@@ -131,6 +131,7 @@ const messOutput = new MessOutput({
         "<nowiki>|ABC{{!}}ABC</nowiki>": [],
     },
     旧声优分类格式: [],
+    "http(s)少冒号": [],
 });
 
 
@@ -573,6 +574,16 @@ const wrongNavName = (text, categories, title) => {
     }
 };
 
+/**
+ * 检查http(s)少冒号
+ */
+const httpColon = (text, _categories, title) => {
+    const http = text.match(/https?\/\//gi);
+    if (http) {
+        messOutput.addPageToList("http(s)少冒号", [title, `<code><nowiki>${http[0]}</nowiki></code>`]);
+    }
+};
+
 // MWBot实例
 const bot = new MWBot({
     apiUrl: config.API_PATH,
@@ -820,7 +831,8 @@ const main = async (retryCount = 5) => {
                 templateOrder, // 检查页顶模板顺序
                 innerToOuter, // 检查背景图片等模板中的图站外链
                 redundantPipe, // 管道符前后内容一致
-                oldCVCategory,
+                oldCVCategory, // 旧的声优分类格式
+                httpColon, // 检查http(s)//（少冒号）
             ], 0, 30);
             console.log("\n主名字空间检查完毕。");
 
