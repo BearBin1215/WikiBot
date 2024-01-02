@@ -26,6 +26,7 @@ const login = async () => {
 const parseTemplateSource = (source) => {
     const list = source
         .replace(/.*<!-- *列表起点 *-->(.*)<!-- *列表终点 *-->.*/gs, "$1") // 识别列表起点终点
+        .replace(/<!--[\s\S]*?-->/g, "") // 去除注释
         .replace(/\* */g, "") // 去除无序列表头
         .trim()
         .split("\n") // 分割为数组
