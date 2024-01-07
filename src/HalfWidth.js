@@ -20,9 +20,10 @@ async function login() {
 }
 
 const getAllPages = async () => {
-    const pageList = new Set();
+    const pageList = [];
     let apcontinue = "";
     while (apcontinue !== false) {
+        console.log(pageList.length, pageList[pageList.length - 1]);
         try {
             const allPages = await bot.request({
                 action: "query",
@@ -32,7 +33,7 @@ const getAllPages = async () => {
             });
             apcontinue = allPages.continue?.apcontinue || false;
             for (const page of allPages.query.allpages) {
-                pageList.add(page.title);
+                pageList.push(page.title);
             }
         } catch (error) {
             throw new Error(`获取全站主名字空间页面列表出错：${error}`);
