@@ -1,7 +1,7 @@
-"use strict";
-import MWBot from "mwbot";
-import config from "../config/config.js";
-import catReader from "./utils/catReader.js";
+'use strict';
+import MWBot from 'mwbot';
+import config from '../config/config.js';
+import catReader from './utils/catReader.js';
 
 const bot = new MWBot({
     apiUrl: config.API_PATH,
@@ -17,15 +17,15 @@ Object.assign(bot, catReader);
 const getDisambigList = async () => {
     try {
         const DisambigList = [];
-        let gcmcontinue = "||";
+        let gcmcontinue = '||';
         while (gcmcontinue !== undefined) {
             const catMembers = await bot.request({
-                action: "query",
-                generator: "categorymembers",
-                prop: "redirects",
-                gcmlimit: "max",
-                rdlimit: "max",
-                gcmtitle: "Category:消歧义页",
+                action: 'query',
+                generator: 'categorymembers',
+                prop: 'redirects',
+                gcmlimit: 'max',
+                rdlimit: 'max',
+                gcmtitle: 'Category:消歧义页',
                 gcmcontinue,
             });
             gcmcontinue = catMembers.continue?.gcmcontinue;
@@ -53,13 +53,13 @@ const getDisambigList = async () => {
 const getLinksInTemplates = async (templates, size = 50) => {
     const linksInTemplates = {};
     for (let i = 0; i < templates.length; i += size) {
-        let plcontinue = "||";
+        let plcontinue = '||';
         while (plcontinue !== undefined) {
             const response = await bot.request({
-                action: "query",
-                prop: "links",
-                titles: templates.slice(i, i + size).join("|"),
-                pllimit: "max",
+                action: 'query',
+                prop: 'links',
+                titles: templates.slice(i, i + size).join('|'),
+                pllimit: 'max',
                 plcontinue,
             });
             plcontinue = response.continue?.plcontinue;
@@ -84,12 +84,12 @@ const updatePage = async (text, title) => {
     try {
         bot.editToken = (await bot.getEditToken()).csrftoken; // 获取完前面的数字时token已经过期了，需要重新获取
         await bot.request({
-            action: "edit",
+            action: 'edit',
             title,
-            summary: "自动更新列表",
+            summary: '自动更新列表',
             text,
             bot: true,
-            tags: "Bot",
+            tags: 'Bot',
             token: bot.editToken,
         });
         console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
@@ -107,12 +107,12 @@ const main = async (retryCount = 5) => {
                 username: config.username,
                 password: config.password,
             });
-            console.log("登录成功，开始获取消歧义页列表……");
+            console.log('登录成功，开始获取消歧义页列表……');
 
             const DisambigList = await getDisambigList();
             console.log(`获取到\x1B[4m${DisambigList.length}\x1B[0m个消歧义页及其重定向，正在获取所有导航模板……`);
 
-            const templates = await bot.getMembersInCat("Category:导航模板", 10);
+            const templates = await bot.getMembersInCat('Category:导航模板', 10);
             console.log(`获取到\x1B[4m${templates.length}\x1B[0m个模板。正在获取模板中包含的链接……`);
 
             const linksInTemplates = await getLinksInTemplates(templates, 500);
@@ -128,16 +128,16 @@ const main = async (retryCount = 5) => {
             });
             // 生成wikitext
             const text = 
-            "本页面列出[[:Category:导航模板|导航模板]]中的消歧义链接。\n\n" +
-            "部分链接可能本意就是链接到消歧义页面，请注意甄别。\n\n" +
-            "由机器人于<u>每周四凌晨4:40左右</u>自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
-            "----\n" +
+            '本页面列出[[:Category:导航模板|导航模板]]中的消歧义链接。\n\n' +
+            '部分链接可能本意就是链接到消歧义页面，请注意甄别。\n\n' +
+            '由机器人于<u>每周四凌晨4:40左右</u>自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n' +
+            '----\n' +
             Object.entries(disambigInTemplates)
-                .map(([key, values]) => `;[[${key}]]<span class="plainlinks" style="font-weight:normal">【[{{fullurl:${key}|action=edit}} 编辑]】</span>\n:[[${values.join("]]\n:[[")}]]\n`)
-                .join("") +
-            "\n[[Category:萌娘百科数据报告]]";
+                .map(([key, values]) => `;[[${key}]]<span class="plainlinks" style="font-weight:normal">【[{{fullurl:${key}|action=edit}} 编辑]】</span>\n:[[${values.join(']]\n:[[')}]]\n`)
+                .join('') +
+            '\n[[Category:萌娘百科数据报告]]';
 
-            await updatePage(text, "萌娘百科:链接到消歧义页面的导航模板");
+            await updatePage(text, '萌娘百科:链接到消歧义页面的导航模板');
             return;
         } catch (error) {
             console.error(`获取数据出错：${error}\n正在重试（${retries + 1}/${retryCount}）`);

@@ -32,14 +32,14 @@ const catReader = {
      */
     traverseCategory: async function (category, nsnumber) {
         const pageList = [];
-        let gcmcontinue = "";
+        let gcmcontinue = '';
         while (gcmcontinue !== undefined) {
             const response = await this.request({
-                action: "query",
-                generator: "categorymembers",
+                action: 'query',
+                generator: 'categorymembers',
                 gcmtitle: category,
-                gcmtype: "page|subcat",
-                gcmlimit: "max",
+                gcmtype: 'page|subcat',
+                gcmlimit: 'max',
                 gcmcontinue,
             });
             gcmcontinue = response.continue?.gcmcontinue;

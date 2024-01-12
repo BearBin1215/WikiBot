@@ -1,17 +1,17 @@
 /**
  * 用于更新[[萌娘百科:疑似多余消歧义后缀]]
  */
-"use strict";
-import MWBot from "mwbot";
-import config from "../config/config.js";
+'use strict';
+import MWBot from 'mwbot';
+import config from '../config/config.js';
 
 const whiteList = [
-    "Bilibili Moe 2016 动画角色人气大赏",
-    "Bilibili Moe 2017 动画角色人气大赏",
-    "Bilibili Moe 2018 动画角色人气大赏",
-    "L!L!L!",
-    "L！L！L！",
-    "碧蓝航线/图鉴/",
+    'Bilibili Moe 2016 动画角色人气大赏',
+    'Bilibili Moe 2017 动画角色人气大赏',
+    'Bilibili Moe 2018 动画角色人气大赏',
+    'L!L!L!',
+    'L！L！L！',
+    '碧蓝航线/图鉴/',
 ];
 
 // 根据API_PATH创建实例，设置30s超时
@@ -41,13 +41,13 @@ async function login() {
  */
 const getAllPages = async () => {
     const PageList = new Set();
-    let apcontinue = "";
+    let apcontinue = '';
     while (apcontinue !== false) {
         try {
             const allPages = await bot.request({
-                action: "query",
-                list: "allpages",
-                aplimit: "max",
+                action: 'query',
+                list: 'allpages',
+                aplimit: 'max',
                 apcontinue,
             });
             apcontinue = allPages.continue?.apcontinue || false;
@@ -70,11 +70,11 @@ const getAbsentList = async (PageList) => {
     const AbsentList = [];
     for (const title of PageList) {
         if (
-            title.slice(-1) === ")" &&
-            title[0] !== "(" &&
-            (!title.includes(":") || title.indexOf(":") > title.indexOf("("))
+            title.slice(-1) === ')' &&
+            title[0] !== '(' &&
+            (!title.includes(':') || title.indexOf(':') > title.indexOf('('))
         ) {
-            const titleWithoutSuffix = title.replace(/\(.*\)/, "").trim();
+            const titleWithoutSuffix = title.replace(/\(.*\)/, '').trim();
             if (
                 !PageList.has(titleWithoutSuffix) &&
                 !whiteList.some((item) => title.indexOf(item) === 0)
@@ -93,24 +93,24 @@ const getAbsentList = async (PageList) => {
 const getRedirects = async () => {
     const Suffix2Origin = [];
     const Origin2Suffix = [];
-    let garcontinue = "|";
+    let garcontinue = '|';
     while (garcontinue !== false) {
         try {
             const allRedirects = await bot.request({
-                action: "query",
-                generator: "allredirects",
+                action: 'query',
+                generator: 'allredirects',
                 redirects: true,
-                garlimit: "max",
+                garlimit: 'max',
                 garcontinue,
             });
             garcontinue = allRedirects.continue?.garcontinue || false;
             for (const item of Object.values(allRedirects.query.redirects)) {
                 // 后缀重定向至无后缀
-                if(item.from.replace(/^(.*)\(.*\)$/, "$1") === item.to) {
+                if(item.from.replace(/^(.*)\(.*\)$/, '$1') === item.to) {
                     Suffix2Origin.push(`* [{{canonicalurl:${item.from}|redirect=no}} ${item.from}]→[[${item.to}]]`);
                 }
                 // 无后缀重定向至后缀
-                if(item.from === item.to.replace(/^(.*)\(.*\)$/, "$1")) {
+                if(item.from === item.to.replace(/^(.*)\(.*\)$/, '$1')) {
                     Origin2Suffix.push(`* [{{canonicalurl:${item.from}|redirect=no}} ${item.from}]→[[${item.to}]]`);
                 }
             }
@@ -128,30 +128,30 @@ const getRedirects = async () => {
  * @param {string[]} Origin2Suffix 无后缀重定向到有后缀列表
  */
 const updatePage = async (AbsentList, Suffix2Origin, Origin2Suffix) => {
-    const PAGENAME = "萌娘百科:疑似多余消歧义后缀";
+    const PAGENAME = '萌娘百科:疑似多余消歧义后缀';
     const text =
-        "本页面列举疑似多余的消歧义后缀，分为三类：\n" +
-        "# “FOO(BAR)”存在，“FOO”不存在；\n" +
-        "# “FOO(BAR)”重定向到“FOO”；\n" +
-        "# “FOO”重定向到“FOO(BAR)”。\n" +
-        "本页面由机器人于每周一凌晨4:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n" +
+        '本页面列举疑似多余的消歧义后缀，分为三类：\n' +
+        '# “FOO(BAR)”存在，“FOO”不存在；\n' +
+        '# “FOO(BAR)”重定向到“FOO”；\n' +
+        '# “FOO”重定向到“FOO(BAR)”。\n' +
+        '本页面由机器人于每周一凌晨4:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n' +
         '__TOC__<div class="plainlinks>' +
-        "\n\n== 后缀存在、无后缀不存在 ==\n\n" +
-        AbsentList.join("\n") +
-        "\n\n== 有后缀重定向到无后缀 ==\n\n" +
-        Suffix2Origin.join("\n") +
-        "\n\n== 无后缀重定向到有后缀 ==\n\n" +
-        Origin2Suffix.join("\n") +
-        "\n</div>\n[[Category:萌娘百科数据报告]][[Category:积压工作]]";
+        '\n\n== 后缀存在、无后缀不存在 ==\n\n' +
+        AbsentList.join('\n') +
+        '\n\n== 有后缀重定向到无后缀 ==\n\n' +
+        Suffix2Origin.join('\n') +
+        '\n\n== 无后缀重定向到有后缀 ==\n\n' +
+        Origin2Suffix.join('\n') +
+        '\n</div>\n[[Category:萌娘百科数据报告]][[Category:积压工作]]';
 
     try {
         await bot.request({
-            action: "edit",
+            action: 'edit',
             title: PAGENAME,
             text,
-            summary: "自动更新列表",
+            summary: '自动更新列表',
             bot: true,
-            tags: "Bot",
+            tags: 'Bot',
             token: bot.editToken,
         });
         console.log(`成功保存到\x1B[4m${PAGENAME}\x1B[0m。`);
@@ -169,7 +169,7 @@ const main = async (retryCount = 5) => {
     while (retries < retryCount) {
         try {
             await login();
-            console.log("登录成功。正在获取所有页面……");
+            console.log('登录成功。正在获取所有页面……');
 
             const PageList = await getAllPages();
             const AbsentList = await getAbsentList(PageList);

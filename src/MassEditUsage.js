@@ -1,8 +1,8 @@
-import MWBot from "mwbot";
-import config from "../config/config.js";
+import MWBot from 'mwbot';
+import config from '../config/config.js';
 
 let data = {
-    lastUpdate: "2023-05-01T00:00:00Z",
+    lastUpdate: '2023-05-01T00:00:00Z',
     usage: {},
     static: {},
 };
@@ -30,31 +30,31 @@ const login = async (bot) => {
 // 获取页面记录的上次信息
 const getPreData = async (title) => {
     const pageData = await zhBot.read(title);
-    data = JSON.parse(Object.values(pageData.query.pages)?.[0]?.revisions?.[0]?.["*"].replace("{{SpecialWikitext/JSON|1=<nowiki>", "").replace("</nowiki>}}", "")) || data;
+    data = JSON.parse(Object.values(pageData.query.pages)?.[0]?.revisions?.[0]?.['*'].replace('{{SpecialWikitext/JSON|1=<nowiki>', '').replace('</nowiki>}}', '')) || data;
 };
 
 // 获取最近更改并更新数据
-const getRecentChanges = async (site = "zh", lastUpdate) => {
+const getRecentChanges = async (site = 'zh', lastUpdate) => {
     let bot;
     switch (site) {
-        case "zh":
+        case 'zh':
         default:
             bot = zhBot;
             break;
-        case "cm":
+        case 'cm':
             bot = cmBot;
             break;
     }
     data.usage[site] ||= {};
-    let rccontinue = "|";
+    let rccontinue = '|';
     try {
         while (rccontinue !== undefined) {
             const response = await bot.request({
-                action: "query",
-                list: "recentchanges",
-                rctag: "Automation tool",
-                rcprop: "timestamp|comment|user",
-                rclimit: "max",
+                action: 'query',
+                list: 'recentchanges',
+                rctag: 'Automation tool',
+                rcprop: 'timestamp|comment|user',
+                rclimit: 'max',
                 rccontinue,
             });
             rccontinue = response.continue?.rccontinue;
@@ -64,7 +64,7 @@ const getRecentChanges = async (site = "zh", lastUpdate) => {
                 if (timestamp < lastUpdate) {
                     return;
                 }
-                if (item.comment?.includes("MassEdit")) {
+                if (item.comment?.includes('MassEdit')) {
                     data.usage[site][item.user] ||= 0;
                     data.usage[site][item.user] += 1;
                 }
@@ -80,12 +80,12 @@ const updatePage = async (title, text) => {
     try {
         zhBot.editToken = (await zhBot.getEditToken()).csrftoken; // 获取完前面的数字时token已经过期了，需要重新获取
         await zhBot.request({
-            action: "edit",
+            action: 'edit',
             title,
-            summary: "自动更新列表",
+            summary: '自动更新列表',
             text,
             bot: true,
-            tags: "Bot",
+            tags: 'Bot',
             token: zhBot.editToken,
         });
         console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
@@ -97,15 +97,15 @@ const updatePage = async (title, text) => {
 // 主函数
 const main = async (retryCount = 5) => {
     let retries = 0;
-    const dataPage = "User:BearBin/MassEditUsage.json";
+    const dataPage = 'User:BearBin/MassEditUsage.json';
     while (retries < retryCount) {
         try {
             await Promise.all([login(zhBot), login(cmBot)]);
-            console.log("登录成功");
+            console.log('登录成功');
             await getPreData(dataPage);
             const lastUpdate = new Date(data.lastUpdate);
             data.lastUpdate = new Date().toISOString();
-            await Promise.all([getRecentChanges("zh", lastUpdate), getRecentChanges("cm", lastUpdate)]);
+            await Promise.all([getRecentChanges('zh', lastUpdate), getRecentChanges('cm', lastUpdate)]);
             data.static = {
                 userCount: new Set([...Object.keys(data.usage.zh), ...Object.keys(data.usage.cm)]).size,
                 editCount: [...Object.values(data.usage.zh), ...Object.values(data.usage.cm)].reduce((pre, cur) => pre + cur, 0),

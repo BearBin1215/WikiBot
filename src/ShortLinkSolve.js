@@ -1,10 +1,10 @@
-import https from "https";
-import MWBot from "mwbot";
-import config from "../config/config.js";
+import https from 'https';
+import MWBot from 'mwbot';
+import config from '../config/config.js';
 
 const list = [
-    "叶采章(崩坏系列)",
-    "筱银",
+    '叶采章(崩坏系列)',
+    '筱银',
 ];
 
 const bot = new MWBot({
@@ -20,7 +20,7 @@ const resolveRedirect = (url) => new Promise((resolve, reject) => {
         } else {
             resolve(false);
         }
-    }).on("error", (error) => {
+    }).on('error', (error) => {
         reject(error);
     });
 });
@@ -32,19 +32,19 @@ await bot.loginGetEditToken({
 });
 for (const item of list) {
     const res = await bot.read(item);
-    let source = Object.values(res.query.pages)[0].revisions[0]["*"];
+    let source = Object.values(res.query.pages)[0].revisions[0]['*'];
     const links = source.match(/https:\/\/b23\.tv\/\w+/g);
     for (const link of links) {
-        const resolved = (await resolveRedirect(link))?.replace(/\?.+/g, "");
+        const resolved = (await resolveRedirect(link))?.replace(/\?.+/g, '');
         if (resolved) {
             source = source.replace(link, resolved);
             bot.request({
-                action: "edit",
+                action: 'edit',
                 title: item,
-                summary: "批量处理b23.tv短链",
+                summary: '批量处理b23.tv短链',
                 text: source,
                 bot: true,
-                tags: "Bot",
+                tags: 'Bot',
                 token: bot.editToken,
             }).then(() => {
                 console.log(`${item}编辑成功`);

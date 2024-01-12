@@ -1,14 +1,14 @@
-import axios from "axios";
-import MWBot from "mwbot";
-import config from "./config/config.js";
-import getTenantAccessToken from "./config/GetFeishuToken.js";
+import axios from 'axios';
+import MWBot from 'mwbot';
+import config from './config/config.js';
+import getTenantAccessToken from './config/GetFeishuToken.js';
 
 // 飞书表格相关信息
 const TableInfo = {
-    baseURL: "https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/",
-    spreadsheetToken: "shtcnTQQ5n5HkdGwiiYEtE1FHZ9", // galgame条目统计表
-    sheetId: "0rCQAp", // 日本作品
-    range: "!A2:B", // 从第2行起，获取A、B列内容（原名、译名）
+    baseURL: 'https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/',
+    spreadsheetToken: 'shtcnTQQ5n5HkdGwiiYEtE1FHZ9', // galgame条目统计表
+    sheetId: '0rCQAp', // 日本作品
+    range: '!A2:B', // 从第2行起，获取A、B列内容（原名、译名）
 };
 
 /**
@@ -20,20 +20,20 @@ const getTableContent = async () => {
     const AccessToken = await getTenantAccessToken().catch((error) => {
         throw new Error(`获取TenantAccessToken失败：${error}`);
     });
-    console.log("获取TenantAccessToken成功，开始获取表格内容。");
+    console.log('获取TenantAccessToken成功，开始获取表格内容。');
 
     // 获取表格内容
     const { data: { data: { valueRange: { values } } } } = await axios({
-        method: "GET",
-        url: TableInfo.baseURL + TableInfo.spreadsheetToken + "/values/" + TableInfo.sheetId + TableInfo.range,
+        method: 'GET',
+        url: TableInfo.baseURL + TableInfo.spreadsheetToken + '/values/' + TableInfo.sheetId + TableInfo.range,
         headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + AccessToken,
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + AccessToken,
         },
     }).catch((error) => {
         throw new Error(`读取飞书统计表失败：${error}`);
     });
-    console.log("读取飞书统计表成功。");
+    console.log('读取飞书统计表成功。');
 
     return values;
 };
@@ -53,11 +53,11 @@ const generateText = async (values) => {
         if (i % 100 === 0) {
             pageList.push(`\n== ${i + 1}～${i + 100} ==`);
         }
-        const ja = values[i][0].replaceAll("\n", "").trim();
-        const pagename = values[i][1]?.replaceAll("\n", "").trim() || ja;
+        const ja = values[i][0].replaceAll('\n', '').trim();
+        const pagename = values[i][1]?.replaceAll('\n', '').trim() || ja;
         pageList.push(`#{{lj|${ja}}}→[[${pagename}]]`);
     }
-    return "{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n" + pageList.join("\n");
+    return '{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n' + pageList.join('\n');
 };
 
 /**
@@ -77,18 +77,18 @@ const updatePage = async (text) => {
             username: config.username,
             password: config.password,
         });
-        console.log("登录成功。准备保存至萌百。");
-        const title = "User:柏喙意志/Gal条目表";
+        console.log('登录成功。准备保存至萌百。');
+        const title = 'User:柏喙意志/Gal条目表';
         await bot.request({
-            action: "edit",
+            action: 'edit',
             title,
             text,
-            summary: "自动同步自飞书",
+            summary: '自动同步自飞书',
             bot: true,
-            tags: "Bot",
+            tags: 'Bot',
             token: bot.editToken,
         }).then((res) => {
-            console.log(`成功保存到\x1B[4m${title}\x1B[0m${res.edit.nochange === "" ? "，未发生变化" : ""}。`);
+            console.log(`成功保存到\x1B[4m${title}\x1B[0m${res.edit.nochange === '' ? '，未发生变化' : ''}。`);
         });
     } catch (err) {
         throw new Error(`登录或保存失败：${err}`);

@@ -1,5 +1,5 @@
-import MWBot from "mwbot";
-import config from "./config/config.js";
+import MWBot from 'mwbot';
+import config from './config/config.js';
 
 const bot = new MWBot({
     apiUrl: config.API_PATH,
@@ -7,7 +7,7 @@ const bot = new MWBot({
     timeout: 60000,
 });
 
-const template = "Template:萌百视觉小说研究会";
+const template = 'Template:萌百视觉小说研究会';
 
 const login = async () => {
     try {
@@ -25,11 +25,11 @@ const login = async () => {
  */
 const parseTemplateSource = (source) => {
     const list = source
-        .replace(/.*<!-- *列表起点 *-->(.*)<!-- *列表终点 *-->.*/gs, "$1") // 识别列表起点终点
-        .replace(/<!--[\s\S]*?-->/g, "") // 去除注释
-        .replace(/\* */g, "") // 去除无序列表头
+        .replace(/.*<!-- *列表起点 *-->(.*)<!-- *列表终点 *-->.*/gs, '$1') // 识别列表起点终点
+        .replace(/<!--[\s\S]*?-->/g, '') // 去除注释
+        .replace(/\* */g, '') // 去除无序列表头
         .trim()
-        .split("\n") // 分割为数组
+        .split('\n') // 分割为数组
         .map((str) => {
             const match = str.trim().match(/^([^<(]*)(\(([^)]*)\))?(<.*>)?$/); // 解析昵称和下标
             return {
@@ -46,10 +46,10 @@ const parseTemplateSource = (source) => {
  */
 const getUserGroups = async (userList) => {
     const { query: { users } } = await bot.request({
-        action: "query",
-        list: "users",
-        ususers: userList.join("|"),
-        usprop: "groups",
+        action: 'query',
+        list: 'users',
+        ususers: userList.join('|'),
+        usprop: 'groups',
     });
     return users.reduce((pre, { name, groups }) => {
         pre[name] = groups;
@@ -62,8 +62,8 @@ const getUserGroups = async (userList) => {
  */
 const userListToString = (list) => {
     return list
-        .map(({ username, nickname, subscript }) => `{{User|${username}${nickname ? `|${nickname}` : ""}}}${subscript || ""}`)
-        .join(" • <!--\n    -->");
+        .map(({ username, nickname, subscript }) => `{{User|${username}${nickname ? `|${nickname}` : ''}}}${subscript || ''}`)
+        .join(' • <!--\n    -->');
 };
 
 /**
@@ -71,34 +71,34 @@ const userListToString = (list) => {
  */
 const submit = async (text) => {
     await bot.request({
-        action: "edit",
+        action: 'edit',
         title: template,
-        summary: "自动更新用户组信息",
+        summary: '自动更新用户组信息',
         text,
         bot: true,
-        tags: "Bot",
+        tags: 'Bot',
         token: bot.editToken,
     });
 };
 
 const main = async () => {
     await login();
-    console.log("登陆成功");
-    const source = Object.values((await bot.read(template)).query.pages)[0].revisions[0]["*"];
-    console.log("获取大家族源代码成功");
+    console.log('登陆成功');
+    const source = Object.values((await bot.read(template)).query.pages)[0].revisions[0]['*'];
+    console.log('获取大家族源代码成功');
     const userInfo = parseTemplateSource(source);
     const userGroups = await getUserGroups(userInfo.map(({ username }) => username));
-    console.log("获取用户组信息成功");
+    console.log('获取用户组信息成功');
     const groups = {
         maintainer: [], // 维护组
         autopatrolled: [], // 巡查豁免
         autoconfirmed: [], // 自确
     };
     for (const user of userInfo) {
-        const userGroup = userGroups[(user.username.charAt(0).toUpperCase() + user.username.slice(1)).replace("_", " ")];
-        if (userGroup.some((group) => ["sysop", "patroller"].includes(group))) {
+        const userGroup = userGroups[(user.username.charAt(0).toUpperCase() + user.username.slice(1)).replace('_', ' ')];
+        if (userGroup.some((group) => ['sysop', 'patroller'].includes(group))) {
             groups.maintainer.push(user);
-        } else if (userGroup.some((group) => ["goodeditor", "honoredmaintainer"].includes(group))) {
+        } else if (userGroup.some((group) => ['goodeditor', 'honoredmaintainer'].includes(group))) {
             groups.autopatrolled.push(user);
         } else {
             groups.autoconfirmed.push(user);
@@ -109,10 +109,10 @@ const main = async () => {
         .replace(/(<!-- *优编荣维 *-->).*(<!-- *优编荣维 *-->)/gs, `$1${userListToString(groups.autopatrolled)}$2`)
         .replace(/(<!-- *自确 *-->).*(<!-- *自确 *-->)/gs, `$1${userListToString(groups.autoconfirmed)}$2`);
     if (output === source) {
-        console.log("用户组信息无变化");
+        console.log('用户组信息无变化');
     } else {
         await submit(output);
-        console.log("保存成功");
+        console.log('保存成功');
     }
 };
 

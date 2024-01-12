@@ -1,6 +1,6 @@
-"use strict";
-import MWBot from "mwbot";
-import config from "../config/config.js";
+'use strict';
+import MWBot from 'mwbot';
+import config from '../config/config.js';
 
 const bot = new MWBot({
     apiUrl: config.API_PATH,
@@ -21,14 +21,14 @@ async function login() {
 
 const getAllPages = async () => {
     const pageList = [];
-    let apcontinue = "";
+    let apcontinue = '';
     while (apcontinue !== false) {
         console.log(pageList.length, pageList[pageList.length - 1]);
         try {
             const allPages = await bot.request({
-                action: "query",
-                list: "allpages",
-                aplimit: "max",
+                action: 'query',
+                list: 'allpages',
+                aplimit: 'max',
                 apcontinue,
             });
             apcontinue = allPages.continue?.apcontinue || false;
@@ -44,11 +44,11 @@ const getAllPages = async () => {
 
 const getWhiteList = async () => {
     try {
-        const pageSource = await bot.read("User:BearBin/可能需要改为全角标点标题的页面/排除页面");
-        const list = Object.values(pageSource.query.pages)[0].revisions[0]["*"]
-            .replaceAll("{{用户 允许他人编辑}}", "")
-            .replaceAll(/\* *\[\[(.+)\]\]/g, "$1")
-            .split("\n")
+        const pageSource = await bot.read('User:BearBin/可能需要改为全角标点标题的页面/排除页面');
+        const list = Object.values(pageSource.query.pages)[0].revisions[0]['*']
+            .replaceAll('{{用户 允许他人编辑}}', '')
+            .replaceAll(/\* *\[\[(.+)\]\]/g, '$1')
+            .split('\n')
             .map((item) => item.trim())
             .filter((item) => item);
         return list;
@@ -58,28 +58,28 @@ const getWhiteList = async () => {
 };
 
 const submitResult = async (pageList, whiteList) => {
-    const PAGENAME = "User:BearBin/可能需要改为全角标点标题的页面";
+    const PAGENAME = 'User:BearBin/可能需要改为全角标点标题的页面';
     const badList = [];
     for(const page of pageList) {
         if(
             /[\u4e00-\u9fa5\u3040-\u30ff][!?,]/.test(page) &&
-            !page.includes("BanG Dream!") &&
+            !page.includes('BanG Dream!') &&
             !whiteList.includes(page)
         ) {
             badList.push(page);
         }
     }
 
-    const text = `{{info|列表中部分属于“原文如此”，请注意判别。如有此类页面，欢迎前往[[/排除页面]]添加。}}-{\n* [[${badList.join("]]\n* [[")}]]\n}-`;
+    const text = `{{info|列表中部分属于“原文如此”，请注意判别。如有此类页面，欢迎前往[[/排除页面]]添加。}}-{\n* [[${badList.join(']]\n* [[')}]]\n}-`;
 
     try {
         await bot.request({
-            action: "edit",
+            action: 'edit',
             title: PAGENAME,
             text,
-            summary: "自动更新列表",
+            summary: '自动更新列表',
             bot: true,
-            tags: "Bot",
+            tags: 'Bot',
             token: bot.editToken,
         });
         console.log(`成功保存到\x1B[4m${PAGENAME}\x1B[0m。`);
@@ -93,7 +93,7 @@ const main = async (retryCount = 5) => {
     while (retries < retryCount) {
         try {
             await login();
-            console.log("登录成功。正在获取所有页面……");
+            console.log('登录成功。正在获取所有页面……');
 
             const pageList = await getAllPages();
             console.log(`获取到${pageList.length}个页面。`);

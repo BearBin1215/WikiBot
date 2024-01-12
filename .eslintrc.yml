@@ -18,7 +18,7 @@ rules:
     - SwitchCase: 1
   quotes:
     - 2
-    - double
+    - single
     - avoidEscape: true
   quote-props:
     - 2

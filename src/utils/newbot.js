@@ -1,6 +1,6 @@
-"use strict";
-import MWBot from "mwbot";
-import config from "../../config/config.js";
+'use strict';
+import MWBot from 'mwbot';
+import config from '../../config/config.js';
 
 /**
  * 创建一个机器人实例并登录

@@ -1,10 +1,10 @@
 /**
  * @todo 改良判定规则以减少误判，比如获取大家族模板列表以判定相关内容
  */
-import MWBot from "mwbot";
-import config from "../config/config.js";
-import glb from "./utils/global.js";
-import catReader from "./utils/catReader.js";
+import MWBot from 'mwbot';
+import config from '../config/config.js';
+import glb from './utils/global.js';
+import catReader from './utils/catReader.js';
 
 class MessOutput {
     /**
@@ -34,7 +34,7 @@ class MessOutput {
                     console.error(`${headline}不是数组。`);
                     return;
                 }
-                if (typeof val === "object" && val !== null) {
+                if (typeof val === 'object' && val !== null) {
                     queue.push({ obj: val, path: [...path, key] });
                 }
             }
@@ -46,14 +46,14 @@ class MessOutput {
     get wikitext() {
         let listLevel = 1;
         const textList = [
-            "本页面由机器人自动更新，因此通常不建议直接编辑本页面。",
-            "",
-            "最后更新时间：<u>~~~~~</u>，约15分钟误差。",
-            "",
-            "大多数内容建议手动排查，以免误判。",
-            "",
-            "一些常见误判诸如在非页顶使用{{tl|dablink}}等情况。若出现其他误判，请[[User_talk:BearBin|联系阿熊]]。",
-            "{{目录右置}}",
+            '本页面由机器人自动更新，因此通常不建议直接编辑本页面。',
+            '',
+            '最后更新时间：<u>~~~~~</u>，约15分钟误差。',
+            '',
+            '大多数内容建议手动排查，以免误判。',
+            '',
+            '一些常见误判诸如在非页顶使用{{tl|dablink}}等情况。若出现其他误判，请[[User_talk:BearBin|联系阿熊]]。',
+            '{{目录右置}}',
         ];
         /**
          * 递归函数
@@ -63,24 +63,24 @@ class MessOutput {
             listLevel++;
             for (const [headline, pages] of Object.entries(obj)) {
                 // 标题
-                textList.push("", `${"=".repeat(listLevel)} ${headline} ${"=".repeat(listLevel)}`);
+                textList.push('', `${'='.repeat(listLevel)} ${headline} ${'='.repeat(listLevel)}`);
                 // 列表
                 if (Array.isArray(pages)) {
                     if (pages.length > 0) {
                         textList.push(
-                            "{{hide|1=点击展开列表|2=", // 折叠模板
+                            '{{hide|1=点击展开列表|2=', // 折叠模板
                             ...pages.map((page) => {
-                                if (typeof page === "string") {
+                                if (typeof page === 'string') {
                                     return `*[[${page}]]`; // 无附加内容
                                 }
                                 return `*-{[[${page[0]}]]}-：${page[1]}`; // 有附加内容
                             }),
-                            "}}",
+                            '}}',
                         );
                     } else {
-                        textList.push("暂无");
+                        textList.push('暂无');
                     }
-                } else if (typeof pages === "object" && pages !== null) {
+                } else if (typeof pages === 'object' && pages !== null) {
                     addListToTextList(pages);
                 } else {
                     throw new Error(`${headline}对应值类型有误: ${typeof pages}`);
@@ -89,7 +89,7 @@ class MessOutput {
             listLevel--;
         };
         addListToTextList(this.data);
-        return textList.join("\n");
+        return textList.join('\n');
     }
 }
 
@@ -103,7 +103,7 @@ const messOutput = new MessOutput({
     疑似繁体页面名: [],
     不礼貌排版习惯: {
         连续换行: [],
-        "big地狱（5个以上）": [],
+        'big地狱（5个以上）': [],
         疑似大家族前单独用二级标题: [],
         疑似喊话: [],
     },
@@ -122,163 +122,163 @@ const messOutput = new MessOutput({
         两个或以上: [],
         一个: [],
     },
-    "“•”左右少空格": {
+    '“•”左右少空格': {
         左侧缺少: [],
         右侧缺少: [],
     },
-    "管道符前后一致（无明显影响，通常不用专门处理）": {
-        "<nowiki>[[ABC|ABC]]</nowiki>": [],
-        "<nowiki>|ABC{{!}}ABC</nowiki>": [],
+    '管道符前后一致（无明显影响，通常不用专门处理）': {
+        '<nowiki>[[ABC|ABC]]</nowiki>': [],
+        '<nowiki>|ABC{{!}}ABC</nowiki>': [],
     },
     旧声优分类格式: [],
-    "http(s)少冒号": [],
+    'http(s)少冒号': [],
 });
 
 
 // 模板及其别名
 const Templates = {
-    prefix: "\\{\\{(?:template:|[模样樣]板:|T:)?",
+    prefix: '\\{\\{(?:template:|[模样樣]板:|T:)?',
 
     // 导航条
     navbar: [
-        "小[导導]航[条條]",
-        "小[导導]航[条條]\\/承前[启啟][后後]",
+        '小[导導]航[条條]',
+        '小[导導]航[条條]\\/承前[启啟][后後]',
     ],
 
     // 消歧义导航模板
     disambigTop: [
-        "about",
-        "not",
-        "distinguish",
-        "dablink",
-        "redirectHere",
-        "otheruseslist",
+        'about',
+        'not',
+        'distinguish',
+        'dablink',
+        'redirectHere',
+        'otheruseslist',
     ],
 
     // 欢迎编辑及TOP
     top: [
-        "[欢歡]迎[编編][辑輯]",
-        "不完整",
-        "急需改[进進]",
-        "[^{|\\[\\]]+top",
+        '[欢歡]迎[编編][辑輯]',
+        '不完整',
+        '急需改[进進]',
+        '[^{|\\[\\]]+top',
     ],
 
     // T:消歧义
     disambig: [
-        "消歧[义義]",
+        '消歧[义義]',
     ],
 
     // 提示模板
     note: [
         // "敏感[内內]容",
-        "[现現][实實]人物",
+        '[现現][实實]人物',
         // "R-15",
     ],
 
     // 警告模板
     warn: [
-        "法律声明",
+        '法律声明',
         // "刑法",
-        "医学声明",
-        "学术提示",
-        "非官方猜测",
-        "易引发谣言",
-        "用梗适度",
+        '医学声明',
+        '学术提示',
+        '非官方猜测',
+        '易引发谣言',
+        '用梗适度',
     ],
 
     // 其他提示模板
     otherNote: [
-        "已故现实人物",
-        "已完结",
-        "长期关注及更新",
-        "含时长期关注及更新",
+        '已故现实人物',
+        '已完结',
+        '长期关注及更新',
+        '含时长期关注及更新',
     ],
 
     // 娱乐页顶模板
     amuse: [
-        "阿卡林",
-        "被巡回",
-        "黑幕可能无法划开",
-        "暂时保留",
-        "一本正经地胡说八道",
-        "坑",
+        '阿卡林',
+        '被巡回',
+        '黑幕可能无法划开',
+        '暂时保留',
+        '一本正经地胡说八道',
+        '坑',
     ],
 
     // 喊话模板
     quote: [
-        "cquote",
-        "先一起喊",
+        'cquote',
+        '先一起喊',
     ],
 
     // 底部模板，用来检测大家族模板位置错误或单独二级标题时排除特定模板
     bottom: [
         // 注释模板
-        "reflist",
-        "notelist",
-        "NoteFoot",
-        "notes",
-        "cite",
+        'reflist',
+        'notelist',
+        'NoteFoot',
+        'notes',
+        'cite',
 
         // 外部链接模板
-        "到萌娘文[库庫]",
-        "到[维維]基百科",
-        "ToWikipedia",
-        "到FANDOM",
-        "到VNDB",
-        "To BWIKI",
-        "To 52poke Wiki",
-        "To Megami Tensei Wiki",
-        "到灰[机機]wiki",
-        "到泰拉瑞[亚亞]Wiki",
-        "到MC百科",
-        "到魔禁维基",
-        "到THBWiki",
-        "到BlitzHanger",
-        "到女神[转轉]生[维維]基",
+        '到萌娘文[库庫]',
+        '到[维維]基百科',
+        'ToWikipedia',
+        '到FANDOM',
+        '到VNDB',
+        'To BWIKI',
+        'To 52poke Wiki',
+        'To Megami Tensei Wiki',
+        '到灰[机機]wiki',
+        '到泰拉瑞[亚亞]Wiki',
+        '到MC百科',
+        '到魔禁维基',
+        '到THBWiki',
+        '到BlitzHanger',
+        '到女神[转轉]生[维維]基',
 
         // 魔术字
-        "PAGENAME",
-        "DEFAULTSORT",
+        'PAGENAME',
+        'DEFAULTSORT',
 
         // 常用
-        "lj\\|",
-        "color\\|",
-        "ruby\\|",
-        "hide\\|",
-        "[剧劇]透",
-        "黑幕",
-        "胡话",
-        "jk\\|",
-        "main\\|",
-        "ja\\}",
-        "en\\}",
-        "zh\\}",
-        "lang\\|",
-        "cquote",
-        "Ps\\|",
+        'lj\\|',
+        'color\\|',
+        'ruby\\|',
+        'hide\\|',
+        '[剧劇]透',
+        '黑幕',
+        '胡话',
+        'jk\\|',
+        'main\\|',
+        'ja\\}',
+        'en\\}',
+        'zh\\}',
+        'lang\\|',
+        'cquote',
+        'Ps\\|',
 
         // 其他
-        "catn",
-        "ColonSort",
-        "bilibiliVideo",
-        "BV",
-        "YoukuVideo",
-        "music163",
-        "背景[图圖]片",
-        "替[换換][侧側][边邊][栏欄]底[图圖]",
-        "外部[图圖]片注[释釋]",
-        "[标標][题題]替[换換]",
-        "PicHover",
-        "Outer[ _]image",
-        "pic\\|",
-        "disambig",
-        "消歧义页",
-        "NoSubpage",
-        "noReferer",
-        "用梗适度",
-        "一本正经地胡说八道",
-        "color[ _]block",
-        "RoundTop",
+        'catn',
+        'ColonSort',
+        'bilibiliVideo',
+        'BV',
+        'YoukuVideo',
+        'music163',
+        '背景[图圖]片',
+        '替[换換][侧側][边邊][栏欄]底[图圖]',
+        '外部[图圖]片注[释釋]',
+        '[标標][题題]替[换換]',
+        'PicHover',
+        'Outer[ _]image',
+        'pic\\|',
+        'disambig',
+        '消歧义页',
+        'NoSubpage',
+        'noReferer',
+        '用梗适度',
+        '一本正经地胡说八道',
+        'color[ _]block',
+        'RoundTop',
     ],
 };
 
@@ -316,7 +316,7 @@ const regexPosition = (str, reg) => {
  * @returns {number[]} 模板位置集合
  * @example templateIndex("{{欢迎编辑|补充内容}}{{消歧义}}{{电子游戏TOP}}", ...Templates.top) => [0, 20];
  */
-const templateIndex = (text, ...templates) => regexPosition(text, new RegExp(`${Templates.prefix}(${templates.join("|")})[}\\|\\n]`, "gi"));
+const templateIndex = (text, ...templates) => regexPosition(text, new RegExp(`${Templates.prefix}(${templates.join('|')})[}\\|\\n]`, 'gi'));
 
 
 /**
@@ -349,13 +349,13 @@ const checkOrder = (arrays) => {
  * 检查消歧义页内中的管道符
  */
 const pipeInDisambig = (text, categories, title) => {
-    if (categories.includes("Category:消歧义页")) {
+    if (categories.includes('Category:消歧义页')) {
         const prefix = text.match(/\[\[(.+)\(.+\)\|\1\]\].*—/);
         const suffix = text.match(/\[\[[^:\n].*:(.+)\|\1\]\].*—/);
         if (prefix) {
-            messOutput.addPageToList("后缀", [title, `<code><nowiki>${prefix[0].replaceAll("—", "")}</nowiki></code>`]);
+            messOutput.addPageToList('后缀', [title, `<code><nowiki>${prefix[0].replaceAll('—', '')}</nowiki></code>`]);
         } else if (suffix) {
-            messOutput.addPageToList("前缀", [title, `<code><nowiki>${suffix[0].replaceAll("—", "")}</nowiki></code>`]);
+            messOutput.addPageToList('前缀', [title, `<code><nowiki>${suffix[0].replaceAll('—', '')}</nowiki></code>`]);
         }
     }
 };
@@ -365,9 +365,9 @@ const pipeInDisambig = (text, categories, title) => {
  * 在页面中查找重复出现的大量换行
  */
 const wrapDetector = (text, categories, title) => {
-    if (categories.some(category => category.includes("音乐作品"))) { return; } // 排除音乐条目
+    if (categories.some(category => category.includes('音乐作品'))) { return; } // 排除音乐条目
     if (/(<br *\/ *>\s*){4,}/i.test(text) || /(\n|<br *\/? *>){8}/i.test(text)) {
-        messOutput.addPageToList("连续换行", title);
+        messOutput.addPageToList('连续换行', title);
     }
 };
 
@@ -377,7 +377,7 @@ const wrapDetector = (text, categories, title) => {
  */
 const bigDetector = (text, _categories, title) => {
     if (/(<big>){5}/i.test(text)) {
-        messOutput.addPageToList("big地狱（5个以上）", title);
+        messOutput.addPageToList('big地狱（5个以上）', title);
     }
 };
 
@@ -386,8 +386,8 @@ const bigDetector = (text, _categories, title) => {
  * 能用内链非要用外链
  */
 const innerToOuter = (text, _categories, title) => {
-    if ((new RegExp(`${Templates.prefix}(背景[图圖]片|替[换換][侧側][边邊][栏欄]底[图圖])[^}]+img\\.moegirl\\.org\\.cn`, "si")).test(text)) {
-        messOutput.addPageToList("能用内链非要外链", title);
+    if ((new RegExp(`${Templates.prefix}(背景[图圖]片|替[换換][侧側][边邊][栏欄]底[图圖])[^}]+img\\.moegirl\\.org\\.cn`, 'si')).test(text)) {
+        messOutput.addPageToList('能用内链非要外链', title);
     }
 };
 
@@ -398,8 +398,8 @@ const innerToOuter = (text, _categories, title) => {
  * @todo 将判定方法改为发现疑似页面后判定模板是否为导航模板
  */
 const headlineBeforeNav = (text, _categories, title) => {
-    if (new RegExp(`== *(相关|更多|其他|其它)(条目|條目|内容|链接)? *==\n*${Templates.prefix}((?!${Templates.bottom.join("|")}).)*\\}`, "gi").test(text)) {
-        messOutput.addPageToList("疑似大家族前单独用二级标题", title);
+    if (new RegExp(`== *(相关|更多|其他|其它)(条目|條目|内容|链接)? *==\n*${Templates.prefix}((?!${Templates.bottom.join('|')}).)*\\}`, 'gi').test(text)) {
+        messOutput.addPageToList('疑似大家族前单独用二级标题', title);
     }
 };
 
@@ -408,8 +408,8 @@ const headlineBeforeNav = (text, _categories, title) => {
  * 位于注释或外部链接之后的大家族模板
  */
 const refBeforeNav = (text, _categories, title) => {
-    if (new RegExp(`== *(脚注|[注註]解|注释|註釋|外部[链鏈]接|外部連結|外链|[参參]考).*==[\\s\\S]*\n${Templates.prefix}((?!${Templates.bottom.join("|")}).)*\\}`, "gi").test(text)) {
-        messOutput.addPageToList("注释和外部链接后的大家族模板", title);
+    if (new RegExp(`== *(脚注|[注註]解|注释|註釋|外部[链鏈]接|外部連結|外链|[参參]考).*==[\\s\\S]*\n${Templates.prefix}((?!${Templates.bottom.join('|')}).)*\\}`, 'gi').test(text)) {
+        messOutput.addPageToList('注释和外部链接后的大家族模板', title);
     }
 };
 
@@ -423,7 +423,7 @@ const redBoldText = (text, _categories, title) => {
         /\{\{color\|red\|'''[^}|]{50,}'''\}\}/i.test(text) ||
         /'''\{\{color\|red\|[^}|]{50,}\}\}'''/i.test(text)
     ) {
-        messOutput.addPageToList("疑似喊话", title);
+        messOutput.addPageToList('疑似喊话', title);
     }
 };
 
@@ -432,17 +432,17 @@ const redBoldText = (text, _categories, title) => {
  * 检查重复TOP
  */
 const repetitiveTop = (text, _categories, title) => {
-    const topPattern = new RegExp(`${Templates.prefix}(${Templates.top.join("|")})[}\\|\\n]`, "gi");
+    const topPattern = new RegExp(`${Templates.prefix}(${Templates.top.join('|')})[}\\|\\n]`, 'gi');
     const useTemplates = text.match(topPattern) || [];
     let usedTops = 0;
     for (const item of useTemplates) {
         // 部分名字以top结尾的模板可能并不是页顶，需要排除
-        if (topTipTemplate.includes(item.replace(topPattern, "$1"))) {
+        if (topTipTemplate.includes(item.replace(topPattern, '$1'))) {
             usedTops++;
         }
     }
     if (usedTops > 1) {
-        messOutput.addPageToList("重复TOP", title);
+        messOutput.addPageToList('重复TOP', title);
     }
 };
 
@@ -455,7 +455,7 @@ const imgLT99px = (text, _categories, title) => {
         /leftimage *=[.\n]*\d{3}px/.test(text) ||
         /\{\{(?:template:|[模样樣]板:|T:)?(欢迎编辑|歡迎編輯|不完整|customtop).*\d{3}px/i.test(text)
     ) {
-        messOutput.addPageToList("条目", title);
+        messOutput.addPageToList('条目', title);
     }
 };
 
@@ -466,9 +466,9 @@ const imgLT99px = (text, _categories, title) => {
 const templateOrder = (text, _categories, title) => {
     const templateIndexes = {
         消歧义导航模板: templateIndex(text, ...Templates.disambigTop), // 消歧义导航模板
-        专题导航导航: templateIndex(text, "导航"), // 专题导航
+        专题导航导航: templateIndex(text, '导航'), // 专题导航
         导航条: templateIndex(text, ...Templates.navbar), // 导航条
-        "{{tl|消歧义}}": templateIndex(text, ...Templates.disambig), // 消歧义
+        '{{tl|消歧义}}': templateIndex(text, ...Templates.disambig), // 消歧义
         欢迎编辑或专题TOP: templateIndex(text, ...Templates.top), // 欢迎编辑、各类TOP
         提示模板: templateIndex(text, ...Templates.note), // 提示模板
         娱乐模板: templateIndex(text, ...Templates.amuse), // 娱乐模板
@@ -476,7 +476,7 @@ const templateOrder = (text, _categories, title) => {
     };
     const wrongTemplate = checkOrder(Object.values(templateIndexes));
     if (wrongTemplate > 0) {
-        messOutput.addPageToList("顶部模板排序", [title, `<code>${Object.keys(templateIndexes)[wrongTemplate]}</code>`]);
+        messOutput.addPageToList('顶部模板排序', [title, `<code>${Object.keys(templateIndexes)[wrongTemplate]}</code>`]);
     }
 };
 
@@ -491,12 +491,12 @@ const templateOrder = (text, _categories, title) => {
  * 检查用图超过99px的页顶模板
  */
 const imgLT99pxInTemplate = (text, categories, title) => {
-    if (categories.includes("Category:页顶提示模板") && (
+    if (categories.includes('Category:页顶提示模板') && (
         /leftimage *=.*\d{3}px/.test(text) ||
         /(width|size) *= *\d{3}px/.test(text) ||
         /\[\[(File|Image):[^\]]+\| *\d{3}px/i.test(text)
     )) {
-        messOutput.addPageToList("模板", title);
+        messOutput.addPageToList('模板', title);
     }
 };
 
@@ -505,13 +505,13 @@ const imgLT99pxInTemplate = (text, categories, title) => {
  * 检查模板中的多余换行
  */
 const redundantWrapInTemplate = (text, categories, title) => {
-    if (categories.some(category => ["Category:模板文档", "Category:条目格式模板", "Category:权限申请模板"].includes(category))) {
+    if (categories.some(category => ['Category:模板文档', 'Category:条目格式模板', 'Category:权限申请模板'].includes(category))) {
         return;
     }
     if (/(\n{2}<noinclude>|<\/noinclude>\n{2}|<includeonly>\n{2}|\n{2}<\/includeonly>)/.test(text)) {
-        messOutput.addPageToList("两个或以上", title);
+        messOutput.addPageToList('两个或以上', title);
     } else if (/(\n<noinclude>|<\/noinclude>\n|<includeonly>\n|\n<\/includeonly>)/.test(text)) {
-        messOutput.addPageToList("一个", title);
+        messOutput.addPageToList('一个', title);
     }
 };
 
@@ -522,10 +522,10 @@ const needSpaceBesidesPoint = (text, _categories, title) => {
     const left = text.match(/([^\]\n]+\]\]|[^}\n]+\}\})•/);
     const right = text.match(/•(\[\[[^\]\n]+|\{\{[^}\n]+)/);
     if (left) {
-        messOutput.addPageToList("左侧缺少", [title, `<code><nowiki>${left[0]}</nowiki></code>`]);
+        messOutput.addPageToList('左侧缺少', [title, `<code><nowiki>${left[0]}</nowiki></code>`]);
     }
     if (right) {
-        messOutput.addPageToList("右侧缺少", [title, `<code><nowiki>${right[0]}</nowiki></code>`]);
+        messOutput.addPageToList('右侧缺少', [title, `<code><nowiki>${right[0]}</nowiki></code>`]);
     }
 };
 
@@ -536,10 +536,10 @@ const redundantPipe = (text, _categories, title) => {
     const normal = text.match(/\[\[ *([^\]]+) *\| *\1 *\]\]/);
     const escape = text.match(/\| *([^\]{}}]+) *\{\{!\}\} *\1 *(\||\})/);
     if (normal) {
-        messOutput.addPageToList("<nowiki>[[ABC|ABC]]</nowiki>", [title, `<code><nowiki>${normal[0]}</nowiki></code>`]);
+        messOutput.addPageToList('<nowiki>[[ABC|ABC]]</nowiki>', [title, `<code><nowiki>${normal[0]}</nowiki></code>`]);
     }
     if (escape) {
-        messOutput.addPageToList("<nowiki>|ABC{{!}}ABC</nowiki>", [title, `<code><nowiki>${escape[0]}</nowiki></code>`]);
+        messOutput.addPageToList('<nowiki>|ABC{{!}}ABC</nowiki>', [title, `<code><nowiki>${escape[0]}</nowiki></code>`]);
     }
 };
 
@@ -549,7 +549,7 @@ const redundantPipe = (text, _categories, title) => {
 const oldCVCategory = (text, _categories, title) => {
     const match = text.match(/\|多位(配音|声优) *= *\{\{cate\|[^{}|]+\|[^{}[\]\n]+[^色{}[\]\n](\}\}|\|)/gi);
     if (match) {
-        messOutput.addPageToList("旧声优分类格式", [title, `<code><nowiki>${match[0]}</nowiki></code>`]);
+        messOutput.addPageToList('旧声优分类格式', [title, `<code><nowiki>${match[0]}</nowiki></code>`]);
     }
 };
 
@@ -559,7 +559,7 @@ const oldCVCategory = (text, _categories, title) => {
 const wrongNavName = (text, categories, title) => {
     const nameParam = text.match(/\| *name *= *[^|\n]*/gi) || [];
     if (
-        categories.includes("Category:模板文档") ||
+        categories.includes('Category:模板文档') ||
         !text.match(/\{\{ *(?:#invoke:|Template:|T:|模板:|样板:)? *(大家族|Nav)/gi) ||
         /:(沙盒|Sandbox|Navbox|大家族$)/.test(title) ||
         !nameParam
@@ -567,8 +567,8 @@ const wrongNavName = (text, categories, title) => {
         return;
     }
     for (const match of nameParam) {
-        if (match.replace(/\| *name *= *([^|\n]*)/g, "$1").replaceAll("_", " ").trim().toLowerCase() !== title.replace("Template:", "").toLowerCase()) {
-            messOutput.addPageToList("大家族name参数有误", [title, `<code><nowiki>${match}</nowiki></code>`]);
+        if (match.replace(/\| *name *= *([^|\n]*)/g, '$1').replaceAll('_', ' ').trim().toLowerCase() !== title.replace('Template:', '').toLowerCase()) {
+            messOutput.addPageToList('大家族name参数有误', [title, `<code><nowiki>${match}</nowiki></code>`]);
             return;
         }
     }
@@ -580,7 +580,7 @@ const wrongNavName = (text, categories, title) => {
 const httpColon = (text, _categories, title) => {
     const http = text.match(/https?\/\//gi);
     if (http) {
-        messOutput.addPageToList("http(s)少冒号", [title, `<code><nowiki>${http[0]}</nowiki></code>`]);
+        messOutput.addPageToList('http(s)少冒号', [title, `<code><nowiki>${http[0]}</nowiki></code>`]);
     }
 };
 
@@ -616,7 +616,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
             pages[title] ||= {}; // 初始化pages中每个页面的对象
             pages[title].categories ||= []; // 初始化其中的categories
             // 将此轮循环得到的页面源代码和分类存入pages
-            pages[title].text = revisions?.[0]?.["*"]?.replace(/<!--[\s\S]*?-->/g, "") || ""; // 去除注释，以及如果获取到空的revisions就先赋值为空字符串
+            pages[title].text = revisions?.[0]?.['*']?.replace(/<!--[\s\S]*?-->/g, '') || ''; // 去除注释，以及如果获取到空的revisions就先赋值为空字符串
             if (revisions?.length > 0) {
                 count++;
             }
@@ -628,19 +628,19 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
 
     // 初始化请求参数
     const params = {
-        action: "query",
-        generator: "allpages",
+        action: 'query',
+        generator: 'allpages',
         gaplimit: limit, // 本来设置为max，但总是aborted，还是控制一下吧
-        cllimit: "max",
+        cllimit: 'max',
         gapnamespace: namespace,
-        prop: "revisions|categories",
-        rvprop: "content",
+        prop: 'revisions|categories',
+        rvprop: 'content',
     };
 
     // 报错及参数调整以供下次请求
     const resolveError = async (error, retryCount) => {
         if (!reported) {
-            console.log("");
+            console.log('');
             reported = true;
         }
         console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
@@ -696,8 +696,8 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
             // 有gapcontinue则更新并退出子循环
             if (subRes.continue?.gapcontinue) {
                 gapcontinue = subRes.continue.gapcontinue;
-                Reflect.deleteProperty(params, "rvcontinue");
-                Reflect.deleteProperty(params, "clcontinue");
+                Reflect.deleteProperty(params, 'rvcontinue');
+                Reflect.deleteProperty(params, 'clcontinue');
                 break;
             }
 
@@ -724,7 +724,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
                 func(text, categories, title);
             }
         }
-        process.stdout.write("\r\x1b[K");
+        process.stdout.write('\r\x1b[K');
         process.stdout.write(`已遍历\x1B[4m${count}\x1B[0m个页面`);
     } while (params.gapcontinue !== undefined);
 };
@@ -736,31 +736,31 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
  * @returns {Promise<void>}
  */
 const getVariantTitles = async (gapnamespace = 0) => {
-    let gapcontinue = "";
+    let gapcontinue = '';
     let retryCount = 0;
     do {
         if (retryCount >= 10) {
-            throw new Error("获取疑似繁体页面名尝试次数过多。");
+            throw new Error('获取疑似繁体页面名尝试次数过多。');
         }
         try {
             const res = await bot.request({
-                action: "query",
-                format: "json",
-                prop: "info",
-                generator: "allpages",
-                inprop: "varianttitles",
-                gapfilterredir: "nonredirects",
-                gaplimit: "max",
+                action: 'query',
+                format: 'json',
+                prop: 'info',
+                generator: 'allpages',
+                inprop: 'varianttitles',
+                gapfilterredir: 'nonredirects',
+                gaplimit: 'max',
                 gapnamespace,
                 gapcontinue,
             });
             gapcontinue = res.continue?.gapcontinue;
-            for (const { title, varianttitles: { "zh-cn": titleCN } } of Object.values(res.query.pages)) {
+            for (const { title, varianttitles: { 'zh-cn': titleCN } } of Object.values(res.query.pages)) {
                 if (
                     !/[ぁ-んァ-ヶ]/.test(title) &&
-                    title.replace(/^(?:Category|Template):/, "") !== titleCN.replace(/^(?:分类|模板):/, "")
+                    title.replace(/^(?:Category|Template):/, '') !== titleCN.replace(/^(?:分类|模板):/, '')
                 ) {
-                    messOutput.addPageToList("疑似繁体页面名", [`:${title}`, `→${titleCN}`]);
+                    messOutput.addPageToList('疑似繁体页面名', [`:${title}`, `→${titleCN}`]);
                 }
             }
         } catch (e) {
@@ -775,18 +775,18 @@ const getVariantTitles = async (gapnamespace = 0) => {
  * 将wikitext提交至萌百
  */
 const updatePage = async (maxRetry = 5) => {
-    const title = "User:BearBin/杂物";
+    const title = 'User:BearBin/杂物';
     let retryCount = 0;
     while (retryCount < maxRetry) {
         try {
             const editToken = await bot.getEditToken();
             await bot.request({
-                action: "edit",
+                action: 'edit',
                 title,
-                summary: "自动更新列表",
+                summary: '自动更新列表',
                 text: messOutput.wikitext,
                 bot: true,
-                tags: "Bot",
+                tags: 'Bot',
                 token: editToken.csrftoken,
             });
             console.log(`成功保存到\x1B[4m${title}\x1B[0m。`);
@@ -812,10 +812,10 @@ const main = async (retryCount = 5) => {
                 username: config.username,
                 password: config.password,
             });
-            console.log("登录成功，开始获取所有页面信息……");
+            console.log('登录成功，开始获取所有页面信息……');
 
-            topTipTemplate = (await bot.getMembersInCat("Category:页顶提示模板", 10)).map((item) => item.replace("Template:", ""))
-                .filter((item) => !["架空历史"].includes(item)); // 获取Category:页顶提示模板内的模板，排除架空历史TOP等
+            topTipTemplate = (await bot.getMembersInCat('Category:页顶提示模板', 10)).map((item) => item.replace('Template:', ''))
+                .filter((item) => !['架空历史'].includes(item)); // 获取Category:页顶提示模板内的模板，排除架空历史TOP等
             console.log(`获取到${topTipTemplate.length}个页顶提示模板。`);
 
             // 检查主名字空间
@@ -834,7 +834,7 @@ const main = async (retryCount = 5) => {
                 oldCVCategory, // 旧的声优分类格式
                 httpColon, // 检查http(s)//（少冒号）
             ], 0, 30);
-            console.log("\n主名字空间检查完毕。");
+            console.log('\n主名字空间检查完毕。');
 
             // 检查模板
             await traverseAllPages([
@@ -844,14 +844,14 @@ const main = async (retryCount = 5) => {
                 redundantPipe, // 管道符前后内容一致
                 wrongNavName, // 大家族模板中错误的name参数
             ], 10, 10);
-            console.log("\n模板名字空间检查完毕。");
+            console.log('\n模板名字空间检查完毕。');
 
             await getVariantTitles(0);
-            console.log("主名字空间疑似繁体命名检查完毕。");
+            console.log('主名字空间疑似繁体命名检查完毕。');
             await getVariantTitles(10);
-            console.log("模板名字空间疑似繁体命名检查完毕。");
+            console.log('模板名字空间疑似繁体命名检查完毕。');
             await getVariantTitles(14);
-            console.log("分类空间疑似繁体命名检查完毕。");
+            console.log('分类空间疑似繁体命名检查完毕。');
 
 
             await updatePage(); // 提交至萌百
