@@ -279,6 +279,7 @@ const Templates = {
         '一本正经地胡说八道',
         'color[ _]block',
         'RoundTop',
+        'see also',
     ],
 };
 
