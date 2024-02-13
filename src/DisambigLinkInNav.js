@@ -2,6 +2,7 @@
 import MWBot from 'mwbot';
 import config from '../config/config.js';
 import catReader from './utils/catReader.js';
+import { sleep } from './utils/global.js';
 
 const bot = new MWBot({
   apiUrl: config.API_PATH,
@@ -70,6 +71,7 @@ const getLinksInTemplates = async (templates, size = 50) => {
           linksInTemplates[title].push(link.title);
         }
       }
+      await sleep(5000);
     }
     console.log(`正在读取模板内的链接（${Math.min(i + size, templates.length)}/${templates.length}）`);
   }

@@ -52,7 +52,7 @@ const catReader = {
           pageList.push(...await this.traverseCategory(title, nsnumber));
         }
       }
-      await sleep(3000);
+      await sleep(5000);
       console.log(`\x1B[4m${category}\x1B[0m下查找到\x1B[4m${pageList.length}\x1B[0m个页面`);
     }
     return [...new Set(pageList)];
