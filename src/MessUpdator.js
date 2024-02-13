@@ -3,7 +3,7 @@
  */
 import MWBot from 'mwbot';
 import config from '../config/config.js';
-import glb from './utils/global.js';
+import { sleep } from './utils/global.js';
 import catReader from './utils/catReader.js';
 
 class MessOutput {
@@ -422,7 +422,7 @@ const refBeforeNav = (text, _categories, title) => {
 const redBoldText = (text, _categories, title) => {
   if (
     /\{\{color\|red\|'''[^}|]{50,}'''\}\}/i.test(text) ||
-        /'''\{\{color\|red\|[^}|]{50,}\}\}'''/i.test(text)
+    /'''\{\{color\|red\|[^}|]{50,}\}\}'''/i.test(text)
   ) {
     messOutput.addPageToList('疑似喊话', title);
   }
@@ -454,7 +454,7 @@ const repetitiveTop = (text, _categories, title) => {
 const imgLT99px = (text, _categories, title) => {
   if (
     /leftimage *=[.\n]*\d{3}px/.test(text) ||
-        /\{\{(?:template:|[模样樣]板:|T:)?(欢迎编辑|歡迎編輯|不完整|customtop).*\d{3}px/i.test(text)
+    /\{\{(?:template:|[模样樣]板:|T:)?(欢迎编辑|歡迎編輯|不完整|customtop).*\d{3}px/i.test(text)
   ) {
     messOutput.addPageToList('条目', title);
   }
@@ -494,8 +494,8 @@ const templateOrder = (text, _categories, title) => {
 const imgLT99pxInTemplate = (text, categories, title) => {
   if (categories.includes('Category:页顶提示模板') && (
     /leftimage *=.*\d{3}px/.test(text) ||
-        /(width|size) *= *\d{3}px/.test(text) ||
-        /\[\[(File|Image):[^\]]+\| *\d{3}px/i.test(text)
+    /(width|size) *= *\d{3}px/.test(text) ||
+    /\[\[(File|Image):[^\]]+\| *\d{3}px/i.test(text)
   )) {
     messOutput.addPageToList('模板', title);
   }
@@ -561,9 +561,9 @@ const wrongNavName = (text, categories, title) => {
   const nameParam = text.match(/\| *name *= *[^|\n]*/gi) || [];
   if (
     categories.includes('Category:模板文档') ||
-        !text.match(/\{\{ *(?:#invoke:|Template:|T:|模板:|样板:)? *(大家族|Nav)/gi) ||
-        /:(沙盒|Sandbox|Navbox|大家族$)/.test(title) ||
-        !nameParam
+    !text.match(/\{\{ *(?:#invoke:|Template:|T:|模板:|样板:)? *(大家族|Nav)/gi) ||
+    /:(沙盒|Sandbox|Navbox|大家族$)/.test(title) ||
+    !nameParam
   ) {
     return;
   }
@@ -646,7 +646,7 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
     }
     console.error(`请求出错：${error}，请求参数：${JSON.stringify(params)}，即将重试(${retryCount}/${maxRetry})`);
     params.gaplimit = Math.ceil(params.gaplimit / 2); // 减少页面数
-    await glb.sleep(3000);
+    await sleep(3000);
   };
 
   // 父循环
@@ -759,7 +759,7 @@ const getVariantTitles = async (gapnamespace = 0) => {
       for (const { title, varianttitles: { 'zh-cn': titleCN } } of Object.values(res.query.pages)) {
         if (
           !/[ぁ-んァ-ヶ]/.test(title) &&
-                    title.replace(/^(?:Category|Template):/, '') !== titleCN.replace(/^(?:分类|模板):/, '')
+          title.replace(/^(?:Category|Template):/, '') !== titleCN.replace(/^(?:分类|模板):/, '')
         ) {
           messOutput.addPageToList('疑似繁体页面名', [`:${title}`, `→${titleCN}`]);
         }
@@ -794,7 +794,7 @@ const updatePage = async (maxRetry = 5) => {
       return;
     } catch (error) {
       console.error(`保存出错：${error}，即将重试(${++retryCount}/${maxRetry})`);
-      await glb.sleep(3000);
+      await sleep(3000);
     }
   }
   throw new Error(`保存到\x1B[4m${title}\x1B[0m失败。`);

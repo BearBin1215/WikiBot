@@ -9,6 +9,7 @@
  * Object.assign(bot, catReader);
  * ```
  */
+import { sleep } from './global.js';
 
 const catReader = {
   /**
@@ -51,6 +52,7 @@ const catReader = {
           pageList.push(...await this.traverseCategory(title, nsnumber));
         }
       }
+      await sleep(3000);
       console.log(`\x1B[4m${category}\x1B[0m下查找到\x1B[4m${pageList.length}\x1B[0m个页面`);
     }
     return [...new Set(pageList)];
