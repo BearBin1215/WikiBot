@@ -511,7 +511,7 @@ const redundantWrapInTemplate = (text, categories, title) => {
   if (categories.some(category => ['Category:模板文档', 'Category:条目格式模板', 'Category:权限申请模板'].includes(category))) {
     return;
   }
-  if (/(\n{2}<noinclude>|<\/noinclude>\n{2}|<includeonly>\n{2}|\n{2}<\/includeonly>)/.test(text)) {
+  if (/(\n{2,}<noinclude>|<\/noinclude>\n{2,}[^|]|<includeonly>\n{2,}|\n{2,}<\/includeonly>)/.test(text)) {
     messOutput.addPageToList('两个或以上', title);
   } else if (/(\n<noinclude>|<\/noinclude>\n|<includeonly>\n|\n<\/includeonly>)/.test(text)) {
     messOutput.addPageToList('一个', title);
