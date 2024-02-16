@@ -230,6 +230,7 @@ const Templates = {
     'To Megami Tensei Wiki',
     '到灰[机機]wiki',
     '到泰拉瑞[亚亞]Wiki',
+    '到泰拉瑞亚MODWiki',
     '到MC百科',
     '到魔禁维基',
     '到THBWiki',
