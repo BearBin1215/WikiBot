@@ -273,6 +273,7 @@ const Templates = {
     'Outer[ _]image',
     'pic\\|',
     'disambig',
+    'Playlist',
     '消歧义页',
     'NoSubpage',
     'noReferer',
