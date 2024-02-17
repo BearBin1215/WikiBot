@@ -282,6 +282,10 @@ const Templates = {
     'color[ _]block',
     'RoundTop',
     'see also',
+
+    // 魔术字
+    '#if',
+    '#switch',
   ],
 };
 
