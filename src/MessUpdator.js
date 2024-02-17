@@ -224,6 +224,7 @@ const Templates = {
     '到[维維]基百科',
     'ToWikipedia',
     '到FANDOM',
+    '到纳木维基',
     '到VNDB',
     'To BWIKI',
     'To 52poke Wiki',
@@ -236,10 +237,13 @@ const Templates = {
     '到THBWiki',
     '到BlitzHanger',
     '到女神[转轉]生[维維]基',
+    '微博',
 
     // 魔术字
     'PAGENAME',
     'DEFAULTSORT',
+    '#if',
+    '#switch',
 
     // 常用
     'lj\\|',
@@ -284,10 +288,6 @@ const Templates = {
     'color[ _]block',
     'RoundTop',
     'see also',
-
-    // 魔术字
-    '#if',
-    '#switch',
   ],
 };
 
