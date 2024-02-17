@@ -254,6 +254,8 @@ const Templates = {
     'ja\\}',
     'en\\}',
     'zh\\}',
+    'zh-hans',
+    'zh-hant',
     'lang\\|',
     'cquote',
     'Ps\\|',
