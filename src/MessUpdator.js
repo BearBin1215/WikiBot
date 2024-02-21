@@ -240,6 +240,7 @@ const Templates = {
     '到THBWiki',
     '到BlitzHanger',
     '到女神[转轉]生[维維]基',
+    'To Megami Tensei Wiki',
     '到MLP中文[维維]基',
     '微博',
 
