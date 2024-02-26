@@ -1,6 +1,10 @@
 import MWBot from 'mwbot';
 import config from './config/config.js';
 
+/**
+ * @typedef {{username: string, nickname: string, subscript: string}} userinfo 用户信息
+ */
+
 const bot = new MWBot({
   apiUrl: config.API_PATH,
 }, {
@@ -22,6 +26,8 @@ const login = async () => {
 
 /**
  * 分析源代码，输出用户信息
+ * @param {string} source 源代码
+ * @returns {userinfo[]}
  */
 const parseTemplateSource = (source) => {
   const list = source
@@ -43,6 +49,8 @@ const parseTemplateSource = (source) => {
 
 /**
  * 获取用户组信息
+ * @param {string[]} userList 用户列表
+ * @returns {{[key: string]: string[]}}
  */
 const getUserGroups = async (userList) => {
   const { query: { users } } = await bot.request({
@@ -59,6 +67,7 @@ const getUserGroups = async (userList) => {
 
 /**
  * 将列表转为模板需要的字符串
+ * @param {userinfo[]} list
  */
 const userListToString = (list) => {
   return list
@@ -84,11 +93,17 @@ const submit = async (text) => {
 const main = async () => {
   await login();
   console.log('登陆成功');
+  /**
+   * @type {string}
+   */
   const source = Object.values((await bot.read(template)).query.pages)[0].revisions[0]['*'];
   console.log('获取大家族源代码成功');
   const userInfo = parseTemplateSource(source);
   const userGroups = await getUserGroups(userInfo.map(({ username }) => username));
   console.log('获取用户组信息成功');
+  /**
+   * @type {{maintainer: userinfo[], autopatrolled: userinfo[], autoconfirmed: userinfo[]}}
+   */
   const groups = {
     maintainer: [], // 维护组
     autopatrolled: [], // 巡查豁免
