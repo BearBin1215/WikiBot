@@ -71,9 +71,9 @@ const main = async () => {
   }
   const editToken = await bot.getEditToken();
   const text = '{| class="wikitable sortable"\n' +
-    '! 用户名 !! 7日编辑数' +
-    '|-' +
-    '|' +
+    '! 用户名 !! 7日编辑数\n' +
+    '|-\n' +
+    '|\n' +
     editCountData.map(({ user, editCount }) => `| [[User:${user}|${user}]] || ${editCount}`).join('\n|-\n') +
     '\n|}';
   await bot.request({
