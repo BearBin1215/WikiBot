@@ -4,7 +4,7 @@ import moment from 'moment';
 
 const bot = await newbot();
 console.log('登录成功');
-const title = 'User:mayubot/视研会30日编辑数统计';//  要编辑的页面
+const title = 'BearBin/视研会30日编辑数统计';//  要编辑的页面
 const template = 'Template:萌百视觉小说研究会';//  名单获取来源，不要更改！
 const timeLength = 30;//  时间范围（天）
 const ucnamespace = '0|10|14|828';//  有效的名字空间
