@@ -1,0 +1,21 @@
+name: 更新视研会30日编辑数统计
+on:
+  schedule:
+    - cron: 30 19 * * 0,3 # 每周一、四凌晨3:30执行
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+      - name: Install dependencies
+        run: npm i
+      - name: Update action
+        env:
+          MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
+          MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
+        run: node src/EditStat.js

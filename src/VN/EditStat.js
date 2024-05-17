@@ -1,13 +1,13 @@
-import newbot from '../utils/newbot.js';
-import { sleep } from '../utils/global.js';
+import newbot from './utils/newbot.js';
+import { sleep } from './utils/global.js';
 import moment from 'moment';
 
 const bot = await newbot();
 console.log('登录成功');
-const title = 'User:BearBin/Sandbox';
-const template = 'Template:萌百视觉小说研究会';
-const timeLength = 30;
-const ucnamespace = '0|10|14|828';
+const title = 'User:mayubot/视研会30日编辑数统计';//  要编辑的页面
+const template = 'Template:萌百视觉小说研究会';//  名单获取来源，不要更改！
+const timeLength = 30;//  时间范围（天）
+const ucnamespace = '0|10|14|828';//  有效的名字空间
 
 const ucstart = moment().unix();
 const ucend = moment().subtract(timeLength, 'days').unix();
@@ -32,7 +32,7 @@ const getUserList = (source) => {
 
 /**
  * 获取用户指定时间内的编辑量
- * @returns 
+ * @returns
  */
 const getEditCount = async (ucuser, maxRetry = 5) => {
   let retryCount = 0;
@@ -70,19 +70,19 @@ const main = async () => {
     await sleep(4000);
   }
   const editToken = await bot.getEditToken();
-  const text = '{| class="wikitable sortable"\n' +
-    '! 用户名 !! 7日编辑数\n' +
-    '|-\n' +
-    '|\n' +
+  const text = '*本页面为机器人生成的[[T:萌百视觉小说研究会|视研会]]成员30日内编辑数统计（主<code>(namespace=0)</code>、分类<code>(category:)</code>、模板<code>(template:)</code>、模块<code>(module:)</code>）\n*生成时间：{{subst:#time:Y年n月j日 (D) H:i (T)|||1}}｜{{subst:#time:Y年n月j日 (D) H:i (T)}}\n' +
+    '<center>\n' +
+    '{| class="wikitable sortable"\n' +
+    '! 用户名 !! 30日编辑数\n|-\n' +
     editCountData.map(({ user, editCount }) => `| [[User:${user}|${user}]] || ${editCount}`).join('\n|-\n') +
-    '\n|}';
+    '\n|}\n</center>';//  提交到页面的内容
   await bot.request({
     action: 'edit',
     title,
-    summary: '自动更新列表',
+    summary: '自动更新列表',//  编辑摘要:自动更新列表,半自动更新列表,本次为手动更新
     text,
     bot: true,
-    tags: 'Bot',
+    tags: 'Bot',//  标签:Bot,Automation tool
     token: editToken.csrftoken,
   });
 };
