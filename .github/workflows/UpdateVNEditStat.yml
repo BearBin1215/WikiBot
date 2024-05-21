@@ -18,4 +18,4 @@ jobs:
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
-        run: node src/EditStat.js
+        run: node src/VN/EditStat.js

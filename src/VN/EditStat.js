@@ -1,5 +1,5 @@
-import newbot from './utils/newbot.js';
-import { sleep } from './utils/global.js';
+import newbot from '../utils/newbot.js';
+import { sleep } from '../utils/global.js';
 import moment from 'moment';
 
 const bot = await newbot();
