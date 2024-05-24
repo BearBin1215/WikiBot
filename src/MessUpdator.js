@@ -19,7 +19,7 @@ class MessOutput {
      * 遍历data广度优先搜索标题，并在对应的列表插入新页面名
      * @param {string} headline 标题
      * @param {string|string[]} page 要插入的页面名，或页面名和附加信息组成的数组
-     * @returns 
+     * @returns
      */
   addPageToList(headline, page) {
     const queue = [{ obj: this.data, path: [] }];
@@ -242,6 +242,7 @@ const Templates = {
     '到女神[转轉]生[维維]基',
     'To Megami Tensei Wiki',
     '到MLP中文[维維]基',
+    '到PvZ Wiki',
     '微博',
 
     // 魔术字
@@ -408,7 +409,7 @@ const innerToOuter = (text, _categories, title) => {
 
 /**
  * 检查大家族前疑似单独使用二级标题的页面
- * 
+ *
  * @todo 将判定方法改为发现疑似页面后判定模板是否为导航模板
  */
 const headlineBeforeNav = (text, _categories, title) => {
