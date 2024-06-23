@@ -623,7 +623,7 @@ const httpColon = (text, _categories, title) => {
  * @type {checkFunction}
  */
 const checkSelfClosedTag = (text, _categories, title) => {
-  const selfClosedTag = text.match(/<(del|u|i)\/ *>/gi);
+  const selfClosedTag = text.match(/<(del|big|b|u|i)\/ *>/gi);
   if (selfClosedTag) {
     messOutput.addPageToList('可能错误自闭合的标签', [title, `<code><nowiki>${selfClosedTag[0]}</nowiki></code>`]);
   }
