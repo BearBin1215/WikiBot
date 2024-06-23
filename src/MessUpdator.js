@@ -6,6 +6,8 @@ import config from '../config/config.js';
 import { sleep } from './utils/global.js';
 import catReader from './utils/catReader.js';
 
+/** @typedef {(text: string, categories: string[], title: string) => void} checkFunction */
+
 class MessOutput {
   /**
      * 创建MessOutput对象
@@ -126,6 +128,7 @@ const messOutput = new MessOutput({
     左侧缺少: [],
     右侧缺少: [],
   },
+  可能错误自闭合的标签: [],
   '管道符前后一致（无明显影响，通常不用专门处理）': {
     '<nowiki>[[ABC|ABC]]</nowiki>': [],
     '<nowiki>|ABC{{!}}ABC</nowiki>': [],
@@ -362,6 +365,7 @@ const checkOrder = (arrays) => {
 
 /**
  * 检查消歧义页内中的管道符
+ * @type {checkFunction}
  */
 const pipeInDisambig = (text, categories, title) => {
   if (categories.includes('Category:消歧义页')) {
@@ -378,6 +382,7 @@ const pipeInDisambig = (text, categories, title) => {
 
 /**
  * 在页面中查找重复出现的大量换行
+ * @type {checkFunction}
  */
 const wrapDetector = (text, categories, title) => {
   if (categories.some(category => category.includes('音乐作品'))) { return; } // 排除音乐条目
@@ -389,6 +394,7 @@ const wrapDetector = (text, categories, title) => {
 
 /**
  * 检测连续出现的big
+ * @type {checkFunction}
  */
 const bigDetector = (text, _categories, title) => {
   if (/(<big>){5}/i.test(text)) {
@@ -399,6 +405,7 @@ const bigDetector = (text, _categories, title) => {
 
 /**
  * 能用内链非要用外链
+ * @type {checkFunction}
  */
 const innerToOuter = (text, _categories, title) => {
   if ((new RegExp(`${Templates.prefix}(背景[图圖]片|替[换換][侧側][边邊][栏欄]底[图圖])[^}]+img\\.moegirl\\.org\\.cn`, 'si')).test(text)) {
@@ -409,7 +416,7 @@ const innerToOuter = (text, _categories, title) => {
 
 /**
  * 检查大家族前疑似单独使用二级标题的页面
- *
+ * @type {checkFunction}
  * @todo 将判定方法改为发现疑似页面后判定模板是否为导航模板
  */
 const headlineBeforeNav = (text, _categories, title) => {
@@ -421,6 +428,7 @@ const headlineBeforeNav = (text, _categories, title) => {
 
 /**
  * 位于注释或外部链接之后的大家族模板
+ * @type {checkFunction}
  */
 const refBeforeNav = (text, _categories, title) => {
   if (new RegExp(`== *(脚注|[注註]解|注释|註釋|外部[链鏈]接|外部連結|外链|[参參]考).*==[\\s\\S]*\n${Templates.prefix}((?!${Templates.bottom.join('|')}).)*\\}`, 'gi').test(text)) {
@@ -432,6 +440,7 @@ const refBeforeNav = (text, _categories, title) => {
 
 /**
  * 检查疑似喊话内容
+ * @type {checkFunction}
  */
 const redBoldText = (text, _categories, title) => {
   if (
@@ -445,6 +454,7 @@ const redBoldText = (text, _categories, title) => {
 
 /**
  * 检查重复TOP
+ * @type {checkFunction}
  */
 const repetitiveTop = (text, _categories, title) => {
   const topPattern = new RegExp(`${Templates.prefix}(${Templates.top.join('|')})[}\\|\\n]`, 'gi');
@@ -464,6 +474,7 @@ const repetitiveTop = (text, _categories, title) => {
 
 /**
  * 检查用图超过99px的页顶模板
+ * @type {checkFunction}
  */
 const imgLT99px = (text, _categories, title) => {
   if (
@@ -477,6 +488,7 @@ const imgLT99px = (text, _categories, title) => {
 
 /**
  * 检查页顶模板排序
+ * @type {checkFunction}
  */
 const templateOrder = (text, _categories, title) => {
   const templateIndexes = {
@@ -504,6 +516,7 @@ const templateOrder = (text, _categories, title) => {
 
 /**
  * 检查用图超过99px的页顶模板
+ * @type {checkFunction}
  */
 const imgLT99pxInTemplate = (text, categories, title) => {
   if (categories.includes('Category:页顶提示模板') && (
@@ -518,6 +531,7 @@ const imgLT99pxInTemplate = (text, categories, title) => {
 
 /**
  * 检查模板中的多余换行
+ * @type {checkFunction}
  */
 const redundantWrapInTemplate = (text, categories, title) => {
   if (categories.some(category => ['Category:模板文档', 'Category:条目格式模板', 'Category:权限申请模板'].includes(category))) {
@@ -532,6 +546,7 @@ const redundantWrapInTemplate = (text, categories, title) => {
 
 /**
  * •左右缺少空格
+ * @type {checkFunction}
  */
 const needSpaceBesidesPoint = (text, _categories, title) => {
   const left = text.match(/([^\]\n]+\]\]|[^}\n]+\}\})•/);
@@ -546,6 +561,7 @@ const needSpaceBesidesPoint = (text, _categories, title) => {
 
 /**
  * 管道符前一致
+ * @type {checkFunction}
  */
 const redundantPipe = (text, _categories, title) => {
   const normal = text.match(/\[\[ *([^\]]+) *\| *\1 *\]\]/);
@@ -560,6 +576,7 @@ const redundantPipe = (text, _categories, title) => {
 
 /**
  * 可能需要补充“配音角色”
+ * @type {checkFunction}
  */
 const oldCVCategory = (text, _categories, title) => {
   const match = text.match(/\|多位(配音|声优) *= *\{\{cate\|[^{}|]+\|[^{}[\]\n]+[^色{}[\]\n](\}\}|\|)/gi);
@@ -570,6 +587,7 @@ const oldCVCategory = (text, _categories, title) => {
 
 /**
  * navbox中的错误name参数
+ * @type {checkFunction}
  */
 const wrongNavName = (text, categories, title) => {
   const nameParam = text.match(/\| *name *= *[^|\n]*/gi) || [];
@@ -591,11 +609,23 @@ const wrongNavName = (text, categories, title) => {
 
 /**
  * 检查http(s)少冒号
+ * @type {checkFunction}
  */
 const httpColon = (text, _categories, title) => {
   const http = text.match(/https?\/\//gi);
   if (http) {
     messOutput.addPageToList('http(s)少冒号', [title, `<code><nowiki>${http[0]}</nowiki></code>`]);
+  }
+};
+
+/**
+ * 检查自闭合标签
+ * @type {checkFunction}
+ */
+const checkSelfClosedTag = (text, _categories, title) => {
+  const selfClosedTag = text.match(/<(del|u|i)\/ *>/gi);
+  if (selfClosedTag) {
+    messOutput.addPageToList('可能错误自闭合的标签', [title, `<code><nowiki>${selfClosedTag[0]}</nowiki></code>`]);
   }
 };
 
@@ -848,6 +878,7 @@ const main = async (retryCount = 5) => {
         redundantPipe, // 管道符前后内容一致
         oldCVCategory, // 旧的声优分类格式
         httpColon, // 检查http(s)//（少冒号）
+        checkSelfClosedTag, // 检查错误自闭合标签（如<del/>）
       ], 0, 30);
       console.log('\n主名字空间检查完毕。');
 
