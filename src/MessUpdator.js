@@ -10,19 +10,19 @@ import catReader from './utils/catReader.js';
 
 class MessOutput {
   /**
-     * 创建MessOutput对象
-     * @param {object} data 初始化列表
-     */
+   * 创建MessOutput对象
+   * @param {object} data 初始化列表
+   */
   constructor(data) {
     this.data = data; // 用将导入的data初始化
   }
 
   /**
-     * 遍历data广度优先搜索标题，并在对应的列表插入新页面名
-     * @param {string} headline 标题
-     * @param {string|string[]} page 要插入的页面名，或页面名和附加信息组成的数组
-     * @returns
-     */
+   * 遍历data广度优先搜索标题，并在对应的列表插入新页面名
+   * @param {string} headline 标题
+   * @param {string|string[]} page 要插入的页面名，或页面名和附加信息组成的数组
+   * @returns
+   */
   addPageToList(headline, page) {
     const queue = [{ obj: this.data, path: [] }];
     while (queue.length > 0) {
@@ -44,7 +44,7 @@ class MessOutput {
     this.data[headline] = [page];
   }
 
-  // 输出wikitext
+  /** 输出wikitext */
   get wikitext() {
     let listLevel = 1;
     const textList = [
@@ -58,9 +58,9 @@ class MessOutput {
       '{{目录右置}}',
     ];
     /**
-         * 递归函数
-         * @param {object|string[]} obj this.data
-         */
+     * 递归函数
+     * @param {object|string[]} obj this.data
+     */
     const addListToTextList = (obj) => {
       listLevel++;
       for (const [headline, pages] of Object.entries(obj)) {
@@ -653,9 +653,9 @@ const traverseAllPages = async (functions, namespace = 0, maxRetry = 10, limit =
   let reported = false; // 标记是否已报错，用于控制台输出显示
 
   /**
-     * 分析pages
-     * @param {string[]} pageList 页面列表
-     */
+   * 分析pages
+   * @param {string[]} pageList 页面列表
+   */
   const processPage = (pageList) => {
     for (const { title, revisions, categories } of pageList) {
       pages[title] ||= {}; // 初始化pages中每个页面的对象
@@ -816,9 +816,7 @@ const getVariantTitles = async (gapnamespace = 0) => {
 };
 
 
-/**
- * 将wikitext提交至萌百
- */
+/** 将wikitext提交至萌百 */
 const updatePage = async (maxRetry = 5) => {
   const title = 'User:BearBin/杂物';
   let retryCount = 0;
