@@ -32,9 +32,7 @@ const getAllPages = async () => {
         apcontinue,
       });
       apcontinue = allPages.continue?.apcontinue || false;
-      for (const page of allPages.query.allpages) {
-        pageList.push(page.title);
-      }
+      pageList.concat(allPages.query.allpages.map(({ title }) => title));
     } catch (error) {
       throw new Error(`获取全站主名字空间页面列表出错：${error}`);
     }
@@ -52,7 +50,7 @@ const getWhiteList = async () => {
       .map((item) => item.trim())
       .filter((item) => item);
     return list;
-  } catch(error) {
+  } catch (error) {
     throw new Error(`获取白名单失败：${error}`);
   }
 };
@@ -60,11 +58,11 @@ const getWhiteList = async () => {
 const submitResult = async (pageList, whiteList) => {
   const PAGENAME = 'User:BearBin/可能需要改为全角标点标题的页面';
   const badList = [];
-  for(const page of pageList) {
-    if(
+  for (const page of pageList) {
+    if (
       /[\u4e00-\u9fa5\u3040-\u30ff][!?,]/.test(page) &&
-            !page.includes('BanG Dream!') &&
-            !whiteList.includes(page)
+      !page.includes('BanG Dream!') &&
+      !whiteList.includes(page)
     ) {
       badList.push(page);
     }
