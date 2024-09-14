@@ -4,7 +4,7 @@ import config from '../config/config.js';
 let data = {
   lastUpdate: '2023-05-01T00:00:00Z',
   usage: {},
-  static: {},
+  statistic: {},
 };
 
 const zhBot = new MWBot({
@@ -106,7 +106,7 @@ const main = async (retryCount = 5) => {
       const lastUpdate = new Date(data.lastUpdate);
       data.lastUpdate = new Date().toISOString();
       await Promise.all([getRecentChanges('zh', lastUpdate), getRecentChanges('cm', lastUpdate)]);
-      data.static = {
+      data.statistic = {
         userCount: new Set([...Object.keys(data.usage.zh), ...Object.keys(data.usage.cm)]).size,
         editCount: [...Object.values(data.usage.zh), ...Object.values(data.usage.cm)].reduce((pre, cur) => pre + cur, 0),
       };
