@@ -128,7 +128,6 @@ const messOutput = new MessOutput({
     左侧缺少: [],
     右侧缺少: [],
   },
-  可能错误自闭合的标签: [],
   '管道符前后一致（无明显影响，通常不用专门处理）': {
     '<nowiki>[[ABC|ABC]]</nowiki>': [],
     '<nowiki>|ABC{{!}}ABC</nowiki>': [],
@@ -618,17 +617,6 @@ const httpColon = (text, _categories, title) => {
   }
 };
 
-/**
- * 检查自闭合标签
- * @type {checkFunction}
- */
-const checkSelfClosedTag = (text, _categories, title) => {
-  const selfClosedTag = text.match(/<(del|big|b|u|i)\/ *>/gi);
-  if (selfClosedTag) {
-    messOutput.addPageToList('可能错误自闭合的标签', [title, `<code><nowiki>${selfClosedTag[0]}</nowiki></code>`]);
-  }
-};
-
 // MWBot实例
 const bot = new MWBot({
   apiUrl: config.API_PATH,
@@ -876,7 +864,6 @@ const main = async (retryCount = 5) => {
         redundantPipe, // 管道符前后内容一致
         oldCVCategory, // 旧的声优分类格式
         httpColon, // 检查http(s)//（少冒号）
-        checkSelfClosedTag, // 检查错误自闭合标签（如<del/>）
       ], 0, 30);
       console.log('\n主名字空间检查完毕。');
 
