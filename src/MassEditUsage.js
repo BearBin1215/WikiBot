@@ -97,7 +97,7 @@ const updatePage = async (title, text) => {
 // 主函数
 const main = async (retryCount = 5) => {
   let retries = 0;
-  const dataPage = 'User:BearBin/MassEditUsage.json';
+  const dataPage = 'User:BearBot/MassEditUsage.json';
   while (retries < retryCount) {
     try {
       await Promise.all([login(zhBot), login(cmBot)]);
@@ -111,7 +111,7 @@ const main = async (retryCount = 5) => {
         editCount: [...Object.values(data.usage.zh), ...Object.values(data.usage.cm)].reduce((pre, cur) => pre + cur, 0),
       };
       console.log(data);
-      await updatePage(dataPage, `{{SpecialWikitext/JSON|1=<nowiki>${JSON.stringify(data)}</nowiki>}}`);
+      await updatePage(dataPage, JSON.stringify(data, null, '    '));
       return;
     } catch (error) {
       console.error(`获取数据出错：${error}\n正在重试（${retries + 1}/${retryCount}）`);
