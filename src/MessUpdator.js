@@ -407,7 +407,7 @@ const bigDetector = (text, _categories, title) => {
  * @type {checkFunction}
  */
 const innerToOuter = (text, _categories, title) => {
-  if ((new RegExp(`${Templates.prefix}(背景[图圖]片|替[换換][侧側][边邊][栏欄]底[图圖])[^}]+img\\.moegirl\\.org\\.cn`, 'si')).test(text)) {
+  if ((new RegExp(`${Templates.prefix}(背景[图圖]片|替[换換][侧側][边邊][栏欄]底[图圖])[^}]+img\\.moegirl\\.org\\.cn`, 'si')).test(text) && title !== 'Deltarune/黑暗世界') {
     messOutput.addPageToList('能用内链非要外链', title);
   }
 };
