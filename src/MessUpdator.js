@@ -133,7 +133,7 @@ const messOutput = new MessOutput({
     '<nowiki>|ABC{{!}}ABC</nowiki>': [],
   },
   旧声优分类格式: [],
-  'http(s)少冒号': [],
+  'http(s)少冒号或斜杠': [],
 });
 
 
@@ -608,13 +608,13 @@ const wrongNavName = (text, categories, title) => {
 };
 
 /**
- * 检查http(s)少冒号
+ * 检查http(s)少冒号或斜杠
  * @type {checkFunction}
  */
 const httpColon = (text, _categories, title) => {
-  const http = text.match(/https?\/\//gi);
+  const http = text.match(/https?(\/\/|:\/[a-zA-Z0-9])/gi);
   if (http) {
-    messOutput.addPageToList('http(s)少冒号', [title, `<code><nowiki>${http[0]}</nowiki></code>`]);
+    messOutput.addPageToList('http(s)少冒号或斜杠', [title, `<code><nowiki>${http[0]}</nowiki></code>`]);
   }
 };
 
