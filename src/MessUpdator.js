@@ -612,7 +612,7 @@ const wrongNavName = (text, categories, title) => {
  * @type {checkFunction}
  */
 const httpColon = (text, _categories, title) => {
-  const http = text.match(/https?(\/\/|:\/[a-zA-Z0-9])/gi);
+  const http = text.match(/[^/]https?(\/\/|:\/[a-zA-Z0-9])/gi);
   if (http) {
     messOutput.addPageToList('http(s)少冒号或斜杠', [title, `<code><nowiki>${http[0]}</nowiki></code>`]);
   }
