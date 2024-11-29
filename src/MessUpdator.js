@@ -548,7 +548,10 @@ const redundantWrapInTemplate = (text, categories, title) => {
  * •左右缺少空格
  * @type {checkFunction}
  */
-const needSpaceBesidesPoint = (text, _categories, title) => {
+const needSpaceBesidesPoint = (text, categories, title) => {
+  if (categories.includes('Category:用户编辑组模板')) {
+    return;
+  }
   const left = text.match(/([^\]\n]+\]\]|[^}\n]+\}\})•/);
   const right = text.match(/•(\[\[[^\]\n]+|\{\{[^}\n]+)/);
   if (left) {
