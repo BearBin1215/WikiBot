@@ -52,7 +52,6 @@ const getRecentChanges = async (site = 'zh', lastUpdate) => {
       const response = await bot.request({
         action: 'query',
         list: 'recentchanges',
-        rctag: 'Bot',
         rcprop: 'timestamp|comment|user',
         rclimit: 'max',
         rcshow: '!bot',
