@@ -30,7 +30,7 @@ const login = async (bot) => {
 // 获取页面记录的上次信息
 const getPreData = async (title) => {
   const pageData = await zhBot.read(title);
-  data = JSON.parse(Object.values(pageData.query.pages)?.[0]?.revisions?.[0]?.['*'].replace('{{SpecialWikitext/JSON|1=<nowiki>', '').replace('</nowiki>}}', '')) || data;
+  data = JSON.parse(Object.values(pageData.query.pages)?.[0]?.revisions?.[0]?.['*']) || data;
 };
 
 // 获取最近更改并更新数据
@@ -52,9 +52,10 @@ const getRecentChanges = async (site = 'zh', lastUpdate) => {
       const response = await bot.request({
         action: 'query',
         list: 'recentchanges',
-        rctag: 'Automation tool',
+        rctag: 'Bot',
         rcprop: 'timestamp|comment|user',
         rclimit: 'max',
+        rcshow: '!bot',
         rccontinue,
       });
       rccontinue = response.continue?.rccontinue;
