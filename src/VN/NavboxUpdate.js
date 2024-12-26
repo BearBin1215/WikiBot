@@ -50,7 +50,7 @@ const parseTemplateSource = (source) => {
 /**
  * 获取用户组信息
  * @param {string[]} userList 用户列表
- * @returns {{[key: string]: string[]}}
+ * @returns {Promise<{[key: string]: string[]}>}
  */
 const getUserGroups = async (userList) => {
   const { query: { users } } = await bot.request({
