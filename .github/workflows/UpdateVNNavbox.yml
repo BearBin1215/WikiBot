@@ -1,7 +1,7 @@
 name: 更新视研会大家族用户组信息
 on:
   schedule:
-    - cron: 54 15 * * * # 每天23:54执行
+    - cron: 54 15 * * 6 # 每周六23:54执行
   workflow_dispatch:
 
 jobs:

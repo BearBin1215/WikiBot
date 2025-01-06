@@ -1,7 +1,7 @@
 name: 更新视研会30日编辑数统计
 on:
   schedule:
-    - cron: 30 19 * * 0,3 # 每周一、四凌晨3:30执行
+    - cron: 30 19 * * 0 # 每周一凌晨3:30执行
   workflow_dispatch:
 
 jobs:
