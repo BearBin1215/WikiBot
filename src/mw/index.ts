@@ -150,7 +150,7 @@ class Api {
     return res.query.tokens;
   }
 
-  async read(title: string) {
+  async read(title: string): Promise<string | undefined> {
     const res = await this.get({
       action: 'query',
       prop: 'revisions',
@@ -159,7 +159,7 @@ class Api {
     });
     const [pageData] = Object.values(res.query.pages) as any;
     if ('revisions' in pageData) {
-      return pageData.revisions?.[0]['*'];
+      return pageData.revisions?.[0]['*'] as string;
     }
     if ('missing' in pageData) {
       throw ('missingtitle');

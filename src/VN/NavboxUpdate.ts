@@ -92,7 +92,7 @@ const submit = async (text: string) => {
 const main = async () => {
   await login();
   console.log('登陆成功');
-  const source = await api.read(template);
+  const source = (await api.read(template))!;
   console.log('获取大家族源代码成功');
   const userInfo = parseTemplateSource(source);
   const userGroups = await getUserGroups(userInfo.map(({ username }) => username));
