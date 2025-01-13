@@ -2,7 +2,6 @@
 node_modules
 .env
 test
-src/test
+src/*test*
 saves
 output
-npm-debug.log*

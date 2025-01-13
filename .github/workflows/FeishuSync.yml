@@ -1,7 +1,7 @@
 name: 飞书统计表同步至萌百
 on:
-  schedule:
-    - cron: 40 20 * * 2 #北京时间周三凌晨4:40进行
+  # schedule:
+  #   - cron: 40 20 * * 2 #北京时间周三凌晨4:40进行
   workflow_dispatch:
 
 jobs:
