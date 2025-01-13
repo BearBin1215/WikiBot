@@ -1,7 +1,7 @@
 name: 更新疑似多余消歧义后缀列表
 on:
-  # schedule:
-  #   - cron: 40 20 * * 0 #北京时间每周一凌晨4:40执行
+  schedule:
+    - cron: 40 20 * * 0 #北京时间每周一凌晨4:40执行
   workflow_dispatch:
 
 jobs:
@@ -19,4 +19,5 @@ jobs:
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
+          DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
         run: node src/Suffix.js
