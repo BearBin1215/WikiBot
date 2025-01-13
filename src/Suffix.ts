@@ -17,9 +17,7 @@ const api = new mw.Api({
   url: config.API_PATH,
 });
 
-/**
- * 登录
- */
+/** 登录 */
 async function login() {
   try {
     await api.login({
@@ -125,27 +123,34 @@ const getRedirects = async (): Promise<[string[], string[]]> => {
 
 /**
  * 编辑保存
- * @param AbsentList 后缀存在、无后缀不存在的标题列表
- * @param Suffix2Origin 有后缀重定向到无后缀列表
- * @param Origin2Suffix 无后缀重定向到有后缀列表
+ * @param absentList 后缀存在、无后缀不存在的标题列表
+ * @param suffix2origin 有后缀重定向到无后缀列表
+ * @param origin2suffix 无后缀重定向到有后缀列表
  */
-const updatePage = async (AbsentList: string[], Suffix2Origin: string[], Origin2Suffix: string[]) => {
+const updatePage = async (absentList: string[], suffix2origin: string[], origin2suffix: string[]) => {
   const PAGENAME = '萌娘百科:疑似多余消歧义后缀';
-  const text =
-    // eslint-disable-next-line prefer-template
-    '本页面列举疑似多余的消歧义后缀，分为三类：\n' +
-    '# “FOO(BAR)”存在，“FOO”不存在；\n' +
-    '# “FOO(BAR)”重定向到“FOO”；\n' +
-    '# “FOO”重定向到“FOO(BAR)”。\n' +
-    '本页面由机器人于每周一凌晨4:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。\n' +
+  const text = [
+    '本页面列举疑似多余的消歧义后缀，分为三类：',
+    '# “FOO(BAR)”存在，“FOO”不存在；',
+    '# “FOO(BAR)”重定向到“FOO”；',
+    '# “FOO”重定向到“FOO(BAR)”。',
+    '本页面由机器人于每周一凌晨4:40左右自动更新，其他时间如需更新请[[User_talk:BearBin|联系BearBin]]。',
+    '',
     '__TOC__<div class="plainlinks>' +
-    '\n\n== 后缀存在、无后缀不存在 ==\n\n' +
-    AbsentList.join('\n') +
-    '\n\n== 有后缀重定向到无后缀 ==\n\n' +
-    Suffix2Origin.join('\n') +
-    '\n\n== 无后缀重定向到有后缀 ==\n\n' +
-    Origin2Suffix.join('\n') +
-    '\n</div>\n[[Category:萌娘百科数据报告]][[Category:积压工作]]';
+    '',
+    '== 后缀存在、无后缀不存在 ==',
+    absentList.join('\n'),
+    '',
+    '== 有后缀重定向到无后缀 ==',
+    '',
+    suffix2origin.join('\n'),
+    '',
+    '== 无后缀重定向到有后缀 ==',
+    '',
+    origin2suffix.join('\n'),
+    '</div>',
+    '[[Category:萌娘百科数据报告]][[Category:积压工作]]',
+  ].join('\n');
 
   try {
     const { csrftoken } = await api.getToken();
@@ -175,14 +180,14 @@ const main = async (retryCount = 5) => {
       await login();
       console.log('登录成功。正在获取所有页面……');
 
-      const PageList = await getAllPages();
-      const AbsentList = getAbsentList(PageList);
-      console.log(`获取到\x1B[4m${AbsentList.length}\x1B[0m个疑似多余的消歧义后缀页面。`);
+      const allPages = await getAllPages();
+      const absentList = getAbsentList(allPages);
+      console.log(`获取到\x1B[4m${absentList.length}\x1B[0m个疑似多余的消歧义后缀页面。`);
 
-      const [Suffix2Origin, Origin2Suffix] = await getRedirects();
-      console.log(`获取到\x1B[4m${Suffix2Origin.length}\x1B[0m个后缀重定向至无后缀，\x1B[4m${Origin2Suffix.length}\x1B[0m个无后缀重定向至后缀。`);
+      const [suffix2origin, origin2suffix] = await getRedirects();
+      console.log(`获取到\x1B[4m${suffix2origin.length}\x1B[0m个后缀重定向至无后缀，\x1B[4m${origin2suffix.length}\x1B[0m个无后缀重定向至后缀。`);
 
-      await updatePage(AbsentList, Suffix2Origin, Origin2Suffix);
+      await updatePage(absentList, suffix2origin, origin2suffix);
       return;
     } catch (error) {
       console.error(`获取数据出错，正在重试（${retries + 1}/${retryCount}）：${error}`);

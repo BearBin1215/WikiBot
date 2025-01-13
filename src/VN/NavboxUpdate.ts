@@ -1,21 +1,21 @@
-import MWBot from 'mwbot';
+import mw from '../mw';
 import config from './config/config.js';
 
-/**
- * @typedef {{username: string, nickname: string, subscript: string}} userinfo 用户信息
- */
+interface UserInfo {
+  username: string;
+  nickname: string;
+  subscript: string;
+}
 
-const bot = new MWBot({
-  apiUrl: config.API_PATH,
-}, {
-  timeout: 60000,
+const api = new mw.Api({
+  url: config.API_PATH,
 });
 
 const template = 'Template:萌百视觉小说研究会';
 
 const login = async () => {
   try {
-    await bot.loginGetEditToken({
+    await api.login({
       username: config.username,
       password: config.password,
     });
@@ -27,9 +27,8 @@ const login = async () => {
 /**
  * 分析源代码，输出用户信息
  * @param {string} source 源代码
- * @returns {userinfo[]}
  */
-const parseTemplateSource = (source) => {
+const parseTemplateSource = (source: string): UserInfo[] => {
   const list = source
     .replace(/.*<!-- *列表起点 *-->(.*)<!-- *列表终点 *-->.*/gs, '$1') // 识别列表起点终点
     .replace(/<!--[\s\S]*?-->/g, '') // 去除注释
@@ -39,9 +38,9 @@ const parseTemplateSource = (source) => {
     .map((str) => {
       const match = str.trim().match(/^([^<(]*)(\(([^)]*)\))?(<.*>)?$/); // 解析昵称和下标
       return {
-        username: match[1],
-        nickname: match[3],
-        subscript: match[4],
+        username: match![1],
+        nickname: match![3],
+        subscript: match![4],
       };
     });
   return list;
@@ -49,11 +48,10 @@ const parseTemplateSource = (source) => {
 
 /**
  * 获取用户组信息
- * @param {string[]} userList 用户列表
- * @returns {Promise<{[key: string]: string[]}>}
+ * @param userList 用户列表
  */
-const getUserGroups = async (userList) => {
-  const { query: { users } } = await bot.request({
+const getUserGroups = async (userList: string[]): Promise<Record<string, string[]>> => {
+  const { query: { users } } = await api.post({
     action: 'query',
     list: 'users',
     ususers: userList.join('|'),
@@ -79,35 +77,31 @@ const userListToString = (list) => {
  * 提交编辑
  */
 const submit = async (text) => {
-  await bot.request({
+  const { csrftoken } = await api.getToken();
+  await api.post({
     action: 'edit',
     title: template,
     summary: '自动更新用户组信息',
     text,
     bot: true,
     tags: 'Bot',
-    token: bot.editToken,
+    token: csrftoken,
   });
 };
 
 const main = async () => {
   await login();
   console.log('登陆成功');
-  /**
-   * @type {string}
-   */
-  const source = Object.values((await bot.read(template)).query.pages)[0].revisions[0]['*'];
+  const source = await api.read(template);
   console.log('获取大家族源代码成功');
   const userInfo = parseTemplateSource(source);
   const userGroups = await getUserGroups(userInfo.map(({ username }) => username));
   console.log('获取用户组信息成功');
-  /**
-   * @type {{maintainer: userinfo[], autopatrolled: userinfo[], autoconfirmed: userinfo[]}}
-   */
+
   const groups = {
-    maintainer: [], // 维护组
-    autopatrolled: [], // 巡查豁免
-    autoconfirmed: [], // 自确
+    maintainer: [] as UserInfo[], // 维护组
+    autopatrolled: [] as UserInfo[], // 巡查豁免
+    autoconfirmed: [] as UserInfo[], // 自确
   };
   for (const user of userInfo) {
     const userGroup = userGroups[(user.username.charAt(0).toUpperCase() + user.username.slice(1)).replace('_', ' ')];

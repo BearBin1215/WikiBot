@@ -83,7 +83,7 @@ class Api {
       ...config,
       headers: {
         Cookie: this.cookieJar.getCookieStringSync(this.url),
-      }
+      },
     });
     console.log(response);
     return response.data;
@@ -96,7 +96,7 @@ class Api {
       ...config,
       headers: {
         Cookie: this.cookieJar.getCookieStringSync(this.url),
-      }
+      },
     });
     const setCookie = response.headers['set-cookie'];
     if (setCookie?.length) {
@@ -141,8 +141,24 @@ class Api {
     });
     return res.query.tokens;
   }
+
+  async read(title: string) {
+    const res = await this.get({
+      action: 'query',
+      prop: 'revisions',
+      titles: title,
+      rvprop: 'content',
+    });
+    const [pageData] = Object.values(res.query.pages) as any;
+    if ('revisions' in pageData) {
+      return pageData.revisions?.[0]['*'];
+    }
+    if ('missing' in pageData) {
+      throw ('missingtitle');
+    }
+  }
 }
 
-const mw = { Api }
+const mw = { Api };
 
 export default mw;

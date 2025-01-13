@@ -1,5 +1,5 @@
 import axios from 'axios';
-import MWBot from 'mwbot';
+import mw from '../mw';
 import config from './config/config.js';
 import getTenantAccessToken from './config/GetFeishuToken.js';
 
@@ -25,10 +25,10 @@ const getTableContent = async () => {
   // 获取表格内容
   const { data: { data: { valueRange: { values } } } } = await axios({
     method: 'GET',
-    url: TableInfo.baseURL + TableInfo.spreadsheetToken + '/values/' + TableInfo.sheetId + TableInfo.range,
+    url: `${TableInfo.baseURL}${TableInfo.spreadsheetToken}/values/${TableInfo.sheetId}${TableInfo.range}`,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + AccessToken,
+      Authorization: `Bearer ${AccessToken}`,
     },
   }).catch((error) => {
     throw new Error(`读取飞书统计表失败：${error}`);
@@ -40,12 +40,12 @@ const getTableContent = async () => {
 
 /**
  * 用表格内容生成wikitext
- * @param {Object} values 读取的飞书表格内容
+ * @param values 读取的飞书表格内容
  * @returns wikitext
  */
-const generateText = async (values) => {
+const generateText = (values: string[][]): string => {
   // 处理获取到的内容，生成文本
-  const pageList = [];
+  const pageList: string[] = [];
   for (let i = 0; i < values.length; i++) {
     if (!values[i][0]) {
       break;
@@ -57,36 +57,34 @@ const generateText = async (values) => {
     const pagename = values[i][1]?.replaceAll('\n', '').trim() || ja;
     pageList.push(`#{{lj|${ja}}}→[[${pagename}]]`);
   }
-  return '{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n' + pageList.join('\n');
+  return `{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n${pageList.join('\n')}`;
 };
 
 /**
  * 提交编辑
- * @param {string} text wikitext
+ * @param text wikitext
  */
-const updatePage = async (text) => {
-  // MWBot实例
-  const bot = new MWBot({
-    apiUrl: config.API_PATH,
-  }, {
-    timeout: 30000,
+const updatePage = async (text: string) => {
+  const api = new mw.Api({
+    url: config.API_PATH,
   });
-    // 机器人登录并提交编辑
+  // 机器人登录并提交编辑
   try {
-    await bot.loginGetEditToken({
+    await api.login({
       username: config.username,
       password: config.password,
     });
     console.log('登录成功。准备保存至萌百。');
     const title = 'User:柏喙意志/Gal条目表';
-    await bot.request({
+    const { csrftoken } = await api.getToken();
+    await api.post({
       action: 'edit',
       title,
       text,
       summary: '自动同步自飞书',
       bot: true,
       tags: 'Bot',
-      token: bot.editToken,
+      token: csrftoken,
     }).then((res) => {
       console.log(`成功保存到\x1B[4m${title}\x1B[0m${res.edit.nochange === '' ? '，未发生变化' : ''}。`);
     });
@@ -104,7 +102,7 @@ const mainWithRetry = async (retryCount = 5) => {
   while (retries < retryCount) {
     try {
       const values = await getTableContent();
-      const text = await generateText(values);
+      const text = generateText(values);
       await updatePage(text);
       return;
     } catch (err) {
@@ -115,6 +113,4 @@ const mainWithRetry = async (retryCount = 5) => {
   throw new Error(`运行失败：连续尝试 ${retryCount} 次仍然失败`);
 };
 
-mainWithRetry(5).catch((err) => {
-  console.error(err);
-});
+mainWithRetry(5);
