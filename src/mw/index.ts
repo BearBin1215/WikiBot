@@ -10,14 +10,20 @@ import packageJson from '../../package.json';
 
 type ApiParams = Record<string, string | number | boolean | string[] | number[] | undefined>;
 
+type Cmtype = 'page' | 'subcat' | 'file';
+
 interface LoginParams {
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
 }
 
 class Api {
   /** api地址 */
   url = 'https://zh.moegirl.org.cn/api.php';
+
+  username = '';
+
+  password = '';
 
   /** axios实例，用于请求 */
   axiosInstance: AxiosInstance;
@@ -34,19 +40,8 @@ class Api {
 
   cookieJar = new CookieJar();
 
-  constructor(config: CreateAxiosDefaults & { jar?: CookieJar }) {
+  constructor(config: CreateAxiosDefaults & LoginParams & { jar?: CookieJar }) {
     this.url = config.url ?? this.url;
-    this.axiosInstance = axios.create({
-      url: this.url,
-      withCredentials: true,
-      timeout: 60000,
-      ...config,
-      headers: {
-        'User-Agent': `mwapi-node/${packageJson.version} axios/${axios.VERSION}`,
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        ...config.headers,
-      },
-    });
     if (config.jar) {
       this.cookieJar = config.jar;
     } else {
@@ -57,6 +52,20 @@ class Api {
         }
       });
     }
+    this.axiosInstance = axios.create({
+      url: this.url,
+      withCredentials: true,
+      timeout: 60000,
+      ...config,
+      headers: {
+        'User-Agent': `mwapi-node/${packageJson.version} axios/${axios.VERSION}`,
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Cookie: this.cookieJar.getCookieStringSync(this.url),
+        ...config.headers,
+      },
+    });
+    this.username = config.username ?? '';
+    this.password = config.password ?? '';
   }
 
   static get = axios.get;
@@ -79,12 +88,7 @@ class Api {
     // 加入缺省参数
     const searchParams = this.formatRequestJSON(query);
     const search = queryString.stringify(searchParams);
-    const response = await this.axiosInstance.get(search ? `${this.url}?${search}` : this.url, {
-      ...config,
-      headers: {
-        Cookie: this.cookieJar.getCookieStringSync(this.url),
-      },
-    });
+    const response = await this.axiosInstance.get(search ? `${this.url}?${search}` : this.url, config);
     console.log(response);
     return response.data;
   }
@@ -92,12 +96,7 @@ class Api {
   async post(data: ApiParams, config?: AxiosRequestConfig) {
     // 加入缺省参数
     const form: ApiParams = this.formatRequestJSON(data);
-    const response = await this.axiosInstance.post(this.url, form, {
-      ...config,
-      headers: {
-        Cookie: this.cookieJar.getCookieStringSync(this.url),
-      },
-    });
+    const response = await this.axiosInstance.post(this.url, form, config);
     const setCookie = response.headers['set-cookie'];
     if (setCookie?.length) {
       setCookie.forEach((cookie) => {
@@ -107,11 +106,20 @@ class Api {
     return response.data;
   }
 
-  async login(loginParams: LoginParams) {
+  async login(loginParams: LoginParams = {}) {
+    if (loginParams.username) {
+      this.username = loginParams.username;
+    }
+    if (loginParams.password) {
+      this.password = loginParams.password;
+    }
+    if (!this.username || !this.password) {
+      throw new Error('用户名或密码缺失');
+    }
     const res = await this.post({
       action: 'login',
-      lgname: loginParams.username,
-      lgpassword: loginParams.password,
+      lgname: this.username,
+      lgpassword: this.password,
     });
     if (res.login?.token && res.login.result === 'NeedToken') {
       const tokenLogin = await this.post({
@@ -156,6 +164,30 @@ class Api {
     if ('missing' in pageData) {
       throw ('missingtitle');
     }
+  }
+
+  /** 读取分类下的页面 */
+  async getCategoryMembers (cmtitle: string, cmtype: Cmtype[] = ['page']) {
+    const pageList: string[] = [];
+    let cmcontinue: string | undefined = '';
+    while (cmcontinue !== undefined) {
+      const result = await this.post({
+        action: 'query',
+        format: 'json',
+        utf8: true,
+        list: 'categorymembers',
+        cmlimit: 'max',
+        cmtitle,
+        cmprop: 'title',
+        cmtype,
+        cmcontinue,
+      });
+      if (result.query.categorymembers[0]) {
+        pageList.push(...result.query.categorymembers.map(({ title }) => title));
+      }
+      cmcontinue = result.continue?.cmcontinue;
+    }
+    return pageList;
   }
 }
 

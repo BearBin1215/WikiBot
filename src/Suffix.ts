@@ -15,19 +15,9 @@ const whiteList = [
 
 const api = new mw.Api({
   url: config.API_PATH,
+  username: config.username,
+  password: config.password,
 });
-
-/** 登录 */
-async function login() {
-  try {
-    await api.login({
-      username: config.username,
-      password: config.password,
-    });
-  } catch (error) {
-    throw new Error(`登录失败：${error}`);
-  }
-}
 
 /**
  * 获取所有页面标题
@@ -177,7 +167,7 @@ const main = async (retryCount = 5) => {
   let retries = 0;
   while (retries < retryCount) {
     try {
-      await login();
+      await api.login();
       console.log('登录成功。正在获取所有页面……');
 
       const allPages = await getAllPages();

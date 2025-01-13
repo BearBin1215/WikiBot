@@ -76,7 +76,7 @@ const userListToString = (list) => {
 /**
  * 提交编辑
  */
-const submit = async (text) => {
+const submit = async (text: string) => {
   const { csrftoken } = await api.getToken();
   await api.post({
     action: 'edit',
