@@ -1,5 +1,5 @@
 import mw from '../mw';
-import config from './config/config.js';
+import config from './config/config';
 
 interface UserInfo {
   username: string;

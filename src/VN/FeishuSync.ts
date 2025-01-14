@@ -1,6 +1,6 @@
 import axios from 'axios';
 import mw from '../mw';
-import config from './config/config.js';
+import config from './config/config';
 import getTenantAccessToken from './config/GetFeishuToken.js';
 
 // 飞书表格相关信息
@@ -67,13 +67,12 @@ const generateText = (values: string[][]): string => {
 const updatePage = async (text: string) => {
   const api = new mw.Api({
     url: config.API_PATH,
+    username: config.username,
+    password: config.password,
   });
   // 机器人登录并提交编辑
   try {
-    await api.login({
-      username: config.username,
-      password: config.password,
-    });
+    await api.login();
     console.log('登录成功。准备保存至萌百。');
     const title = 'User:柏喙意志/Gal条目表';
     const { csrftoken } = await api.getToken();
@@ -113,4 +112,4 @@ const mainWithRetry = async (retryCount = 5) => {
   throw new Error(`运行失败：连续尝试 ${retryCount} 次仍然失败`);
 };
 
-mainWithRetry(5);
+mainWithRetry(1);

@@ -1,6 +1,6 @@
 'use strict';
 import mw from './mw';
-import config from '../config/config.js';
+import config from '../config/config';
 
 const api = new mw.Api({
   url: config.API_PATH,

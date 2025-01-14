@@ -89,7 +89,6 @@ class Api {
     const searchParams = this.formatRequestJSON(query);
     const search = queryString.stringify(searchParams);
     const response = await this.axiosInstance.get(search ? `${this.url}?${search}` : this.url, config);
-    console.log(response);
     return response.data;
   }
 
@@ -134,8 +133,7 @@ class Api {
         throw new Error(`${tokenLogin.login?.result}：${tokenLogin.login?.reason}`);
       }
     } else {
-      console.error(res);
-      throw new Error('登录失败：未返回登录token');
+      throw new Error(`登录失败：未返回登录token：${res}`);
     }
   }
 
