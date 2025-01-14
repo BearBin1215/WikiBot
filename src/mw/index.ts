@@ -35,7 +35,6 @@ class Api {
   defaultParams = {
     action: 'query',
     format: 'json',
-    utf8: true,
   };
 
   cookieJar = new CookieJar();
@@ -115,25 +114,18 @@ class Api {
     if (!this.username || !this.password) {
       throw new Error('用户名或密码缺失');
     }
+    const { logintoken } = await this.getToken('login');
     const res = await this.post({
       action: 'login',
       lgname: this.username,
       lgpassword: this.password,
+      lgtoken: logintoken,
     });
-    if (res.login?.token && res.login.result === 'NeedToken') {
-      const tokenLogin = await this.post({
-        action: 'login',
-        lgname: loginParams.username,
-        lgpassword: loginParams.password,
-        lgtoken: res.login.token,
-      });
-      if (tokenLogin.login?.result === 'Success') {
-        this.loggedIn = true;
-      } else {
-        throw new Error(`${tokenLogin.login?.result}：${tokenLogin.login?.reason}`);
-      }
+    console.log(res);
+    if (res.login?.result === 'Success') {
+      this.loggedIn = true;
     } else {
-      throw new Error(`登录失败：未返回登录token：${res}`);
+      throw new Error(`登录失败：${res.login?.result}: ${res.login?.reason}`);
     }
   }
 
@@ -165,7 +157,7 @@ class Api {
   }
 
   /** 读取分类下的页面 */
-  async getCategoryMembers (cmtitle: string, cmtype: Cmtype[] = ['page']) {
+  async getCategoryMembers(cmtitle: string, cmtype: Cmtype[] = ['page']) {
     const pageList: string[] = [];
     let cmcontinue: string | undefined = '';
     while (cmcontinue !== undefined) {
