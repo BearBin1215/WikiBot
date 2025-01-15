@@ -13,9 +13,10 @@ jobs:
         with:
           node-version: "18.x"
       - name: Install dependencies
-        run: npm i
+        run: corepack enable pnpm && pnpm install
       - name: Update action
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
-        run: node src/VN/EditStat.js
+          DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
+        run: tsx src/VN/EditStat.ts

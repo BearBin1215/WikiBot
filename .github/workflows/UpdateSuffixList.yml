@@ -14,10 +14,10 @@ jobs:
           node-version: "18.x"
       - run: echo "开始更新多余消歧义后缀页面"
       - name: Install dependencies
-        run: npm ci
+        run: corepack enable pnpm && pnpm install
       - name: Update action
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
           DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
-        run: node src/Suffix.js
+        run: tsx src/Suffix.ts

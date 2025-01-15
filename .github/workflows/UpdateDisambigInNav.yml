@@ -14,9 +14,10 @@ jobs:
           node-version: "18.x"
       - run: echo "开始更新链接到消歧义页的大家族模板列表"
       - name: Install dependencies
-        run: npm ci
+        run: corepack enable pnpm && pnpm install
       - name: Update action
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
-        run: node src/DisambigLinkInNav.js
+          DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
+        run: tsx src/DisambigLinkInNav.ts

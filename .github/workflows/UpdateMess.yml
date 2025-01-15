@@ -14,9 +14,10 @@ jobs:
           node-version: "18.x"
       - run: echo "开始更新杂物列表"
       - name: 安装依赖
-        run: npm ci
+        run: corepack enable pnpm && pnpm install
       - name: 更新页面
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
-        run: node src/MessUpdator.js
+          DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
+        run: tsx src/MessUpdator.ts
