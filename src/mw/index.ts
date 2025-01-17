@@ -6,7 +6,6 @@ import axios, {
 import { Cookie, CookieJar } from 'tough-cookie';
 import queryString from 'query-string';
 import envConfig from '../../config/config';
-import packageJson from '../../package.json';
 
 type ApiParams = Record<string, string | number | boolean | string[] | number[] | undefined>;
 
@@ -24,6 +23,8 @@ class Api {
   username = '';
 
   password = '';
+
+  loginTimes = 0;
 
   /** axios实例，用于请求 */
   axiosInstance: AxiosInstance;
@@ -57,7 +58,6 @@ class Api {
       timeout: 60000,
       ...config,
       headers: {
-        'User-Agent': `mwapi-node/${packageJson.version} axios/${axios.VERSION}`,
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         Cookie: this.cookieJar.getCookieStringSync(this.url),
         ...config.headers,
@@ -98,14 +98,19 @@ class Api {
     const setCookie = response.headers['set-cookie'];
     if (setCookie?.length) {
       setCookie.forEach((cookie) => {
-        this.cookieJar.setCookie(cookie, this.url);
+        this.cookieJar.setCookieSync(cookie, this.url);
       });
     }
-    console.log(response);
+    console.log(JSON.stringify(response.data).slice(0, 500), '...');
     return response.data;
   }
 
   async login(loginParams: LoginParams = {}, token?: string) {
+    this.loginTimes++;
+    if (this.loginTimes > 5) {
+      throw new Error('登录失败');
+    }
+
     let lgtoken = token;
     if (loginParams.username) {
       this.username = loginParams.username;
@@ -129,7 +134,7 @@ class Api {
       this.loggedIn = true;
       return res;
     } else if (res.login?.result === 'NeedToken') {
-      this.login(loginParams, res.login.token);
+      await this.login(loginParams, res.login.token);
     } else {
       throw new Error(`登录失败：${res.login?.result}: ${res.login?.reason}`);
     }
