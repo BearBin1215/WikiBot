@@ -1,8 +1,14 @@
 /**
  * 用于更新[[萌娘百科:疑似多余消歧义后缀]]
  */
-import mw from './mw';
+// import mw from './mw';
+import mw from './mw/guiying';
 import config from '../config/config';
+
+const cookie: Record<string, string> = {};
+
+// eslint-disable-next-line prefer-destructuring
+config.defaultCookie.split('; ').forEach((c) => (cookie[c.split("=")[0]] = c.split("=")[1]));
 
 const whiteList = [
   'Bilibili Moe 2016 动画角色人气大赏',
@@ -15,8 +21,9 @@ const whiteList = [
 
 const api = new mw.Api({
   url: config.API_PATH,
-  username: config.username,
-  password: config.password,
+  botUsername: config.username,
+  botPassword: config.password,
+  cookie,
 });
 
 /**
