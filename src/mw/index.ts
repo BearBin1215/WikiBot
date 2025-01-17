@@ -62,6 +62,10 @@ class Api {
         Cookie: this.cookieJar.getCookieStringSync(this.url),
         ...config.headers,
       },
+      proxy: {
+        host: '127.0.0.1',
+        port: 7890,
+      },
     });
     this.username = config.username ?? '';
     this.password = config.password ?? '';
@@ -104,7 +108,8 @@ class Api {
     return response.data;
   }
 
-  async login(loginParams: LoginParams = {}) {
+  async login(loginParams: LoginParams = {}, token?: string) {
+    let lgtoken = token;
     if (loginParams.username) {
       this.username = loginParams.username;
     }
@@ -114,16 +119,20 @@ class Api {
     if (!this.username || !this.password) {
       throw new Error('用户名或密码缺失');
     }
-    const { logintoken } = await this.getToken('login');
+    if (!token) {
+      lgtoken = (await this.getToken('login')).logintoken;
+    }
     const res = await this.post({
       action: 'login',
       lgname: this.username,
       lgpassword: this.password,
-      lgtoken: logintoken,
+      lgtoken,
     });
-    console.log(res);
     if (res.login?.result === 'Success') {
       this.loggedIn = true;
+      return res;
+    } else if (res.login?.result === 'NeedToken') {
+      this.login(loginParams, res.login.token);
     } else {
       throw new Error(`登录失败：${res.login?.result}: ${res.login?.reason}`);
     }
