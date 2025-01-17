@@ -101,7 +101,6 @@ class Api {
         this.cookieJar.setCookieSync(cookie, this.url);
       });
     }
-    console.log(JSON.stringify(response.data).slice(0, 500), '...');
     return response.data;
   }
 

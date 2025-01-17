@@ -327,9 +327,9 @@ let topTipTemplate;
  * @returns 匹配位置组成的集合
  */
 const regexPosition = (str: string, reg: RegExp) => {
-  const match = reg.exec(str);
+  let match: RegExpExecArray | null;
   const indexes: number[] = [];
-  while (match !== null) {
+  while ((match = reg.exec(str)) !== null) {
     indexes.push(match.index);
   }
   return indexes;
@@ -729,11 +729,11 @@ const traverseAllPages = async (functions: PF[], namespace = 0, maxRetry = 10, l
 
       let ctn = false;
       if (subRes.continue?.rvcontinue) {
-        ({rvcontinue} = subRes.continue);
+        ({ rvcontinue } = subRes.continue);
         ctn = true;
       }
       if (subRes.continue?.clcontinue) {
-        ({clcontinue} = subRes.continue);
+        ({ clcontinue } = subRes.continue);
         ctn = true;
       }
       if (!ctn) {

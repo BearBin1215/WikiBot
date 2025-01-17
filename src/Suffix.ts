@@ -44,6 +44,7 @@ const getAllPages = async (): Promise<Set<string>> => {
       for (const page of allPages.query.allpages) {
         PageList.add(page.title);
       }
+      console.log(`已获取${PageList.size}个页面`);
     } catch (error) {
       throw new Error(`获取全站主名字空间页面列表出错：${error}`);
     }
