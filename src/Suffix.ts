@@ -1,8 +1,8 @@
 /**
  * 用于更新[[萌娘百科:疑似多余消歧义后缀]]
  */
-// import mw from './mw';
-import mw from './mw/guiying';
+import mw from './mw';
+// import mw from './mw/guiying';
 import config from '../config/config';
 
 const cookie: Record<string, string> = {};
@@ -21,9 +21,8 @@ const whiteList = [
 
 const api = new mw.Api({
   url: config.API_PATH,
-  botUsername: config.username,
-  botPassword: config.password,
-  cookie,
+  username: config.username,
+  password: config.password,
 });
 
 /**
@@ -174,8 +173,8 @@ const main = async (retryCount = 5) => {
   let retries = 0;
   while (retries < retryCount) {
     try {
-      await api.login();
-      console.log('登录成功。正在获取所有页面……');
+      // await api.login();
+      // console.log('登录成功。正在获取所有页面……');
 
       const allPages = await getAllPages();
       const absentList = getAbsentList(allPages);
