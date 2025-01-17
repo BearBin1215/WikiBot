@@ -101,6 +101,7 @@ class Api {
         this.cookieJar.setCookie(cookie, this.url);
       });
     }
+    console.log(response);
     return response.data;
   }
 
