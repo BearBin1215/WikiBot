@@ -15,7 +15,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 export default {
   ...config,
-  username: process.env.MW_USERNAME_BOT || config.username,
-  password: process.env.MW_PASSWORD_BOT || config.password,
+  username: process.env.MGP_USERNAME_BOT || config.username,
+  password: process.env.MGP_PASSWORD_BOT || config.password,
   defaultCookie: process.env.DEFAULT_COOKIE ?? '',
 };
