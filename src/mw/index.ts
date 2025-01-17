@@ -62,10 +62,6 @@ class Api {
         Cookie: this.cookieJar.getCookieStringSync(this.url),
         ...config.headers,
       },
-      proxy: {
-        host: '127.0.0.1',
-        port: 7890,
-      },
     });
     this.username = config.username ?? '';
     this.password = config.password ?? '';
