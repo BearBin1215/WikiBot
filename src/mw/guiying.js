@@ -51,7 +51,10 @@ class Api {
         ...this.#listToPipe(parameters),
       })}`,
       this.#init.get
-    ).then(this.#parseRes.bind(this));
+    ).then((res) => {
+      console.log(res);
+      return this.#parseRes.bind(this)(res);
+    });
   }
   async getToken(type, newToken = false) {
     if (type === undefined) type = "csrf";
