@@ -35,6 +35,7 @@ class Api {
       .getSetCookie()
       .forEach(c => (this.#cookie[c.split("=")[0]] = c.split("=")[1]));
     this.#updateInit();
+    console.log(res, res.json());
     return res.json();
   }
   #listToPipe(parameters) {
@@ -51,10 +52,7 @@ class Api {
         ...this.#listToPipe(parameters),
       })}`,
       this.#init.get
-    ).then((res) => {
-      console.log(res);
-      return this.#parseRes.bind(this)(res);
-    });
+    ).then(this.#parseRes.bind(this));
   }
   async getToken(type, newToken = false) {
     if (type === undefined) type = "csrf";
