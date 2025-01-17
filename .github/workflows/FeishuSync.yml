@@ -22,4 +22,4 @@ jobs:
           DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
           FEISHU_APP_ID: ${{secrets.FEISHU_APP_ID}}
           FEISHU_APP_SECRET: ${{secrets.FEISHU_APP_SECRET}}
-        run: tsx src/VN/FeishuSync.ts
+        run: pnpm tsx src/VN/FeishuSync.ts

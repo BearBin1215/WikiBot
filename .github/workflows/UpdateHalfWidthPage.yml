@@ -20,4 +20,4 @@ jobs:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
           DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
-        run: tsx src/HalfWidth.ts
+        run: pnpm tsx src/HalfWidth.ts

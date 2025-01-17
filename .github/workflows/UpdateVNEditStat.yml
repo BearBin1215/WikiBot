@@ -19,4 +19,4 @@ jobs:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
           MW_PASSWORD: ${{secrets.MGP_PASSWORD_BOT}}
           DEFAULT_COOKIE: ${{secrets.DEFAULT_COOKIE}}
-        run: tsx src/VN/EditStat.ts
+        run: pnpm tsx src/VN/EditStat.ts
