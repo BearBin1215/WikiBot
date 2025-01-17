@@ -35,7 +35,6 @@ class Api {
       .getSetCookie()
       .forEach(c => (this.#cookie[c.split("=")[0]] = c.split("=")[1]));
     this.#updateInit();
-    console.log(res, res.json());
     return res.json();
   }
   #listToPipe(parameters) {
