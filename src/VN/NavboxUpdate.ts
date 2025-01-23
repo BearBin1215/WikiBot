@@ -13,17 +13,6 @@ const api = new mw.Api({
 
 const template = 'Template:萌百视觉小说研究会';
 
-const login = async () => {
-  try {
-    await api.login({
-      username: config.username,
-      password: config.password,
-    });
-  } catch (error) {
-    throw new Error(`登录失败：${error}`);
-  }
-};
-
 /**
  * 分析源代码，输出用户信息
  * @param {string} source 源代码
@@ -90,8 +79,8 @@ const submit = async (text: string) => {
 };
 
 const main = async () => {
-  await login();
-  console.log('登陆成功');
+  // await login();
+  // console.log('登陆成功');
   const source = (await api.read(template))!;
   console.log('获取大家族源代码成功');
   const userInfo = parseTemplateSource(source);
