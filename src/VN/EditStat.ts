@@ -1,9 +1,14 @@
-import newbot from '../utils/newbot.js';
-import { sleep } from '../utils/global.js';
+import mw from '../mw';
+import { sleep } from '../utils/global';
+import config from '../../config/config';
 import moment from 'moment';
 
-const bot = await newbot();
-console.log('登录成功');
+const api = new mw.Api({
+  url: config.API_PATH,
+  username: config.username,
+  password: config.password,
+});
+
 const title = 'User:BearBin/视研会30日编辑数统计';//  要编辑的页面
 const template = 'Template:萌百视觉小说研究会';//  名单获取来源，不要更改！
 const timeLength = 30;//  时间范围（天）
@@ -38,7 +43,7 @@ const getEditCount = async (ucuser, maxRetry = 5) => {
   let retryCount = 0;
   while (retryCount < maxRetry) {
     try {
-      const { query: { usercontribs } } = await bot.request({
+      const { query: { usercontribs } } = await api.post({
         action: 'query',
         list: 'usercontribs',
         uclimit: 'max',
@@ -57,9 +62,9 @@ const getEditCount = async (ucuser, maxRetry = 5) => {
 };
 
 const main = async () => {
-  const source = Object.values((await bot.read(template)).query.pages)[0].revisions[0]['*'];
+  const source = await api.read(template);
   const userList = getUserList(source);
-  const editCountData = [];
+  const editCountData: { user: string, editCount: number }[] = [];
   for (const user of userList) {
     const editCount = await getEditCount(user);
     console.log(`${user}: ${editCount}`);
@@ -69,21 +74,21 @@ const main = async () => {
     });
     await sleep(4000);
   }
-  const editToken = await bot.getEditToken();
-  const text = '*本页面为机器人生成的[[T:萌百视觉小说研究会|视研会]]成员30日内编辑数统计（主<code>(namespace=0)</code>、分类<code>(category:)</code>、模板<code>(template:)</code>、模块<code>(module:)</code>）\n*生成时间：{{subst:#time:Y年n月j日 (D) H:i (T)|||1}}｜{{subst:#time:Y年n月j日 (D) H:i (T)}}\n' +
-    '<center>\n' +
-    '{| class="wikitable sortable"\n' +
-    '! 用户名 !! 30日编辑数\n|-\n' +
-    editCountData.map(({ user, editCount }) => `| [[User:${user}|${user}]] || ${editCount}`).join('\n|-\n') +
-    '\n|}\n</center>';//  提交到页面的内容
-  await bot.request({
+  const { csrftoken } = await api.getToken();
+  const text = `*本页面为机器人生成的[[T:萌百视觉小说研究会|视研会]]成员30日内编辑数统计（主<code>(namespace=0)</code>、分类<code>(category:)</code>、模板<code>(template:)</code>、模块<code>(module:)</code>）\n*生成时间：{{subst:#time:Y年n月j日 (D) H:i (T)|||1}}｜{{subst:#time:Y年n月j日 (D) H:i (T)}}\n` +
+    `<center>\n` +
+    `{| class="wikitable sortable"\n` +
+    `! 用户名 !! 30日编辑数\n|-\n${
+      editCountData.map(({ user, editCount }) => `| [[User:${user}|${user}]] || ${editCount}`).join('\n|-\n')
+    }\n|}\n</center>`;//  提交到页面的内容
+  await api.post({
     action: 'edit',
     title,
     summary: '自动更新列表',//  编辑摘要:自动更新列表,半自动更新列表,本次为手动更新
     text,
     bot: true,
     tags: 'Bot',//  标签:Bot,Automation tool
-    token: editToken.csrftoken,
+    token: csrftoken,
   });
 };
 
