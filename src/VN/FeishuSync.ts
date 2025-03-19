@@ -92,16 +92,14 @@ const updatePage = async (text: string) => {
   }
 };
 
-/**
- * 主函数
- * @param {number} retryCount 重试次数
- */
+/** 主函数 */
 const mainWithRetry = async (retryCount = 5) => {
   let retries = 0;
   while (retries < retryCount) {
     try {
       const values = await getTableContent();
       const text = generateText(values);
+      console.log(text);
       await updatePage(text);
       return;
     } catch (err) {
