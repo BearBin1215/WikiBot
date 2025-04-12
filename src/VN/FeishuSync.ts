@@ -55,7 +55,7 @@ const generateText = (values: string[][]): string => {
     }
     const ja = values[i][0].replaceAll('\n', '').trim();
     const pagename = values[i][1]?.replaceAll('\n', '').trim() || ja;
-    pageList.push(`#{{lj|${ja}}}→[[${pagename}]]`);
+    pageList.push(`#{{lj|[[${ja}]]}}→[[${pagename}]]`);
   }
   return `{{info|本页面由机器人自动同步自飞书表格，因此不建议直接更改此表。<br/>源代码可见[https://github.com/BearBin1215/WikiBot/blob/main/src/VN/FeishuSync.js GitHub]。}}\n${pageList.join('\n')}`;
 };
