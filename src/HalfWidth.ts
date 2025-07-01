@@ -1,11 +1,12 @@
 'use strict';
-import mw from './mw';
+import mw from './mw/guiying.js';
 import config from '../config/config';
 
 const api = new mw.Api({
   url: config.API_PATH,
-  username: config.username,
-  password: config.password,
+  botUsername: config.username,
+  botPassword: config.password,
+  cookie: config.cookie,
 });
 
 const getAllPages = async () => {
@@ -60,7 +61,7 @@ const submitResult = async (pageList: string[], whiteList: string[]) => {
   const text = `{{info|列表中部分属于“原文如此”，请注意判别。如有此类页面，欢迎前往[[/排除页面]]添加。}}-{\n* [[${badList.join(']]\n* [[')}]]\n}-`;
 
   try {
-    const { csrftoken } = await api.getToken();
+    const csrftoken = await api.getToken('csrf');
     await api.post({
       action: 'edit',
       title: PAGENAME,

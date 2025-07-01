@@ -18,4 +18,8 @@ export default {
   username: process.env.MW_USERNAME || config.username,
   password: process.env.MW_PASSWORD || config.password,
   defaultCookie: process.env.DEFAULT_COOKIE ?? '',
+  cookie: {
+    moegirlSSOUserID: process.env.MOEGIRL_MOEGIRLSSOUSERID,
+    moegirlSSOToken: process.env.MOEGIRL_MOEGIRLSSOTOKEN,
+  },
 };
