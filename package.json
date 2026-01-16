@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "Suffix": "tsx src/Suffix.ts",
-    "RequiredDiambig": "node src/RequiredDiambig.js",
-    "FeishuSync": "node src/VN/FeishuSync.js",
+    "RequiredDiambig": "tsx src/RequiredDiambig.ts",
+    "FeishuSync": "tsx src/VN/FeishuSync.ts",
     "Mess": "node src/MessUpdator.js"
   },
   "author": "BearBin",
