@@ -90,8 +90,8 @@ interface RedirectData {
 const getRedirects = async (): Promise<[string[], string[]]> => {
   const Suffix2Origin: string[] = [];
   const Origin2Suffix: string[] = [];
-  let garcontinue: string | boolean = '|';
-  while (garcontinue !== false) {
+  let garcontinue: string | undefined = undefined;
+  do {
     try {
       const allRedirects = await api.post({
         action: 'query',
@@ -114,7 +114,7 @@ const getRedirects = async (): Promise<[string[], string[]]> => {
     } catch (error) {
       throw new Error(`获取重定向页面时出错：${error}`);
     }
-  }
+  } while (garcontinue);
   return [Suffix2Origin, Origin2Suffix];
 };
 
