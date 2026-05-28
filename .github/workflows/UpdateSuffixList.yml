@@ -14,7 +14,7 @@ jobs:
           node-version: "22.x"
       - run: echo "开始更新多余消歧义后缀页面"
       - name: Install dependencies
-        run: corepack enable pnpm && pnpm install --unsafe-perm
+        run: corepack enable pnpm && pnpm install --unsafe-perm --ignore-scripts=false
       - name: Update action
         env:
           MW_USERNAME: ${{secrets.MGP_USERNAME_BOT}}
